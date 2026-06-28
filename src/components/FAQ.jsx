@@ -1,54 +1,36 @@
 import { useState } from 'react'
-import { Plus, Minus } from 'lucide-react'
-import { faqs } from '../data/content'
+import { Reveal } from './motion'
 import SectionHeading from './SectionHeading'
+import { faqs } from '../data/content'
 
 function FAQ() {
-  const [openIndex, setOpenIndex] = useState(1)
+  const [open, setOpen] = useState(1)
 
   return (
-    <section id="faq" className="py-20 bg-white">
-      <div className="max-w-[760px] mx-auto px-5">
+    <section id="faq" style={{ scrollMarginTop: 90, padding: '90px 0', background: '#fff' }}>
+      <div style={{ maxWidth: 880, margin: '0 auto', padding: '0 24px' }}>
         <SectionHeading
           title="Hỏi đáp"
           banner="Câu hỏi thường gặp"
           subtitle="Giải đáp những thắc mắc phổ biến về đánh giá năng lực."
         />
 
-        <div className="space-y-2 -mt-4">
-          {faqs.map((item, index) => {
-            const isOpen = openIndex === index
+        <Reveal style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {faqs.map((q, i) => {
+            const isOpen = i === open
             return (
-              <div
-                key={item.question}
-                className={`border-2 ${isOpen ? 'border-[#1254D8] bg-[#1254D8]/5' : 'border-[#1254D8]/25 bg-white'}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenIndex(isOpen ? -1 : index)}
-                  className="w-full flex items-center justify-between gap-4 p-4 text-left"
-                >
-                  <span className="text-[14px] font-normal text-[#111827] uppercase tracking-wide">
-                    {item.question}
-                  </span>
-                  <span
-                    className={`shrink-0 w-8 h-8 flex items-center justify-center rounded-full ${
-                      isOpen ? 'bg-[#fcbf56] text-[#111827]' : 'bg-[#1254D8] text-white'
-                    }`}
-                  >
-                    {isOpen ? <Minus size={16} /> : <Plus size={16} />}
-                  </span>
+              <div key={q.question} style={{ border: `1.5px solid ${isOpen ? '#1B4DE4' : '#E4E9F5'}`, borderRadius: 14, background: isOpen ? '#F4F7FE' : '#fff', overflow: 'hidden', transition: 'border-color .3s, background .3s, box-shadow .3s', boxShadow: isOpen ? '0 18px 36px -24px rgba(27,77,228,.5)' : 'none' }}>
+                <button onClick={() => setOpen(isOpen ? -1 : i)} style={{ width: '100%', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18, padding: '22px 24px', background: 'transparent', border: 'none' }}>
+                  <span style={{ fontWeight: 800, fontSize: 15.5, color: '#11183A', textTransform: 'uppercase', letterSpacing: '-.2px' }}>{q.question}</span>
+                  <span style={{ flexShrink: 0, width: 34, height: 34, borderRadius: '50%', background: isOpen ? 'linear-gradient(180deg,#FBC34F,#F4A93C)' : '#1B4DE4', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 20, fontWeight: 700, transition: 'transform .35s, background .3s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>{isOpen ? '−' : '+'}</span>
                 </button>
-
-                {isOpen && (
-                  <p className="px-4 pb-4 text-[14px] text-[#4b5563] leading-relaxed border-t-2 border-[#1254D8]/20 pt-3">
-                    {item.answer}
-                  </p>
-                )}
+                <div style={{ maxHeight: isOpen ? 240 : 0, opacity: isOpen ? 1 : 0, overflow: 'hidden', transition: 'max-height .4s cubic-bezier(.22,.61,.36,1), opacity .35s' }}>
+                  <p style={{ margin: 0, padding: '0 24px 24px', fontSize: 15, lineHeight: 1.65, color: '#5B647F' }}>{q.answer}</p>
+                </div>
               </div>
             )
           })}
-        </div>
+        </Reveal>
       </div>
     </section>
   )

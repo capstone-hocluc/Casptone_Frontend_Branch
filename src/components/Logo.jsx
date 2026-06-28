@@ -1,21 +1,35 @@
-function Logo({ className = '', light = false }) {
+function Logo({ light = false }) {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      <div
-        className={`w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0 overflow-hidden ${
-          light ? 'border-white bg-transparent' : 'border-[#1254D8] bg-white'
-        }`}
-      >
-        <div className={`w-full h-1/2 ${light ? 'bg-white' : 'bg-[#1254D8]'}`} />
-      </div>
+    <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
       <span
-        className={`text-[20px] font-normal tracking-tight leading-none ${
-          light ? 'text-white' : 'text-[#111827]'
-        }`}
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: '50%',
+          background: light ? '#fff' : '#1B4DE4',
+          position: 'relative',
+          display: 'inline-block',
+          flexShrink: 0,
+          boxShadow: light ? 'none' : '0 6px 16px rgba(27,77,228,.35)',
+        }}
       >
-        HocLuc.com
+        <span
+          style={{
+            position: 'absolute',
+            left: 6,
+            right: 6,
+            top: '50%',
+            height: 9,
+            transform: 'translateY(-50%)',
+            background: light ? '#1230A6' : '#fff',
+            borderRadius: 2,
+          }}
+        />
       </span>
-    </div>
+      <span style={{ fontWeight: 800, fontSize: 21, letterSpacing: '-.5px', color: light ? '#fff' : '#11183A' }}>
+        HocLuc<span style={{ color: light ? '#FBC34F' : '#1B4DE4' }}>.com</span>
+      </span>
+    </span>
   )
 }
 

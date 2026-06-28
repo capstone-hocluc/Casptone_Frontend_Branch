@@ -1,148 +1,115 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Syne', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-weight-normal: 400;
-  --font-weight-medium: 400;
-  --font-weight-semibold: 400;
-  --font-weight-bold: 400;
-  --font-weight-extrabold: 400;
-  --color-primary: #1254D8;
-  --color-primary-dark: #0E43AD;
-  --color-button: #fcbf56;
-  --color-button-hover: #e9ad45;
-  --color-heading: #111827;
-  --color-body: #4b5563;
-  --color-grid: #c8daf5;
-}
-
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    font-family: var(--font-sans);
-    font-weight: 400;
-  }
-
-  body,
-  #root,
-  #root *,
-  button,
-  input,
-  textarea,
-  select,
-  h1, h2, h3, h4, h5, h6,
-  p, span, a, li, label {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    font-synthesis: none;
-  }
-}
-
-body {
-  margin: 0;
-  color: var(--color-heading);
-  background: #ffffff;
-  -webkit-font-smoothing: antialiased;
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --color-primary: #1B4DE4;
+  --color-primary-dark: #1230A6;
+  --color-accent: #FBC34F;
+  --color-heading: #11183A;
+  --color-body: #5B647F;
 }
 
 * { box-sizing: border-box; }
 
-/* Grid nền giống mẫu roadmap */
-.grid-bg {
-  background-color: #ffffff;
-  background-image:
-    linear-gradient(var(--color-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
+html { scroll-behavior: smooth; font-family: var(--font-sans); }
 
-/* Tiêu đề section kiểu ROADMAP */
-.section-title {
-  color: #1254D8;
-  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1.1;
-}
-
-.section-banner {
-  display: inline-block;
-  background: #1254D8;
-  color: #ffffff;
-  padding: 0.4rem 1.25rem;
-  font-size: clamp(0.8rem, 1.5vw, 1rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border-radius: 9999px;
-}
-
-/* Nút flat */
-.btn-flat {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #fcbf56;
-  color: #111827;
-  border: none;
-  padding: 0.75rem 1.75rem;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border-radius: 9999px;
-  transition: background 0.15s;
-}
-.btn-flat:hover { background: #e9ad45; }
-
-.btn-flat-icon {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: 9999px;
-}
-
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: #11183A;
   background: #ffffff;
-  color: #1254D8;
-  border: 2px solid #1254D8;
-  padding: 0.5rem 1rem;
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border-radius: 9999px;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.btn-outline:hover {
-  background: #fcbf56;
-  border-color: #fcbf56;
-  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-/* Pin vàng kiểu roadmap */
-.roadmap-pin {
-  width: 44px;
-  height: 44px;
-  background: #fcbf56;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.roadmap-pin span {
-  transform: rotate(45deg);
-  color: #111827;
-  font-size: 15px;
-}
+::selection { background: #1B4DE4; color: #fff; }
 
-/* Card phẳng */
-.card-flat {
-  background: #ffffff;
-  border: 2px solid #1254D8;
+/* ===== keyframes ===== */
+@keyframes hl-float1 { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-14px) } }
+@keyframes hl-float2 { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(12px) } }
+@keyframes hl-drift { from{ background-position:0 0,0 0 } to{ background-position:40px 40px,40px 40px } }
+@keyframes hl-marquee { from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+@keyframes hl-cardin { from{ opacity:0; transform:translateY(18px) scale(.98) } to{ opacity:1; transform:none } }
+@keyframes hl-bob { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-6px) } }
+@keyframes hl-pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(247,178,59,.5) } 50%{ box-shadow:0 0 0 14px rgba(247,178,59,0) } }
+@keyframes hl-spin { from{ transform:rotate(0deg) } to{ transform:rotate(360deg) } }
+@keyframes hl-blob { 0%,100%{ border-radius:46% 54% 58% 42%/52% 44% 56% 48% } 50%{ border-radius:58% 42% 44% 56%/44% 58% 42% 56% } }
+@keyframes hl-scan { 0%{ top:4% } 100%{ top:96% } }
+@keyframes hl-livedot { 0%,100%{ opacity:1 } 50%{ opacity:.25 } }
+
+/* ===== hover utilities (inline styles can't do :hover) ===== */
+.hl-nav { transition: color .25s; }
+.hl-nav:hover { color: #1B4DE4 !important; }
+
+.hl-by { transition: transform .25s, box-shadow .25s; }
+.hl-by:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(244,169,60,.55); }
+
+.hl-byh { transition: transform .25s, box-shadow .25s; }
+.hl-byh:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgba(244,169,60,.6); }
+
+.hl-rot { transition: transform .3s; }
+.hl-rot:hover { transform: rotate(45deg); }
+
+.hl-bb { transition: transform .2s, box-shadow .2s; }
+.hl-bb:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -10px rgba(27,77,228,.5); }
+
+.hl-ob { transition: all .25s; }
+.hl-ob:hover { background: #1B4DE4 !important; color: #fff !important; }
+
+.hl-card { transition: transform .3s, box-shadow .3s, border-color .3s; }
+.hl-card:hover { transform: translateY(-8px); box-shadow: 0 26px 50px -22px rgba(27,77,228,.5); border-color: #1B4DE4 !important; }
+
+.hl-rmcard { transition: transform .25s, box-shadow .25s; }
+.hl-rmcard:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -24px rgba(27,77,228,.5); }
+
+.hl-slide { transition: transform .25s, box-shadow .25s; }
+.hl-slide:hover { transform: translateX(6px); box-shadow: 0 16px 32px -20px rgba(27,77,228,.5); }
+
+.hl-chip { transition: all .2s; }
+.hl-chip:hover { background: #1B4DE4; color: #fff; border-color: #1B4DE4; transform: translateY(-2px); }
+
+.hl-partner { transition: border-color .25s, color .25s; }
+.hl-partner:hover { border-color: #1B4DE4; color: #1B4DE4; }
+
+.hl-flink { transition: color .2s, padding-left .2s; }
+.hl-flink:hover { color: #FBC34F; padding-left: 4px; }
+
+.hl-fb { transition: color .2s; }
+.hl-fb:hover { color: #fff; }
+
+.hl-sg { transition: background .2s; }
+.hl-sg:hover { background: #DCE7FF; }
+
+.hl-input { transition: border-color .2s, background .2s; }
+.hl-input:focus { border-color: #1B4DE4; }
+
+/* ===== responsive ===== */
+@media (max-width: 1024px) {
+  .hl-grid-5 { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (max-width: 900px) {
+  .hl-desktop-nav { display: none !important; }
+  .hl-hero-grid,
+  .hl-learn-split,
+  .hl-learn-live,
+  .hl-mind,
+  .hl-streak,
+  .hl-feat,
+  .hl-footer-grid { grid-template-columns: 1fr !important; }
+  .hl-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .hl-grid-3 { grid-template-columns: 1fr !important; }
+  .hl-grid-5 { grid-template-columns: repeat(2, 1fr) !important; }
+  .hl-stats { grid-template-columns: repeat(2, 1fr) !important; }
+
+  .hl-roadmap-line { left: 28px !important; transform: none !important; }
+  .hl-roadmap-row { grid-template-columns: 56px 1fr !important; }
+  .hl-roadmap-row > div:first-child { grid-column: 2 !important; justify-content: flex-start !important; }
+  .hl-roadmap-row > div:first-child > div { text-align: left !important; }
+  .hl-roadmap-pin { grid-column: 1 !important; }
+}
+@media (max-width: 560px) {
+  .hl-grid-4 { grid-template-columns: 1fr !important; }
 }

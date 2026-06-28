@@ -1,43 +1,53 @@
-import { Check } from 'lucide-react'
-import { features } from '../data/content'
-import SectionHeading from './SectionHeading'
+import { Reveal, ImageSlot } from './motion'
+import { features, media } from '../data/content'
 
 function Features() {
   return (
-    <section id="about" className="py-20 grid-bg">
-      <div className="max-w-[1200px] mx-auto px-5 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="border-2 border-[#1254D8] overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=650&fit=crop"
-            alt="Học viên đang học nhóm"
-            className="w-full h-[420px] object-cover"
-          />
-        </div>
+    <section
+      id="features"
+      style={{
+        scrollMarginTop: 90,
+        position: 'relative',
+        padding: '90px 0',
+        background: '#F6F8FE',
+        backgroundImage:
+          'linear-gradient(rgba(27,77,228,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.05) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }}
+    >
+      <div className="hl-feat" style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+        <Reveal style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: -14, border: '1.5px solid rgba(27,77,228,.4)', borderRadius: 22 }} />
+          <div style={{ position: 'relative', height: 430, borderRadius: 16, overflow: 'hidden', boxShadow: '0 30px 60px -28px rgba(27,77,228,.5)' }}>
+            <ImageSlot src={media.feature} alt="Nhóm học tập" />
+          </div>
+          <div style={{ position: 'absolute', bottom: -26, left: 30, background: '#fff', borderRadius: 16, padding: '16px 20px', boxShadow: '0 20px 44px -18px rgba(27,77,228,.5)', display: 'flex', alignItems: 'center', gap: 14, animation: 'hl-bob 4s ease-in-out infinite' }}>
+            <span style={{ width: 46, height: 46, borderRadius: 12, background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 22, fontWeight: 800 }}>↑</span>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 20, color: '#1B4DE4' }}>+38%</div>
+              <div style={{ fontSize: 12, color: '#5B647F' }}>Điểm trung bình</div>
+            </div>
+          </div>
+        </Reveal>
 
-        <div>
-          <SectionHeading
-            title="Tính năng"
-            banner="Tại sao chọn chúng tôi"
-            subtitle="Giải pháp ôn thi đánh giá năng lực toàn diện, phục vụ mọi lĩnh vực và mọi vùng miền tại Việt Nam."
-            align="left"
-          />
-
-          <ul className="space-y-4">
-            {features.map((item) => (
-              <li key={item.title} className="flex gap-3 border-l-4 border-[#fcbf56] pl-4">
-                <div className="shrink-0 w-6 h-6 bg-[#1254D8] flex items-center justify-center mt-0.5">
-                  <Check size={14} className="text-white" strokeWidth={2.5} />
-                </div>
+        <Reveal delay={120}>
+          <h2 style={{ fontSize: 'clamp(34px,4.4vw,56px)', fontWeight: 900, color: '#1B4DE4', letterSpacing: '-1px', margin: '0 0 16px', textTransform: 'uppercase' }}>Tính năng</h2>
+          <span style={{ display: 'inline-block', background: 'linear-gradient(90deg,#1B4DE4,#2C63F0)', color: '#fff', fontWeight: 700, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase', padding: '9px 22px', borderRadius: 40, boxShadow: '0 10px 22px rgba(27,77,228,.28)' }}>Tại sao chọn chúng tôi</span>
+          <p style={{ color: '#5B647F', fontSize: 16, margin: '18px 0 30px', maxWidth: 480 }}>
+            Giải pháp ôn thi đánh giá năng lực toàn diện, phục vụ mọi lĩnh vực và mọi vùng miền tại Việt Nam.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {features.map((ft, i) => (
+              <Reveal key={ft.title} delay={i * 90} className="hl-slide" style={{ display: 'flex', gap: 16, padding: '16px 18px', borderRadius: 14, background: '#fff', border: '1px solid #E8ECF7' }}>
+                <span style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 900 }}>✓</span>
                 <div>
-                  <h3 className="text-[15px] font-normal text-[#111827] uppercase tracking-wide">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-[14px] text-[#4b5563] leading-relaxed">{item.desc}</p>
+                  <h4 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: '#11183A', textTransform: 'uppercase', letterSpacing: '-.2px' }}>{ft.title}</h4>
+                  <p style={{ margin: 0, fontSize: 14, color: '#5B647F', lineHeight: 1.5 }}>{ft.desc}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
-          </ul>
-        </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   )

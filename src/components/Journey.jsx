@@ -1,80 +1,36 @@
-import { journeySteps } from '../data/content'
+import { Reveal } from './motion'
 import SectionHeading from './SectionHeading'
-import Sparkles from './Sparkles'
-
-function RoadmapPin({ number }) {
-  return (
-    <div className="roadmap-pin">
-      <span>{number}</span>
-    </div>
-  )
-}
+import { journeySteps } from '../data/content'
 
 function Journey() {
   return (
-    <section className="py-20 bg-white relative overflow-hidden">
-      <Sparkles className="absolute top-10 right-6 lg:right-20 pointer-events-none opacity-70" />
-
-      <div className="max-w-[900px] mx-auto px-5">
+    <section id="roadmap" style={{ scrollMarginTop: 90, padding: '90px 0', background: '#fff', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px' }}>
         <SectionHeading
           title="Lộ trình"
           banner="5 bước đơn giản"
           subtitle="Hành trình ôn thi đánh giá năng lực từ đăng ký đến nhận chứng chỉ."
         />
 
-        <div className="relative mt-4">
-          {/* Đường path xanh */}
-          <svg
-            className="absolute left-1/2 -translate-x-1/2 top-0 h-full w-[120px] pointer-events-none hidden md:block"
-            viewBox="0 0 120 600"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M60 0 C60 80 20 120 20 200 C20 280 100 320 100 400 C100 480 40 520 40 600"
-              stroke="#1254D8"
-              strokeWidth="28"
-              fill="none"
-              strokeLinecap="round"
-            />
-          </svg>
-
-          <div className="md:hidden absolute left-[21px] top-0 bottom-0 w-[4px] bg-[#1254D8]" aria-hidden="true" />
-
-          <div className="space-y-12 md:space-y-16">
-            {journeySteps.map((item) => (
-              <div
-                key={item.step}
-                className={`relative flex items-center gap-6 ${
-                  item.side === 'right' ? 'md:flex-row-reverse md:text-right' : 'md:flex-row'
-                }`}
-              >
-                <div
-                  className={`flex-1 hidden md:block ${
-                    item.side === 'right' ? 'pr-8' : 'pl-8'
-                  }`}
-                >
-                  <h3 className="text-[15px] font-normal text-[#111827] uppercase tracking-widest">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-[13px] text-[#4b5563]">{item.desc}</p>
+        <div className="hl-roadmap" style={{ position: 'relative', maxWidth: 900, margin: '0 auto' }}>
+          <div className="hl-roadmap-line" style={{ position: 'absolute', left: '50%', top: 8, bottom: 8, width: 4, transform: 'translateX(-50%)', background: 'linear-gradient(180deg,#1B4DE4,#7AA0FF)', borderRadius: 4, boxShadow: '0 0 0 7px rgba(27,77,228,.05)' }} />
+          {journeySteps.map((st, i) => {
+            const left = i % 2 === 0
+            return (
+              <Reveal key={st.title} className="hl-roadmap-row" style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 76px 1fr', alignItems: 'center', marginBottom: 26 }}>
+                <div style={{ gridColumn: left ? 1 : 3, gridRow: 1, display: 'flex', justifyContent: left ? 'flex-end' : 'flex-start' }}>
+                  <div className="hl-rmcard" style={{ maxWidth: 340, textAlign: left ? 'right' : 'left', background: 'linear-gradient(180deg,#F7F9FF,#fff)', border: '1.5px solid #E4E9F5', borderRadius: 16, padding: '18px 22px', boxShadow: '0 16px 38px -26px rgba(27,77,228,.7)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: '#1B4DE4', marginBottom: 5 }}>Bước 0{i + 1}</div>
+                    <h4 style={{ margin: '0 0 5px', fontSize: 18, fontWeight: 900, color: '#11183A', textTransform: 'uppercase', letterSpacing: '-.3px' }}>{st.title}</h4>
+                    <p style={{ margin: 0, fontSize: 13.5, color: '#5B647F', lineHeight: 1.5 }}>{st.desc}</p>
+                  </div>
                 </div>
-
-                <div className="relative z-10 shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
-                  <RoadmapPin number={item.step} />
+                <div className="hl-roadmap-pin" style={{ gridColumn: 2, gridRow: 1, display: 'grid', placeItems: 'center' }}>
+                  <span style={{ width: 58, height: 58, borderRadius: '50%', background: 'linear-gradient(180deg,#FBC34F,#F4A93C)', color: '#3a2a05', fontWeight: 900, fontSize: 22, display: 'grid', placeItems: 'center', boxShadow: '0 12px 26px rgba(244,169,60,.5), 0 0 0 6px #fff, 0 0 0 9px rgba(27,77,228,.12)', animation: 'hl-pulse 3s ease-in-out infinite' }}>{i + 1}</span>
                 </div>
-
-                <div className="flex-1 md:hidden">
-                  <h3 className="text-[15px] font-normal text-[#111827] uppercase tracking-widest">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-[13px] text-[#4b5563]">{item.desc}</p>
-                </div>
-
-                <div className="flex-1 hidden md:block" />
-              </div>
-            ))}
-          </div>
+              </Reveal>
+            )
+          })}
         </div>
       </div>
     </section>

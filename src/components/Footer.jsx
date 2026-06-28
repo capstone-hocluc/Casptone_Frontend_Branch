@@ -1,76 +1,36 @@
 import Logo from './Logo'
-
-const footerLinks = {
-  company: {
-    title: 'Về chúng tôi',
-    links: ['Giới thiệu', 'Tin tức', 'Tuyển dụng', 'Liên hệ'],
-  },
-  services: {
-    title: 'Dịch vụ',
-    links: ['Kỳ thi đánh giá năng lực', 'Chứng chỉ', 'Tư vấn lộ trình', 'Doanh nghiệp'],
-  },
-  support: {
-    title: 'Hỗ trợ',
-    links: ['Trung tâm trợ giúp', 'Chính sách', 'Điều khoản', 'Bảo mật'],
-  },
-}
+import { footerCols } from '../data/content'
 
 function Footer() {
   return (
-    <footer className="bg-[#1254D8] text-white">
-      <div className="max-w-[1200px] mx-auto px-5 py-12 border-b-2 border-white/20">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-          <div className="text-center lg:text-left">
-            <h2 className="text-[clamp(1.2rem,2.5vw,1.6rem)] font-normal uppercase tracking-wide">
-              Bắt đầu hành trình ôn thi đánh giá năng lực
-            </h2>
-            <p className="mt-2 text-[14px] text-white/85">
-              Đăng ký nhận tin để cập nhật kỳ thi và lộ trình mới nhất.
+    <footer style={{ background: '#1230A6', color: '#fff', padding: '60px 0 26px' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px' }}>
+        <div className="hl-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: 40, paddingBottom: 40, borderBottom: '1px solid rgba(255,255,255,.15)' }}>
+          <div>
+            <div style={{ marginBottom: 18 }}>
+              <Logo light />
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,.75)', maxWidth: 300, margin: 0 }}>
+              Nền tảng đánh giá năng lực hàng đầu Việt Nam — phục vụ mọi lĩnh vực, mọi miền đất nước.
             </p>
           </div>
-          <form className="flex w-full max-w-[420px] gap-2" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder="Email của bạn"
-              aria-label="Email"
-              className="flex-1 h-11 px-4 rounded-full bg-white/10 border-2 border-white/25 text-white placeholder:text-white/50 outline-none focus:border-white"
-            />
-            <button type="submit" className="btn-flat h-11 px-6 shrink-0">
-              Gửi
-            </button>
-          </form>
+          {footerCols.map((col) => (
+            <div key={col.title}>
+              <h4 style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 18px', color: '#fff' }}>{col.title}</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {col.items.map((it) => (
+                  <a key={it} href="#" className="hl-flink" style={{ textDecoration: 'none', color: 'rgba(255,255,255,.75)', fontSize: 14 }}>{it}</a>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-5 py-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div>
-          <Logo light />
-          <p className="mt-4 text-[13px] text-white/80 leading-relaxed">
-            Nền tảng đánh giá năng lực hàng đầu Việt Nam — phục vụ mọi lĩnh vực, mọi miền đất nước.
-          </p>
-        </div>
-
-        {Object.values(footerLinks).map((col) => (
-          <div key={col.title}>
-            <h3 className="text-[13px] font-normal mb-3 uppercase tracking-widest">{col.title}</h3>
-            <ul className="space-y-2">
-              {col.links.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-[13px] text-white/75 hover:text-white transition-colors">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, paddingTop: 24 }}>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,.65)' }}>© 2026 HocLuc.com. Bảo lưu mọi quyền.</span>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <a href="#" className="hl-fb" style={{ textDecoration: 'none', color: 'rgba(255,255,255,.65)', fontSize: 13 }}>Chính sách bảo mật</a>
+            <a href="#" className="hl-fb" style={{ textDecoration: 'none', color: 'rgba(255,255,255,.65)', fontSize: 13 }}>Điều khoản dịch vụ</a>
           </div>
-        ))}
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-5 py-5 border-t-2 border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-[12px] text-white/70">&copy; 2026 HocLuc.com. Bảo lưu mọi quyền.</p>
-        <div className="flex gap-4 text-[12px] text-white/70">
-          <a href="#" className="hover:text-white transition-colors">Chính sách bảo mật</a>
-          <a href="#" className="hover:text-white transition-colors">Điều khoản dịch vụ</a>
         </div>
       </div>
     </footer>

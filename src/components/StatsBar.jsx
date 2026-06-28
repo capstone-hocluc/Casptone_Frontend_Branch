@@ -1,21 +1,26 @@
+import { Reveal, Counter } from './motion'
 import { stats } from '../data/content'
 
 function StatsBar() {
   return (
-    <section className="bg-white border-y-2 border-[#1254D8]/20">
-      <div className="max-w-[1200px] mx-auto px-5 py-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 lg:divide-x-2 lg:divide-[#1254D8]/20">
-          {stats.map((item) => (
-            <div key={item.label} className="text-center px-4">
-              <p className="text-[clamp(1.8rem,3vw,2.5rem)] font-normal text-[#1254D8] tracking-tight">
-                {item.value}
-              </p>
-              <p className="mt-1 text-[13px] text-[#111827] font-normal uppercase tracking-wide">
-                {item.label}
-              </p>
+    <section style={{ background: '#fff', borderTop: '1px solid #EEF1F8', borderBottom: '1px solid #EEF1F8' }}>
+      <div className="hl-stats" style={{ maxWidth: 1240, margin: '0 auto', padding: '46px 24px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)' }}>
+        {stats.map((s, i) => (
+          <Reveal
+            key={s.label}
+            delay={i * 80}
+            style={{ textAlign: 'center', padding: '10px 16px', borderRight: i < 3 ? '1px solid #EEF1F8' : 'none' }}
+          >
+            <Counter
+              to={s.value}
+              suffix={s.suffix}
+              style={{ display: 'block', fontSize: 'clamp(34px,3.6vw,48px)', fontWeight: 900, color: '#1B4DE4', letterSpacing: '-1px' }}
+            />
+            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1, color: '#5B647F', textTransform: 'uppercase', marginTop: 4 }}>
+              {s.label}
             </div>
-          ))}
-        </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   )

@@ -1,15 +1,44 @@
-function SectionHeading({ title, banner, subtitle, align = 'center' }) {
-  const alignClass =
-    align === 'center' ? 'text-center items-center' : 'text-left items-start'
+import { Reveal } from './motion'
 
+function SectionHeading({ title, banner, subtitle }) {
   return (
-    <div className={`flex flex-col gap-3 mb-12 max-w-[720px] ${align === 'center' ? 'mx-auto' : ''} ${alignClass}`}>
-      <h2 className="section-title">{title}</h2>
-      {banner && <span className="section-banner">{banner}</span>}
-      {subtitle && (
-        <p className="text-[15px] text-[#111827] leading-relaxed max-w-[560px]">{subtitle}</p>
+    <Reveal style={{ textAlign: 'center', marginBottom: 34 }}>
+      <h2
+        style={{
+          fontSize: 'clamp(34px,4.4vw,56px)',
+          fontWeight: 900,
+          color: '#1B4DE4',
+          letterSpacing: '-1px',
+          margin: '0 0 16px',
+          textTransform: 'uppercase',
+        }}
+      >
+        {title}
+      </h2>
+      {banner && (
+        <span
+          style={{
+            display: 'inline-block',
+            background: 'linear-gradient(90deg,#1B4DE4,#2C63F0)',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 13,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            padding: '9px 22px',
+            borderRadius: 40,
+            boxShadow: '0 10px 22px rgba(27,77,228,.28)',
+          }}
+        >
+          {banner}
+        </span>
       )}
-    </div>
+      {subtitle && (
+        <p style={{ color: '#5B647F', fontSize: 16, margin: '18px auto 0', maxWidth: 580 }}>
+          {subtitle}
+        </p>
+      )}
+    </Reveal>
   )
 }
 
