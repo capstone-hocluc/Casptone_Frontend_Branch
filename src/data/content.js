@@ -37,13 +37,13 @@ export const exams = [
     id: 'ca', cat: 'Bộ Công an', rating: '4.8', reviews: '(3.520)',
     title: 'Đánh giá tuyển sinh Bộ Công an',
     org: 'Ban tuyển sinh Bộ Công an',
-    image: U('1454165804606-c3d57bc86b40', 480, 280),
+    image: '/dgnl-congan.png',
   },
   {
     id: 'vsat', cat: 'V-SAT', rating: '4.9', reviews: '(2.890)',
     title: 'V-SAT – Đánh giá đầu vào đại học trên máy tính',
     org: 'Ban tổ chức V-SAT',
-    image: U('1517245386807-bb43f82c33c4', 480, 280),
+    image: '/dgnl-vsat.png',
   },
 ]
 
@@ -114,16 +114,15 @@ export const plans = [
 ]
 
 export const experts = [
-  { id: 'e1', name: 'PGS.TS Nguyễn Văn A', role: 'Ban khảo thí ĐHQG HN', image: U('1560250097-0b93528c311a', 300, 380) },
-  { id: 'e2', name: 'TS Trần Thị B', role: 'Chuyên gia đánh giá năng lực', image: U('1573496359142-b8d87734a5a2', 300, 380) },
-  { id: 'e3', name: 'ThS Lê Minh C', role: 'Cố vấn giáo dục', image: U('1472099645785-5658abf4ff4e', 300, 380) },
-  { id: 'e4', name: 'TS Phạm Thu D', role: 'Nghiên cứu đánh giá', image: U('1580489944761-15a19d654956', 300, 380) },
-  { id: 'e5', name: 'ThS Võ Anh E', role: 'Huấn luyện thí sinh', image: U('1519085360753-af0119f7cbe7', 300, 380) },
+  { id: 'e1', name: 'PGS.TS Nguyễn Văn A', role: 'Ban khảo thí ĐHQG HN', image: '/expert-1.jpg' },
+  { id: 'e2', name: 'TS Trần Thị B', role: 'Chuyên gia đánh giá năng lực', image: '/expert-2.jpg' },
+  { id: 'e3', name: 'ThS Lê Minh C', role: 'Cố vấn giáo dục', image: '/expert-3.jpg' },
+  { id: 'e4', name: 'TS Phạm Thu D', role: 'Nghiên cứu đánh giá', image: '/expert-4.jpg' },
+  { id: 'e5', name: 'ThS Võ Anh E', role: 'Huấn luyện thí sinh', image: '/expert-5.jpg' },
 ]
 
 export const partners = [
-  'ĐHQG Hà Nội', 'ĐHQG TP.HCM', 'Bách Khoa HN', 'Sư Phạm HN',
-  'Sư Phạm TP.HCM', 'Bộ Công An', 'V-SAT',
+  'ĐHQG TP.HCM', 'Sư Phạm TP.HCM', 'Bộ Công An', 'V-SAT',
 ]
 
 export const testimonials = [
@@ -131,19 +130,19 @@ export const testimonials = [
     id: 't1',
     quote: 'Nền tảng giúp mình hiểu rõ điểm mạnh yếu trước kỳ thi đánh giá năng lực, kết quả cải thiện rõ rệt chỉ sau 4 tuần.',
     name: 'Nguyễn Minh Anh', loc: 'Hà Nội',
-    avatar: U('1494790108377-be9c29b29330', 96, 96),
+    avatar: '/avatar-minhanh.jpg',
   },
   {
     id: 't2',
     quote: 'Báo cáo phân tích rất chi tiết, mình biết cần tập trung vào phần nào để tăng điểm nhanh nhất.',
     name: 'Trần Hoàng Long', loc: 'TP. Hồ Chí Minh',
-    avatar: U('1507003211169-0a1dd7228f2d', 96, 96),
+    avatar: '/avatar-hoanglong.jpg',
   },
   {
     id: 't3',
     quote: 'Đề thi đa dạng, bám sát chuẩn đánh giá năng lực của các trường đại học lớn tại Việt Nam.',
     name: 'Lê Thị Mai', loc: 'Đà Nẵng',
-    avatar: U('1438761681033-6461ffad8d80', 96, 96),
+    avatar: '/avatar-thimai.jpg',
   },
 ]
 
@@ -179,10 +178,10 @@ export const footerCols = [
 // ảnh dùng trong các section
 export const media = {
   hero: '/Amy.png',
-  feature: U('1522202176988-66273c2fd55f', 600, 650),
-  live: U('1571260899304-425eee4c7efc', 800, 600),
+  feature: '/features-group.jpg',
+  live: '/live-stream.jpg',
   video: U('1610484826967-09c5720778c7', 800, 600),
   ocr: U('1606326608606-aa0b62935f2b', 700, 700),
-  mentorSession: U('1531482615713-2afd69097998', 700, 600),
-  mentorCard: U('1560250097-0b93528c311a', 96, 96),
+  mentorSession: '/mentor-session.jpg',
+  mentorCard: '/expert-1.jpg',
 }

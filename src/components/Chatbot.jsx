@@ -39,11 +39,11 @@ function Chatbot() {
   }
 
   return (
-    <div style={{ position: 'fixed', right: 24, bottom: 24, zIndex: 90, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-      {open && (
-        <div style={{ width: 360, maxWidth: 'calc(100vw - 32px)', height: 480, maxHeight: 'calc(100vh - 130px)', background: '#fff', borderRadius: 22, boxShadow: '0 30px 70px -18px rgba(17,24,58,.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid #E4E9F5', animation: 'hl-cardin .3s both', marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px', background: 'linear-gradient(120deg,#1230A6,#1B4DE4)', color: '#fff' }}>
-            <span style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,.18)', display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 800, letterSpacing: '.5px' }}>AI</span>
+    <div style={{ position: 'fixed', right: 24, bottom: 24, zIndex: 90 }}>
+      {open ? (
+        <div style={{ width: 360, maxWidth: 'calc(100vw - 32px)', height: 480, maxHeight: 'calc(100vh - 130px)', background: '#fff', borderRadius: 22, boxShadow: '0 30px 70px -18px rgba(17,24,58,.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid #E4E9F5', animation: 'hl-cardin .3s both' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px', background: 'linear-gradient(135deg, #1B4DE4, #2C63F0)', color: '#fff' }}>
+            <img src="/owl-mascot.png" alt="Trợ lý" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'contain', background: '#fff', padding: 2, boxSizing: 'border-box' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, fontSize: 15 }}>Trợ lý AI HocLuc</div>
               <div style={{ fontSize: 12, opacity: .9, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -73,12 +73,11 @@ function Chatbot() {
             </form>
           </div>
         </div>
+      ) : (
+        <button onClick={() => setOpen(true)} style={{ border: 'none', cursor: 'pointer', background: 'none', padding: 0, width: 84, height: 84, borderRadius: '50%', boxShadow: '0 16px 34px -10px rgba(27,77,228,.5)', animation: 'hl-pulse 3s infinite', overflow: 'hidden', display: 'block' }}>
+          <img src="/owl-mascot.png" alt="Trợ lý AI" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        </button>
       )}
-
-      <button onClick={() => setOpen((o) => !o)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontFamily: 'inherit', border: 'none', background: 'linear-gradient(135deg,#1B4DE4,#2C63F0)', color: '#fff', fontWeight: 800, fontSize: 14, padding: '13px 22px 13px 14px', borderRadius: 40, boxShadow: '0 16px 34px -10px rgba(27,77,228,.6)', animation: 'hl-pulse 3s infinite' }}>
-        <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.2)', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 800, letterSpacing: '.5px' }}>AI</span>
-        {open ? 'Đóng trợ lý' : 'Hỏi trợ lý AI'}
-      </button>
     </div>
   )
 }

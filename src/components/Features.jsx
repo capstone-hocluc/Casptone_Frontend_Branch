@@ -31,8 +31,7 @@ function Features() {
         </Reveal>
 
         <Reveal delay={120}>
-          <h2 style={{ fontSize: 'clamp(34px,4.4vw,56px)', fontWeight: 900, color: '#1B4DE4', letterSpacing: '-1px', margin: '0 0 16px', textTransform: 'uppercase' }}>Tính năng</h2>
-          <span style={{ display: 'inline-block', background: 'linear-gradient(90deg,#1B4DE4,#2C63F0)', color: '#fff', fontWeight: 700, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase', padding: '9px 22px', borderRadius: 40, boxShadow: '0 10px 22px rgba(27,77,228,.28)' }}>Tại sao chọn chúng tôi</span>
+          <h2 style={{ fontSize: 'clamp(34px,4.4vw,56px)', fontWeight: 900, color: '#1B4DE4', letterSpacing: '-1px', margin: '0 0 16px', textTransform: 'uppercase' }}>Tại sao chọn chúng tôi</h2>
           <p style={{ color: '#5B647F', fontSize: 16, margin: '18px 0 30px', maxWidth: 480 }}>
             Giải pháp ôn thi đánh giá năng lực toàn diện, phục vụ mọi lĩnh vực và mọi vùng miền tại Việt Nam.
           </p>
