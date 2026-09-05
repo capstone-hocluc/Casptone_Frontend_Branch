@@ -57,6 +57,7 @@ function Navbar() {
           <button
             type="button"
             className="hl-by"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-auth', { detail: { mode: 'login' } }))}
             style={{
               border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               background: 'linear-gradient(180deg,#FBC34F,#F4A93C)', color: '#3a2a05',
