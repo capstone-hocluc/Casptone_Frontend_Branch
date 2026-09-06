@@ -78,16 +78,48 @@ function StudentOnboarding({ onBack }) {
     <main className="hl-onboard-page">
       <header className="hl-onboard-top"><button type="button" onClick={onBack} aria-label="Quay lại"><ArrowLeft size={18} /></button><Logo /><span /></header>
       <section className="hl-onboard-card">
-        <div className="hl-onboard-intro"><span className="hl-onboard-kicker">BƯỚC 1 / 1 · HỒ SƠ HỌC TẬP</span><h1>Cùng thiết lập mục tiêu học tập của bạn</h1><p>Cho chúng mình biết một chút về mục tiêu và điểm mạnh, điểm yếu của bạn để cá nhân hóa lộ trình học phù hợp hơn.</p></div>
-        <div className="hl-onboard-exam"><span className="hl-onboard-icon"><GraduationCap size={22} /></span><div><small>Kỳ thi đang ôn luyện</small><strong>Đánh giá năng lực ĐHQG TP.HCM</strong></div><Check size={20} /></div>
-        <div className="hl-onboard-grid">
-          <SearchSelect label="Trường đại học mục tiêu" placeholder="Tìm hoặc chọn trường đại học" options={universities} value={form.university} onChange={(value) => update('university', value)} icon={GraduationCap} error={errors.university} />
-          <div className="hl-onboard-major-wrap"><SearchSelect label="Ngành học mục tiêu" placeholder="Tìm hoặc chọn ngành học" options={majors} value={otherMajor ? 'Khác' : form.major} onChange={(value) => { setOtherMajor(value === 'Khác'); update('major', value === 'Khác' ? '' : value) }} icon={Target} error={otherMajor ? '' : errors.major} />{otherMajor && <label className="hl-onboard-other-major"><span>Tên ngành học của bạn</span><input value={form.major} placeholder="Nhập tên ngành học" onChange={(event) => update('major', event.target.value)} />{errors.major && <small className="hl-onboard-error">{errors.major}</small>}</label>}</div>
-          <div className="hl-onboard-field hl-score-field"><span className="hl-onboard-label"><TrendingUp size={16} />Điểm ĐGNL mục tiêu</span><div className="hl-score-value"><strong>{form.score}</strong><span>/ 1200 điểm</span></div><input className="hl-score-range" type="range" min="0" max="1200" step="10" value={form.score} onChange={(event) => update('score', Number(event.target.value))} /><div className="hl-score-input"><input type="number" min="0" max="1200" value={form.score} onChange={(event) => update('score', Math.min(1200, Math.max(0, Number(event.target.value))))} /><span>điểm</span></div></div>
-          <SubjectChoice label="Môn học yếu nhất" hint="Chọn một môn bạn muốn cải thiện nhiều nhất" selected={form.weakest} excluded={form.strongest} onChange={(value) => update('weakest', value)} error={errors.weakest} />
-          <SubjectChoice label="Môn học tự tin nhất" hint="Chọn một môn bạn cảm thấy có nền tảng tốt" selected={form.strongest} excluded={form.weakest} onChange={(value) => update('strongest', value)} error={errors.strongest} />
+        <div className="hl-onboard-layout">
+          <div className="hl-onboard-main">
+            <div className="hl-onboard-intro">
+              <span className="hl-onboard-kicker">BƯỚC 1 / 1 · HỒ SƠ HỌC TẬP</span>
+              <h1>Cùng thiết lập mục tiêu học tập của bạn</h1>
+              <p>Cho chúng mình biết một chút về mục tiêu và điểm mạnh, điểm yếu của bạn để cá nhân hóa lộ trình học phù hợp hơn.</p>
+              <div className="hl-onboard-meta" aria-label="Điểm nổi bật của onboarding">
+                <span>3 phút hoàn thành</span>
+                <span>Cá nhân hóa ngay từ đầu</span>
+                <span>Có thể cập nhật sau</span>
+              </div>
+            </div>
+            <div className="hl-onboard-exam"><span className="hl-onboard-icon"><GraduationCap size={22} /></span><div><small>Kỳ thi đang ôn luyện</small><strong>Đánh giá năng lực ĐHQG TP.HCM</strong></div><Check size={20} /></div>
+            <div className="hl-onboard-grid">
+              <SearchSelect label="Trường đại học mục tiêu" placeholder="Tìm hoặc chọn trường đại học" options={universities} value={form.university} onChange={(value) => update('university', value)} icon={GraduationCap} error={errors.university} />
+              <div className="hl-onboard-major-wrap"><SearchSelect label="Ngành học mục tiêu" placeholder="Tìm hoặc chọn ngành học" options={majors} value={otherMajor ? 'Khác' : form.major} onChange={(value) => { setOtherMajor(value === 'Khác'); update('major', value === 'Khác' ? '' : value) }} icon={Target} error={otherMajor ? '' : errors.major} />{otherMajor && <label className="hl-onboard-other-major"><span>Tên ngành học của bạn</span><input value={form.major} placeholder="Nhập tên ngành học" onChange={(event) => update('major', event.target.value)} />{errors.major && <small className="hl-onboard-error">{errors.major}</small>}</label>}</div>
+              <div className="hl-onboard-field hl-score-field"><span className="hl-onboard-label"><TrendingUp size={16} />Điểm ĐGNL mục tiêu</span><div className="hl-score-value"><strong>{form.score}</strong><span>/ 1200 điểm</span></div><input className="hl-score-range" type="range" min="0" max="1200" step="10" value={form.score} onChange={(event) => update('score', Number(event.target.value))} /><div className="hl-score-input"><input type="number" min="0" max="1200" value={form.score} onChange={(event) => update('score', Math.min(1200, Math.max(0, Number(event.target.value))))} /><span>điểm</span></div></div>
+              <SubjectChoice label="Môn học yếu nhất" hint="Chọn một môn bạn muốn cải thiện nhiều nhất" selected={form.weakest} excluded={form.strongest} onChange={(value) => update('weakest', value)} error={errors.weakest} />
+              <SubjectChoice label="Môn học tự tin nhất" hint="Chọn một môn bạn cảm thấy có nền tảng tốt" selected={form.strongest} excluded={form.weakest} onChange={(value) => update('strongest', value)} error={errors.strongest} />
+            </div>
+            <div className="hl-onboard-actions"><span><span className="hl-onboard-dot" />Thông tin này có thể cập nhật sau</span><button type="button" className="hl-onboard-continue" onClick={() => { if (validate()) alert('Thông tin đã được ghi nhận!') }}>Tiếp tục làm bài đánh giá đầu vào <span>→</span></button></div>
+          </div>
+          <aside className="hl-onboard-rail" aria-label="Tóm tắt cá nhân hóa">
+            <div className="hl-onboard-rail-card hl-onboard-rail-highlight">
+              <span className="hl-onboard-rail-kicker">Lộ trình tinh gọn</span>
+              <h2>Hồ sơ này giúp hệ thống hiểu bạn nhanh hơn.</h2>
+              <p>Chỉ vài thông tin cốt lõi, nhưng đủ để đề xuất bài tập, môn học và nhịp ôn luyện phù hợp với mục tiêu của bạn.</p>
+            </div>
+            <div className="hl-onboard-rail-card">
+              <span className="hl-onboard-rail-title">Bạn sẽ nhận được</span>
+              <ul className="hl-onboard-checklist">
+                <li><Check size={14} />Gợi ý môn học nên ưu tiên</li>
+                <li><Check size={14} />Mốc điểm mục tiêu rõ ràng hơn</li>
+                <li><Check size={14} />Lộ trình ôn luyện bám sát ngành học</li>
+              </ul>
+            </div>
+            <div className="hl-onboard-rail-card hl-onboard-rail-note">
+              <span className="hl-onboard-rail-title">Gợi ý nhỏ</span>
+              <p>Hãy chọn trường và ngành gần nhất với mục tiêu thật của bạn. Những chi tiết này làm cho phần gợi ý sau đó trông “đúng người” hơn rất nhiều.</p>
+            </div>
+          </aside>
         </div>
-        <div className="hl-onboard-actions"><span><span className="hl-onboard-dot" />Thông tin này có thể cập nhật sau</span><button type="button" className="hl-onboard-continue" onClick={() => { if (validate()) alert('Thông tin đã được ghi nhận!') }}>Tiếp tục làm bài đánh giá đầu vào <span>→</span></button></div>
       </section>
     </main>
   )
