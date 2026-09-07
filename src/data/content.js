@@ -63,8 +63,8 @@ export const journeySteps = [
 ]
 
 export const subjects = [
-  'Toán', 'Vật lý', 'Hóa học', 'Sinh học', 'Ngữ văn',
-  'Tiếng Anh', 'Lịch sử', 'Địa lý', 'GDKT & PL', 'Tư duy logic',
+  'Toán học', 'Vật lý', 'Hóa học', 'Sinh học', 'Ngữ văn',
+  'Tiếng Anh', 'Lịch sử', 'Địa lý',
 ]
 
 export const sampleExams = [
