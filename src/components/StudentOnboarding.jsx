@@ -76,7 +76,7 @@ function StudentOnboarding({ onBack }) {
 
   return (
     <main className="hl-onboard-page">
-      <header className="hl-onboard-top"><button type="button" onClick={onBack} aria-label="Quay lại"><ArrowLeft size={18} /></button><Logo /><span /></header>
+      <header className="hl-onboard-top"><button type="button" onClick={onBack} aria-label="Quay lại"><ArrowLeft size={18} /></button><span className="hl-onboard-logo"><Logo /></span><span /></header>
       <section className="hl-onboard-card">
         <div className="hl-onboard-layout">
           <div className="hl-onboard-main">

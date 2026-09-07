@@ -160,7 +160,8 @@ body {
 }
 .hl-onboard-top { width: min(1180px,100%); margin: 0 auto 24px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
 .hl-onboard-top button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(223,230,247,.9); border-radius: 50%; background: rgba(255,255,255,.9); color: #1B4DE4; cursor: pointer; box-shadow: 0 10px 24px rgba(27,77,228,.08); backdrop-filter: blur(10px); }
-.hl-onboard-top > span { width: 42px; }
+.hl-onboard-logo { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; }
+.hl-onboard-top > span:not(.hl-onboard-logo) { width: 42px; }
 .hl-onboard-card { width: min(1180px,100%); margin: 0 auto; padding: 28px; border: 1px solid rgba(213,223,246,.95); border-radius: 32px; background: rgba(255,255,255,.82); box-shadow: 0 34px 80px rgba(27,77,228,.12); position: relative; z-index: 1; backdrop-filter: blur(14px); }
 .hl-onboard-card::before {
   content: '';
