@@ -1,6 +1,6 @@
-import { Reveal, Counter } from './motion'
-import SectionHeading from './SectionHeading'
-import { streakDays, streakRewards } from '../data/content'
+import { Reveal, Counter } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { streakDays, streakRewards } from '../../data/content'
 
 function Streak() {
   return (

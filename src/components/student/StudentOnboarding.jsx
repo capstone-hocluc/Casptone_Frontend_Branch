@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, BookOpen, Check, ChevronDown, GraduationCap, Search, Target, TrendingUp } from 'lucide-react'
-import Logo from './Logo'
+import Logo from '../common/Logo'
 
 const subjectGroups = [
   { label: 'Tư duy & Ngôn ngữ', description: 'Bao gồm Toán, Logic & Phân tích số liệu', subjects: ['Toán học', 'Ngữ văn', 'Tiếng Anh'] },

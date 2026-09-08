@@ -1,5 +1,5 @@
 import Logo from './Logo'
-import { footerCols } from '../data/content'
+import { footerCols } from '../../data/content'
 
 function Footer() {
   return (

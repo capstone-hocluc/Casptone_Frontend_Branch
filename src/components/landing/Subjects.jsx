@@ -1,6 +1,6 @@
-import { Reveal } from './motion'
-import SectionHeading from './SectionHeading'
-import { subjects, sampleExams, mindBranches } from '../data/content'
+import { Reveal } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { subjects, sampleExams, mindBranches } from '../../data/content'
 
 const node = (status) =>
   ({

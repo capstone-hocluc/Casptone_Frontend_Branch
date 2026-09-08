@@ -1,5 +1,5 @@
-import { Reveal, ImageSlot } from './motion'
-import { media } from '../data/content'
+import { Reveal, ImageSlot } from '../common/motion'
+import { media } from '../../data/content'
 
 function Hero() {
   return (

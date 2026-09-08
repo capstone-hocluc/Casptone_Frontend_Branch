@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Reveal } from './motion'
-import SectionHeading from './SectionHeading'
-import { faqs } from '../data/content'
+import { Reveal } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { faqs } from '../../data/content'
 
 function FAQ() {
   const [open, setOpen] = useState(1)
