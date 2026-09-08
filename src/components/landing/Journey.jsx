@@ -1,6 +1,6 @@
-import { Reveal } from './motion'
-import SectionHeading from './SectionHeading'
-import { journeySteps } from '../data/content'
+import { Reveal } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { journeySteps } from '../../data/content'
 
 function Journey() {
   return (

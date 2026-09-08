@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
-import Logo from './Logo'
+import Logo from '../common/Logo'
 
 const roles = [
   { id: 'student', label: 'Học sinh' },

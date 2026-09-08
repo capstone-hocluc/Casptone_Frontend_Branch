@@ -1,6 +1,6 @@
-import { Reveal, ImageSlot } from './motion'
-import SectionHeading from './SectionHeading'
-import { testimonials } from '../data/content'
+import { Reveal, ImageSlot } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { testimonials } from '../../data/content'
 
 function Testimonials() {
   return (

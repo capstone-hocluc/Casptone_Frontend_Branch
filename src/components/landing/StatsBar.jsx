@@ -1,5 +1,5 @@
-import { Reveal, Counter } from './motion'
-import { stats } from '../data/content'
+import { Reveal, Counter } from '../common/motion'
+import { stats } from '../../data/content'
 
 function StatsBar() {
   return (

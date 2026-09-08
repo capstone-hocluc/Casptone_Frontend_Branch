@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Reveal, ImageSlot } from './motion'
-import SectionHeading from './SectionHeading'
-import { media } from '../data/content'
+import { Reveal, ImageSlot } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { media } from '../../data/content'
 
 const MODES = [
   { id: 'live', label: 'Livestream' },

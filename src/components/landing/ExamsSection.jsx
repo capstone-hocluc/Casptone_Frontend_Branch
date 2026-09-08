@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Reveal, ImageSlot } from './motion'
-import SectionHeading from './SectionHeading'
-import { examCategories, exams } from '../data/content'
+import { Reveal, ImageSlot } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { examCategories, exams } from '../../data/content'
 
 function ExamsSection() {
   const [active, setActive] = useState('Tất cả')

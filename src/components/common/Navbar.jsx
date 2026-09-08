@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { navLinks } from '../data/content'
+import { navLinks } from '../../data/content'
 import Logo from './Logo'
 
 function Navbar() {

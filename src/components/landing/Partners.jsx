@@ -1,6 +1,6 @@
-import { Reveal } from './motion'
-import SectionHeading from './SectionHeading'
-import { partners } from '../data/content'
+import { Reveal } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { partners } from '../../data/content'
 
 function Partners() {
   const loop = [...partners, ...partners]

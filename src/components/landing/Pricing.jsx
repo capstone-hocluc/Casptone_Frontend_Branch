@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Reveal } from './motion'
-import SectionHeading from './SectionHeading'
-import { plans } from '../data/content'
+import { Reveal } from '../common/motion'
+import SectionHeading from '../common/SectionHeading'
+import { plans } from '../../data/content'
 
 const fmt = (n) => (n === 0 ? 'Miễn phí' : n.toLocaleString('vi-VN') + 'đ')
 

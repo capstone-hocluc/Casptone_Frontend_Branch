@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Reveal } from './motion'
+import { Reveal } from '../common/motion'
 
 function CTA() {
   const [email, setEmail] = useState('')

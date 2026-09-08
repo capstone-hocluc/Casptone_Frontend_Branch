@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import LandingPage from './LandingPage'
-import AuthPage from './components/AuthPage'
-import StudentOnboarding from './components/StudentOnboarding'
+import LandingPage from './pages/LandingPage'
+import AuthPage from './components/auth/AuthPage'
+import StudentOnboarding from './components/student/StudentOnboarding'
 
 function App() {
   const getAuthMode = () => {
