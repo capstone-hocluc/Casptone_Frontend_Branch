@@ -7,6 +7,9 @@ function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/onboarding') return 'onboarding'
+    if (path === '/verify-email') return 'verify-email'
+    if (path === '/forgot-password') return 'forgot-password'
+    if (path === '/reset-password') return 'reset-password'
     return path === '/signup' ? 'signup' : path === '/login' ? 'login' : null
   }
   const [authMode, setAuthMode] = useState(getAuthMode)
@@ -38,9 +41,13 @@ function App() {
     window.history.pushState({}, '', '/onboarding')
     setAuthMode('onboarding')
   }
+  const goToEmailVerification = () => {
+    window.history.pushState({}, '', '/verify-email')
+    setAuthMode('verify-email')
+  }
 
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
-  return authMode ? <AuthPage mode={authMode} onModeChange={navigateAuth} onContinue={goToOnboarding} onBack={backToLanding} /> : <LandingPage />
+  return authMode ? <AuthPage mode={authMode} onModeChange={navigateAuth} onContinue={authMode === 'signup' ? goToEmailVerification : goToOnboarding} onBack={backToLanding} /> : <LandingPage />
 }
 
 export default App
