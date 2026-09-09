@@ -58,7 +58,7 @@ function LevelLine({ title, data }) {
 }
 
 const tabContent = {
-  overview: 'Hiển thị tổng quan tiến độ ôn thi ĐGNL trong tuần này.',
+  overview: 'Hiển thị tổng quan tiến độ ôn thi trong tuần này.',
   learning: 'Tập trung vào bài học, chuyên đề và khóa học đang theo dõi.',
   practice: 'Theo dõi nhịp luyện đề, mini test và thời lượng làm bài.',
 }
@@ -194,10 +194,10 @@ function StudentDashboard() {
           </section>
 
           <section className="hl-dashboard-section">
-            <h3>Kế hoạch ôn thi ĐGNL</h3>
+            <h3>Kế hoạch ôn thi</h3>
             <div className="hl-dashboard-study-plan">
               <p>{studyPlan.title}. {studyPlan.description}</p>
-              <button type="button" onClick={() => showMessage('Tính năng Kế hoạch ôn thi ĐGNL đang được phát triển.')}>Khởi tạo <ArrowRight size={17} /></button>
+              <button type="button" onClick={() => showMessage('Tính năng Kế hoạch ôn thi đang được phát triển.')}>Khởi tạo <ArrowRight size={17} /></button>
             </div>
           </section>
 
@@ -275,7 +275,7 @@ function StudentDashboard() {
 
       <section className="hl-dashboard-section hl-dashboard-practice-section">
         <div className="hl-dashboard-section-row">
-          <h3>Luyện đề ĐGNL</h3>
+          <h3>Luyện đề</h3>
           <div className="hl-dashboard-section-actions">
             <CarouselControls
               label="Điều hướng luyện đề"
@@ -299,7 +299,7 @@ function StudentDashboard() {
               onClick={() => showMessage(`${item.title}: tính năng luyện đề đang được phát triển.`)}
             >
               <div className={`hl-dashboard-test-cover is-${item.tone}`}>
-                <small>ĐGNL</small>
+                <small>Đánh giá năng lực</small>
                 <strong>{item.title}</strong>
               </div>
               <h4>{item.title}</h4>
