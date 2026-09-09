@@ -1,0 +1,42 @@
+import { useState } from 'react'
+import { BarChart3, BookOpen, Home } from 'lucide-react'
+
+const navItems = [
+  { label: 'Tổng quan', path: '/student/dashboard', icon: Home },
+  { label: 'Khóa học', icon: BookOpen, comingSoon: true },
+  { label: 'Tiến độ', icon: BarChart3, comingSoon: true },
+]
+
+function StudentSidebar({ currentPath, onNavigate, collapsed = false }) {
+  const [message, setMessage] = useState('')
+
+  const showMessage = () => {
+    setMessage('Tính năng đang được phát triển.')
+    window.setTimeout(() => setMessage(''), 2400)
+  }
+
+  return (
+    <aside className={`hl-student-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
+      <nav>
+        {navItems.map((item) => {
+          const Icon = item.icon
+          const active = item.path === currentPath
+          return (
+            <button
+              key={item.label}
+              type="button"
+              className={active ? 'is-active' : ''}
+              onClick={() => item.comingSoon ? showMessage() : onNavigate(item.path)}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </button>
+          )
+        })}
+      </nav>
+      {message && <div className="hl-student-toast">{message}</div>}
+    </aside>
+  )
+}
+
+export default StudentSidebar
