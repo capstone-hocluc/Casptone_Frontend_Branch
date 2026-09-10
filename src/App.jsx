@@ -4,10 +4,17 @@ import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
+import StaffDashboard from './components/StaffDashboard'
 
 function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
+    if (path === '/staff/dashboard') return 'staff-dashboard'
+    if (path === '/staff/students') return 'staff-students'
+    if (path === '/staff/students/hs-24091') return 'staff-detail'
+    if (path === '/staff/enrollments') return 'staff-enrollments'
+    if (path === '/staff/batches') return 'staff-batches'
+    if (path === '/staff/batches/batch-12a-k24') return 'staff-batch-detail'
     if (path === '/onboarding') return 'onboarding'
     if (path === '/verify-email') return 'verify-email'
     if (path === '/forgot-password') return 'forgot-password'
@@ -60,6 +67,15 @@ function App() {
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
   }
+  const navigateStaff = (page) => {
+    const paths = { dashboard: '/staff/dashboard', students: '/staff/students', detail: '/staff/students/hs-24091', enrollments: '/staff/enrollments', batches: '/staff/batches', 'batch-detail': '/staff/batches/batch-12a-k24' }
+    window.history.pushState({}, '', paths[page])
+    setAuthMode(`staff-${page}`)
+  }
+  const goAfterLogin = (email) => {
+    if (email.trim().toLowerCase().includes('staff')) navigateStaff('dashboard')
+    else goToOnboarding()
+  }
 
   const navigateStudent = (path) => {
     if (path !== '/student/dashboard') return
@@ -80,13 +96,14 @@ function App() {
     </StudentLayout>
   )
 
+  if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
   if (currentPath === '/student/dashboard') return renderStudentDashboard()
   return authMode ? (
     <AuthPage
       mode={authMode}
       onModeChange={navigateAuth}
-      onContinue={authMode === 'signup' ? goToEmailVerification : goToOnboarding}
+      onContinue={authMode === 'signup' ? goToEmailVerification : goAfterLogin}
       onBack={backToLanding}
     />
   ) : (

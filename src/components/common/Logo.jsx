@@ -1,4 +1,4 @@
-function Logo({ light = false }) {
+function Logo({ light = false, monochrome = false }) {
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <img
@@ -12,8 +12,8 @@ function Logo({ light = false }) {
           marginTop: -6,
         }}
       />
-      <span style={{ fontWeight: 800, fontSize: 21, letterSpacing: '-.5px', color: light ? '#fff' : '#11183A' }}>
-        HocLuc<span style={{ color: light ? '#FBC34F' : '#1B4DE4' }}>.com</span>
+      <span style={{ fontWeight: 800, fontSize: 21, letterSpacing: '-.5px', color: light || monochrome ? '#fff' : '#11183A' }}>
+        HocLuc<span style={{ color: monochrome ? '#fff' : light ? '#FBC34F' : '#1B4DE4' }}>.com</span>
       </span>
     </span>
   )

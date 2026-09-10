@@ -458,7 +458,7 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                 <label className="hl-auth-label">Email<span className="hl-auth-input"><Mail size={19} /><input type="email" placeholder="you@example.com" value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} autoComplete="email" /></span></label>
                 <label className="hl-auth-label">Mật khẩu<span className="hl-auth-input"><LockKeyhole size={19} /><input type={showPassword ? 'text' : 'password'} placeholder="Nhập mật khẩu" /><button type="button" className="hl-auth-eye" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></span></label>
                 {!isSignup && <button type="button" className="hl-auth-forgot" onClick={openRecovery}>Quên mật khẩu?</button>}
-                <button type="button" className="hl-auth-submit" onClick={onContinue}>{isSignup ? 'Đăng ký ngay' : 'Đăng nhập'}</button>
+                <button type="button" className="hl-auth-submit" onClick={() => onContinue?.(authEmail)}>{isSignup ? 'Đăng ký ngay' : 'Đăng nhập'}</button>
                 <p className="hl-auth-switch">{isSignup ? 'Bạn đã có tài khoản?' : 'Chưa có tài khoản?'} <button type="button" onClick={() => switchMode(isSignup ? 'login' : 'signup')}>{isSignup ? 'Đăng nhập' : 'Đăng ký'}</button></p>
               </>
             )}
