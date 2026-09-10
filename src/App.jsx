@@ -15,6 +15,7 @@ function App() {
     if (path === '/staff/enrollments') return 'staff-enrollments'
     if (path === '/staff/schedules') return 'staff-schedules'
     if (path === '/staff/attendance') return 'staff-attendance'
+    if (path === '/staff/tuition') return 'staff-tuition'
     if (path === '/staff/batches') return 'staff-batches'
     if (path === '/staff/batches/batch-12a-k24') return 'staff-batch-detail'
     if (path === '/onboarding') return 'onboarding'
@@ -70,7 +71,7 @@ function App() {
     setCurrentPath('/verify-email')
   }
   const navigateStaff = (page) => {
-    const paths = { dashboard: '/staff/dashboard', students: '/staff/students', detail: '/staff/students/hs-24091', enrollments: '/staff/enrollments', schedules: '/staff/schedules', attendance: '/staff/attendance', batches: '/staff/batches', 'batch-detail': '/staff/batches/batch-12a-k24' }
+    const paths = { dashboard: '/staff/dashboard', students: '/staff/students', detail: '/staff/students/hs-24091', enrollments: '/staff/enrollments', schedules: '/staff/schedules', attendance: '/staff/attendance', tuition: '/staff/tuition', batches: '/staff/batches', 'batch-detail': '/staff/batches/batch-12a-k24' }
     window.history.pushState({}, '', paths[page])
     setAuthMode(`staff-${page}`)
   }
