@@ -2271,6 +2271,7 @@ body {
 }
 
 .hl-staff-enrollment-dev { display: none; }
+.hl-staff-title .hl-staff-primary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; }
 .hl-batch-dev-menu { display: none; }
 .hl-batch-add { display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; flex: 0 0 auto; }
 
