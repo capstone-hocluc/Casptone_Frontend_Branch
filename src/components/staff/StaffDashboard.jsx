@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowUpRight, Bell, BookOpen, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, CircleDollarSign, Clock3, Filter, LayoutDashboard, Mail, Menu, MoreHorizontal, Phone, Plus, Search, Settings, Trash2, UserPlus, Users, X } from 'lucide-react'
-import Logo from './common/Logo'
+import Logo from '../common/Logo'
 
 const seedStudents = [
   { id: 'HS-24091', name: 'Nguyễn Minh Anh', initials: 'MA', email: 'minhanh.nguyen@email.com', phone: '0901 234 567', batch: 'ĐGNL 12A · K24', course: 'Luyện thi ĐGNL toàn diện', fee: 'Đã thanh toán', attendance: 92, progress: 82, activity: 'Hoàn thành đề mô phỏng số 04', time: '12 phút trước', tone: 'blue', joined: '12/06/2026', guardian: 'Nguyễn Thị Lan · 0912 345 678' },

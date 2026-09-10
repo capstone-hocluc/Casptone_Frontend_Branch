@@ -4,7 +4,7 @@ import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
-import StaffDashboard from './components/StaffDashboard'
+import StaffDashboard from './components/staff/StaffDashboard'
 
 function App() {
   const getAuthMode = () => {
