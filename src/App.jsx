@@ -5,10 +5,22 @@ import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
+import StaffDashboard from './components/staff/StaffDashboard'
 
 function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
+    if (path === '/staff/dashboard') return 'staff-dashboard'
+    if (path === '/staff/students') return 'staff-students'
+    if (path === '/staff/students/hs-24091') return 'staff-detail'
+    if (path === '/staff/enrollments') return 'staff-enrollments'
+    if (path === '/staff/schedules') return 'staff-schedules'
+    if (path === '/staff/attendance') return 'staff-attendance'
+    if (path === '/staff/tuition') return 'staff-tuition'
+    if (path === '/staff/invoices') return 'staff-invoices'
+    if (path === '/staff/payments') return 'staff-payments'
+    if (path === '/staff/batches') return 'staff-batches'
+    if (path === '/staff/batches/batch-12a-k24') return 'staff-batch-detail'
     if (path === '/onboarding') return 'onboarding'
     if (path === '/verify-email') return 'verify-email'
     if (path === '/forgot-password') return 'forgot-password'
@@ -61,6 +73,15 @@ function App() {
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
   }
+  const navigateStaff = (page) => {
+    const paths = { dashboard: '/staff/dashboard', students: '/staff/students', detail: '/staff/students/hs-24091', enrollments: '/staff/enrollments', schedules: '/staff/schedules', attendance: '/staff/attendance', tuition: '/staff/tuition', invoices: '/staff/invoices', payments: '/staff/payments', batches: '/staff/batches', 'batch-detail': '/staff/batches/batch-12a-k24' }
+    window.history.pushState({}, '', paths[page])
+    setAuthMode(`staff-${page}`)
+  }
+  const goAfterLogin = (email) => {
+    if (email.trim().toLowerCase().includes('staff')) navigateStaff('dashboard')
+    else goToOnboarding()
+  }
 
   const navigateStudent = (path) => {
     if (!['/student/dashboard', '/student/learning-profile'].includes(path)) return
@@ -85,13 +106,14 @@ function App() {
     </StudentLayout>
   )
 
+  if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
   if (['/student/dashboard', '/student/learning-profile'].includes(currentPath)) return renderStudentDashboard()
   return authMode ? (
     <AuthPage
       mode={authMode}
       onModeChange={navigateAuth}
-      onContinue={authMode === 'signup' ? goToEmailVerification : goToOnboarding}
+      onContinue={authMode === 'signup' ? goToEmailVerification : goAfterLogin}
       onBack={backToLanding}
     />
   ) : (
