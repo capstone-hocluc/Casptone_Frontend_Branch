@@ -4,7 +4,7 @@ import { BarChart3, BookOpen, Home, UserRound } from 'lucide-react'
 const navItems = [
   { label: 'Tổng quan', path: '/student/dashboard', icon: Home },
   { label: 'Hồ sơ năng lực', path: '/student/learning-profile', icon: UserRound },
-  { label: 'Khóa học', icon: BookOpen, comingSoon: true },
+  { label: 'Khóa học', path: '/student/courses', icon: BookOpen },
   { label: 'Tiến độ', icon: BarChart3, comingSoon: true },
 ]
 
@@ -21,7 +21,7 @@ function StudentSidebar({ currentPath, onNavigate, collapsed = false }) {
       <nav>
         {navItems.map((item) => {
           const Icon = item.icon
-          const active = item.path === currentPath
+          const active = item.path === currentPath || (item.path === '/student/courses' && currentPath.startsWith('/student/courses/'))
           return (
             <button
               key={item.label}

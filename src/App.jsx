@@ -5,6 +5,7 @@ import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
+import MyCourses from './pages/student/MyCourses'
 import StaffDashboard from './components/staff/StaffDashboard'
 
 function App() {
@@ -84,31 +85,45 @@ function App() {
   }
 
   const navigateStudent = (path) => {
-    if (!['/student/dashboard', '/student/learning-profile'].includes(path)) return
+    if (!['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(path) && !path.startsWith('/student/courses/')) return
     window.history.pushState({}, '', path)
     setAuthMode(null)
     setCurrentPath(path)
   }
 
+  const isCoursesPath = currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
+  const studentTitle = currentPath === '/student/learning-profile'
+    ? 'Hồ sơ năng lực'
+    : isCoursesPath
+      ? 'Khóa học của tôi'
+      : 'Tổng quan'
+  const studentSubtitle = currentPath === '/student/learning-profile'
+    ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
+    : isCoursesPath
+      ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
+      : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
+
   const renderStudentDashboard = () => (
     <StudentLayout
       currentPath={currentPath}
-      title={currentPath === '/student/learning-profile' ? 'Hồ sơ năng lực' : 'Tổng quan'}
-      subtitle={currentPath === '/student/learning-profile'
-        ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
-        : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'}
+      title={studentTitle}
+      subtitle={studentSubtitle}
       onNavigate={navigateStudent}
       onBack={backToLanding}
     >
-      {currentPath === '/student/learning-profile'
-        ? <LearningProfile />
-        : <StudentDashboard onOpenLearningProfile={() => navigateStudent('/student/learning-profile')} />}
+      {currentPath === '/student/learning-profile' ? (
+        <LearningProfile />
+      ) : isCoursesPath ? (
+        <MyCourses onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)} />
+      ) : (
+        <StudentDashboard onOpenLearningProfile={() => navigateStudent('/student/learning-profile')} />
+      )}
     </StudentLayout>
   )
 
   if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
-  if (['/student/dashboard', '/student/learning-profile'].includes(currentPath)) return renderStudentDashboard()
+  if (['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(currentPath) || currentPath.startsWith('/student/courses/')) return renderStudentDashboard()
   return authMode ? (
     <AuthPage
       mode={authMode}
