@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell, Flame, Menu, Settings, User, UserRound, LogOut } from 'lucide-react'
 import Logo from '../common/Logo'
 
-function StudentTopbar({ student, onToggleSidebar, onNavigateHome }) {
+function StudentTopbar({ student, onToggleSidebar, onNavigateHome, onNavigateLearningProfile }) {
   const [profileOpen, setProfileOpen] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [message, setMessage] = useState('')
@@ -12,6 +12,11 @@ function StudentTopbar({ student, onToggleSidebar, onNavigateHome }) {
   const showMessage = (text) => {
     setMessage(text)
     window.setTimeout(() => setMessage(''), 2400)
+  }
+
+  const openLearningProfile = () => {
+    setProfileOpen(false)
+    onNavigateLearningProfile?.()
   }
 
   useEffect(() => {
@@ -76,7 +81,7 @@ function StudentTopbar({ student, onToggleSidebar, onNavigateHome }) {
           {profileOpen && (
             <div className="hl-student-profile-menu">
               <button type="button" onClick={() => showMessage('Tính năng Hồ sơ cá nhân đang được phát triển.')}><UserRound size={16} />Hồ sơ cá nhân</button>
-              <button type="button" onClick={() => showMessage('Tính năng Hồ sơ học tập đang được phát triển.')}><User size={16} />Hồ sơ học tập</button>
+              <button type="button" onClick={openLearningProfile}><User size={16} />Hồ sơ học tập</button>
               <button type="button" onClick={() => showMessage('Tính năng Cài đặt đang được phát triển.')}><Settings size={16} />Cài đặt</button>
               <button type="button" onClick={() => showMessage('Tính năng Đăng xuất đang được phát triển.')}><LogOut size={16} />Đăng xuất</button>
             </div>

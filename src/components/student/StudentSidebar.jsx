@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { BarChart3, BookOpen, Home } from 'lucide-react'
+import { BarChart3, BookOpen, Home, UserRound } from 'lucide-react'
 
 const navItems = [
   { label: 'Tổng quan', path: '/student/dashboard', icon: Home },
+  { label: 'Hồ sơ năng lực', path: '/student/learning-profile', icon: UserRound },
   { label: 'Khóa học', icon: BookOpen, comingSoon: true },
   { label: 'Tiến độ', icon: BarChart3, comingSoon: true },
 ]

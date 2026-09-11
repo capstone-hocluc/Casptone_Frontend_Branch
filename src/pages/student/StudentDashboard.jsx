@@ -90,7 +90,7 @@ function CarouselControls({ canPrevious, canNext, onPrevious, onNext, label }) {
   )
 }
 
-function StudentDashboard() {
+function StudentDashboard({ onOpenLearningProfile }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [visibleCounts, setVisibleCounts] = useState(getVisibleCounts)
   const [courseStartIndex, setCourseStartIndex] = useState(0)
@@ -126,6 +126,14 @@ function StudentDashboard() {
   }
 
   const showComingSoon = () => showMessage('Tính năng đang được phát triển.')
+  const openLearningProfile = () => {
+    if (onOpenLearningProfile) {
+      onOpenLearningProfile()
+      return
+    }
+
+    showMessage('Tính năng Hồ sơ năng lực chi tiết đang được phát triển.')
+  }
 
   return (
     <section className="hl-student-page hl-dashboard-page">
@@ -246,7 +254,7 @@ function StudentDashboard() {
               <h3>Hồ sơ năng lực</h3>
               <button
                 type="button"
-                onClick={() => showMessage('Tính năng Hồ sơ năng lực chi tiết đang được phát triển.')}
+                onClick={openLearningProfile}
               >
                 Xem tất cả
               </button>
