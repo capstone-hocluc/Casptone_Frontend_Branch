@@ -4,6 +4,7 @@ import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
+import LearningProfile from './pages/student/LearningProfile'
 
 function App() {
   const getAuthMode = () => {
@@ -62,7 +63,7 @@ function App() {
   }
 
   const navigateStudent = (path) => {
-    if (path !== '/student/dashboard') return
+    if (!['/student/dashboard', '/student/learning-profile'].includes(path)) return
     window.history.pushState({}, '', path)
     setAuthMode(null)
     setCurrentPath(path)
@@ -71,17 +72,21 @@ function App() {
   const renderStudentDashboard = () => (
     <StudentLayout
       currentPath={currentPath}
-      title="Tổng quan"
-      subtitle="Theo dõi tiến độ, bài tập và lịch học sắp tới."
+      title={currentPath === '/student/learning-profile' ? 'Hồ sơ năng lực' : 'Tổng quan'}
+      subtitle={currentPath === '/student/learning-profile'
+        ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
+        : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'}
       onNavigate={navigateStudent}
       onBack={backToLanding}
     >
-      <StudentDashboard />
+      {currentPath === '/student/learning-profile'
+        ? <LearningProfile />
+        : <StudentDashboard onOpenLearningProfile={() => navigateStudent('/student/learning-profile')} />}
     </StudentLayout>
   )
 
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
-  if (currentPath === '/student/dashboard') return renderStudentDashboard()
+  if (['/student/dashboard', '/student/learning-profile'].includes(currentPath)) return renderStudentDashboard()
   return authMode ? (
     <AuthPage
       mode={authMode}

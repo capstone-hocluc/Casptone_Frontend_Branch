@@ -14,6 +14,7 @@ function StudentLayout({ currentPath, title, subtitle, onNavigate, children }) {
         student={dashboardSummary}
         onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
         onNavigateHome={() => onNavigate('/student/dashboard')}
+        onNavigateLearningProfile={() => onNavigate('/student/learning-profile')}
       />
       <StudentSidebar currentPath={currentPath} onNavigate={onNavigate} collapsed={sidebarCollapsed} />
       <main className="hl-student-main">
