@@ -14,6 +14,8 @@ function App() {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
+    if (path === '/teacher/my-courses') return 'teacher-courses'
+    if (path === '/teacher/information') return 'teacher-information'
     if (path === '/staff/students') return 'staff-students'
     if (path === '/staff/students/hs-24091') return 'staff-detail'
     if (path === '/staff/enrollments') return 'staff-enrollments'
@@ -81,6 +83,12 @@ function App() {
     window.history.pushState({}, '', paths[page])
     setAuthMode(`staff-${page}`)
   }
+  const navigateTeacher = (page) => {
+    const paths = { dashboard: '/teacher/dashboard', courses: '/teacher/my-courses', information: '/teacher/information' }
+    window.history.pushState({}, '', paths[page])
+    setAuthMode(`teacher-${page}`)
+    setCurrentPath(paths[page])
+  }
   const goAfterLogin = (email) => {
     if (email.trim().toLowerCase().includes('staff')) navigateStaff('dashboard')
     else if (/(teacher|giangvien|giang-vien)/.test(email.trim().toLowerCase())) {
@@ -129,7 +137,7 @@ function App() {
   )
 
   if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
-  if (authMode === 'teacher-dashboard') return <TeacherDashboard onBack={backToLanding} />
+  if (authMode?.startsWith('teacher-')) return <TeacherDashboard key={authMode} page={authMode.replace('teacher-', '')} onNavigate={navigateTeacher} onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
   if (['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(currentPath) || currentPath.startsWith('/student/courses/')) return renderStudentDashboard()
   return authMode ? (
