@@ -7,6 +7,8 @@ import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
 import MyCourses from './pages/student/MyCourses'
 import CourseDetail from './pages/student/CourseDetail'
+import LearningActivity from './pages/student/LearningActivity'
+import VideoLearningPage from './pages/student/VideoLearningPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
 
@@ -108,9 +110,13 @@ function App() {
   }
 
   const isCoursesPath = currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
-  const courseId = currentPath.startsWith('/student/courses/')
-    ? decodeURIComponent(currentPath.split('/').pop())
-    : null
+  const coursePathParts = currentPath.startsWith('/student/courses/')
+    ? currentPath.split('/').filter(Boolean)
+    : []
+  const courseId = coursePathParts[2] ? decodeURIComponent(coursePathParts[2]) : null
+  const activityRouteType = coursePathParts[3] || ''
+  const activityId = coursePathParts[4] ? decodeURIComponent(coursePathParts[4]) : null
+  const isActivityPath = Boolean(courseId && activityRouteType && activityId)
   const studentTitle = currentPath === '/student/learning-profile'
     ? 'Hồ sơ năng lực'
     : isCoursesPath
@@ -132,8 +138,19 @@ function App() {
     >
       {currentPath === '/student/learning-profile' ? (
         <LearningProfile />
+      ) : isActivityPath ? (
+        <LearningActivity
+          courseId={courseId}
+          routeType={activityRouteType}
+          activityId={activityId}
+          onBack={() => navigateStudent(`/student/courses/${courseId}`)}
+        />
       ) : courseId ? (
-        <CourseDetail courseId={courseId} onBack={() => navigateStudent('/student/courses')} />
+        <CourseDetail
+          courseId={courseId}
+          onBack={() => navigateStudent('/student/courses')}
+          onOpenActivity={(targetCourseId, routeType, targetActivityId) => navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)}
+        />
       ) : isCoursesPath ? (
         <MyCourses onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)} />
       ) : (
@@ -145,6 +162,17 @@ function App() {
   if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
   if (authMode?.startsWith('teacher-')) return <TeacherDashboard key={authMode} page={authMode.replace('teacher-', '')} onNavigate={navigateTeacher} onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
+  if (isActivityPath && activityRouteType === 'lessons') {
+    return (
+      <VideoLearningPage
+        courseId={courseId}
+        activityId={activityId}
+        onBackCourse={() => navigateStudent(`/student/courses/${courseId}`)}
+        onCourses={() => navigateStudent('/student/courses')}
+        onNavigateActivity={(targetCourseId, routeType, targetActivityId) => navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)}
+      />
+    )
+  }
   if (['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(currentPath) || currentPath.startsWith('/student/courses/')) return renderStudentDashboard()
   return authMode ? (
     <AuthPage

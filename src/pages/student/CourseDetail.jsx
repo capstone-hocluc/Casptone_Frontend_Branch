@@ -4,28 +4,24 @@ import {
   BookOpen,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   Circle,
   CircleAlert,
   ClipboardCheck,
-  FileText,
   GraduationCap,
   Lock,
   Play,
   Radio,
   Target,
 } from 'lucide-react'
-import { courseDetail } from '../../data/courseDetail'
-import { supplementaryCourseAliases, supplementaryCourseDetails } from '../../data/supplementaryCourseDetails'
+import { getActivityRouteType, getStudentCourseDetail } from '../../data/courseLookup'
 
 const activityIcons = {
   Video: Play,
-  'Tài liệu': FileText,
   'Bài tập': ClipboardCheck,
-  Assignment: ClipboardCheck,
   'Mini Test': Target,
   'Mock Test': Target,
-  'Final Test': Target,
-  'Live Class': Radio,
+  'Buổi giải đề': Radio,
 }
 
 const statusMeta = {
@@ -66,14 +62,13 @@ function getActivityMeta(activity) {
 function getActivityMessage(activity) {
   if (activity.status === 'locked') return 'Nội dung này đang được khóa theo lộ trình học.'
   if (activity.type === 'Video') return 'Trình phát video đang được phát triển.'
-  if (activity.type === 'Live Class') return 'Tính năng lớp học trực tuyến đang được phát triển.'
-  if (activity.type === 'Assignment' || activity.type === 'Bài tập') return 'Bài tập sẽ được mở ở bước tiếp theo.'
-  if (activity.type === 'Mini Test' || activity.type === 'Mock Test' || activity.type === 'Final Test') return 'Chức năng làm bài đang được phát triển.'
-  if (activity.type === 'Tài liệu') return 'Tài liệu học tập đang được chuẩn bị.'
+  if (activity.type === 'Buổi giải đề') return 'Buổi giải đề đang được chuẩn bị.'
+  if (activity.type === 'Bài tập') return 'Bài tập sẽ được mở ở bước tiếp theo.'
+  if (activity.type === 'Mini Test' || activity.type === 'Mock Test') return 'Chức năng làm bài đang được phát triển.'
   return 'Tính năng này đang được phát triển.'
 }
 
-function ActivityRow({ activity, onAction }) {
+function ActivityRow({ activity, onAction, onOpenActivity }) {
   const Icon = activityIcons[activity.type] || BookOpen
   const StatusIcon = statusMeta[activity.status]?.icon || Circle
   const meta = getActivityMeta(activity)
@@ -83,7 +78,19 @@ function ActivityRow({ activity, onAction }) {
     <button
       type="button"
       className={`hl-course-detail-activity is-${activity.status} is-type-${getActivityClass(activity.type)}`}
-      onClick={() => onAction(getActivityMessage(activity))}
+      onClick={() => {
+        if (activity.status === 'locked') {
+          onAction('Bạn cần hoàn thành nội dung trước đó để mở khóa.')
+          return
+        }
+
+        if (!getActivityRouteType(activity)) {
+          onAction(getActivityMessage(activity))
+          return
+        }
+
+        onOpenActivity(activity)
+      }}
     >
       <span className="hl-course-detail-activity-icon"><Icon size={15} /></span>
       <span className="hl-course-detail-activity-copy">
@@ -96,11 +103,12 @@ function ActivityRow({ activity, onAction }) {
         <i><StatusIcon size={14} />{statusMeta[activity.status]?.label || activity.status}</i>
         {isCurrent && <mark>Đang học</mark>}
       </span>
+      {activity.status !== 'locked' && getActivityRouteType(activity) && <ChevronRight className="hl-course-detail-activity-next" size={16} />}
     </button>
   )
 }
 
-function ChapterAccordion({ chapter, index, open, onToggle, onAction }) {
+function ChapterAccordion({ chapter, index, open, onToggle, onAction, onOpenActivity }) {
   return (
     <article className="hl-course-detail-chapter">
       <button type="button" className="hl-course-detail-chapter-head" aria-expanded={open} onClick={onToggle}>
@@ -113,7 +121,7 @@ function ChapterAccordion({ chapter, index, open, onToggle, onAction }) {
       {open && (
         <div className="hl-course-detail-activity-list">
           {chapter.activities.map((activity) => (
-            <ActivityRow key={activity.id} activity={activity} onAction={onAction} />
+            <ActivityRow key={activity.id} activity={activity} onAction={onAction} onOpenActivity={onOpenActivity} />
           ))}
         </div>
       )}
@@ -121,7 +129,7 @@ function ChapterAccordion({ chapter, index, open, onToggle, onAction }) {
   )
 }
 
-function CurriculumSection({ section, index, openState, toggle, onAction }) {
+function CurriculumSection({ section, index, openState, toggle, onAction, onOpenActivity }) {
   const sectionOpen = openState.sections.includes(section.id)
 
   return (
@@ -162,9 +170,10 @@ function CurriculumSection({ section, index, openState, toggle, onAction }) {
                         chapter={chapter}
                         index={chapterIndex}
                         open={openState.chapters.includes(chapter.id)}
-                        onToggle={() => toggle('chapters', chapter.id)}
-                        onAction={onAction}
-                      />
+                              onToggle={() => toggle('chapters', chapter.id)}
+                              onAction={onAction}
+                              onOpenActivity={onOpenActivity}
+                            />
                     ))}
                   </div>
                 )}
@@ -177,7 +186,7 @@ function CurriculumSection({ section, index, openState, toggle, onAction }) {
   )
 }
 
-function FullMockTests({ course, open, onToggle, onAction }) {
+function FullMockTests({ course, open, onToggle, onAction, onOpenActivity }) {
   return (
     <article className="hl-course-detail-accordion hl-course-detail-full-mock">
       <button type="button" className="hl-course-detail-accordion-head" aria-expanded={open} onClick={onToggle}>
@@ -194,7 +203,7 @@ function FullMockTests({ course, open, onToggle, onAction }) {
       {open && (
         <div className="hl-course-detail-activity-list">
           {course.fullMockTests.map((activity) => (
-            <ActivityRow key={activity.id} activity={activity} onAction={onAction} />
+            <ActivityRow key={activity.id} activity={activity} onAction={onAction} onOpenActivity={onOpenActivity} />
           ))}
         </div>
       )}
@@ -202,7 +211,7 @@ function FullMockTests({ course, open, onToggle, onAction }) {
   )
 }
 
-function SupplementaryCurriculum({ course, openState, toggle, onAction }) {
+function SupplementaryCurriculum({ course, openState, toggle, onAction, onOpenActivity }) {
   return (
     <>
       {course.chapters.map((chapter, index) => (
@@ -213,6 +222,7 @@ function SupplementaryCurriculum({ course, openState, toggle, onAction }) {
             open={openState.chapters.includes(chapter.id)}
             onToggle={() => toggle('chapters', chapter.id)}
             onAction={onAction}
+            onOpenActivity={onOpenActivity}
           />
           <ProgressLine value={chapter.progress} />
         </article>
@@ -223,7 +233,7 @@ function SupplementaryCurriculum({ course, openState, toggle, onAction }) {
             <span>
               <ChevronDown size={17} />
               <b>{String(course.chapters.length + 1).padStart(2, '0')}</b>
-              FINAL TEST
+              MOCK TEST
             </span>
             <small>{course.finalTest.questionCount} câu · {course.finalTest.duration}</small>
           </div>
@@ -231,7 +241,7 @@ function SupplementaryCurriculum({ course, openState, toggle, onAction }) {
         </button>
         {openState.finalTest && (
           <div className="hl-course-detail-activity-list">
-            <ActivityRow activity={course.finalTest} onAction={onAction} />
+            <ActivityRow activity={course.finalTest} onAction={onAction} onOpenActivity={onOpenActivity} />
           </div>
         )}
       </article>
@@ -239,16 +249,8 @@ function SupplementaryCurriculum({ course, openState, toggle, onAction }) {
   )
 }
 
-function getCourseById(courseId) {
-  if (courseId === courseDetail.id) return { kind: 'main', data: courseDetail }
-
-  const normalizedId = supplementaryCourseAliases[courseId] || courseId
-  const supplementary = supplementaryCourseDetails[normalizedId]
-  return supplementary ? { kind: 'supplementary', data: supplementary } : null
-}
-
-function CourseDetail({ courseId, onBack }) {
-  const courseEntry = getCourseById(courseId)
+function CourseDetail({ courseId, onBack, onOpenActivity }) {
+  const courseEntry = getStudentCourseDetail(courseId)
   const currentChapterId = courseEntry?.kind === 'supplementary'
     ? courseEntry.data.currentChapterId
     : 'reading-vietnamese'
@@ -266,6 +268,16 @@ function CourseDetail({ courseId, onBack }) {
   const showMessage = (text) => {
     setMessage(text)
     window.setTimeout(() => setMessage(''), 2400)
+  }
+
+  const openActivity = (activity) => {
+    const routeType = getActivityRouteType(activity)
+    if (!routeType) {
+      showMessage(getActivityMessage(activity))
+      return
+    }
+
+    onOpenActivity?.(course.id, routeType, activity.id)
   }
 
   const toggle = (level, id) => {
@@ -337,7 +349,7 @@ function CourseDetail({ courseId, onBack }) {
 
         <div className="hl-course-detail-curriculum-list">
           {isSupplementary ? (
-            <SupplementaryCurriculum course={course} openState={openState} toggle={toggle} onAction={showMessage} />
+            <SupplementaryCurriculum course={course} openState={openState} toggle={toggle} onAction={showMessage} onOpenActivity={openActivity} />
           ) : (
             <>
               {course.sections.map((section, index) => (
@@ -348,6 +360,7 @@ function CourseDetail({ courseId, onBack }) {
                   openState={openState}
                   toggle={toggle}
                   onAction={showMessage}
+                  onOpenActivity={openActivity}
                 />
               ))}
               <FullMockTests
@@ -355,6 +368,7 @@ function CourseDetail({ courseId, onBack }) {
                 open={openState.fullMock}
                 onToggle={() => setOpenState((current) => ({ ...current, fullMock: !current.fullMock }))}
                 onAction={showMessage}
+                onOpenActivity={openActivity}
               />
             </>
           )}
