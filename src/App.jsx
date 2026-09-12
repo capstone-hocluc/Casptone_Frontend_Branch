@@ -7,11 +7,13 @@ import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
 import MyCourses from './pages/student/MyCourses'
 import StaffDashboard from './components/staff/StaffDashboard'
+import TeacherDashboard from './components/teacher/TeacherDashboard'
 
 function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
+    if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/staff/students') return 'staff-students'
     if (path === '/staff/students/hs-24091') return 'staff-detail'
     if (path === '/staff/enrollments') return 'staff-enrollments'
@@ -81,6 +83,11 @@ function App() {
   }
   const goAfterLogin = (email) => {
     if (email.trim().toLowerCase().includes('staff')) navigateStaff('dashboard')
+    else if (/(teacher|giangvien|giang-vien)/.test(email.trim().toLowerCase())) {
+      window.history.pushState({}, '', '/teacher/dashboard')
+      setAuthMode('teacher-dashboard')
+      setCurrentPath('/teacher/dashboard')
+    }
     else goToOnboarding()
   }
 
@@ -122,6 +129,7 @@ function App() {
   )
 
   if (authMode?.startsWith('staff-')) return <StaffDashboard page={authMode.replace('staff-', '')} onNavigate={navigateStaff} onBack={backToLanding} />
+  if (authMode === 'teacher-dashboard') return <TeacherDashboard onBack={backToLanding} />
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
   if (['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(currentPath) || currentPath.startsWith('/student/courses/')) return renderStudentDashboard()
   return authMode ? (
