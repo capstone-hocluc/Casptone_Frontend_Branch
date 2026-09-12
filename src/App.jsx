@@ -6,6 +6,7 @@ import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
 import MyCourses from './pages/student/MyCourses'
+import CourseDetail from './pages/student/CourseDetail'
 import StaffDashboard from './components/staff/StaffDashboard'
 
 function App() {
@@ -92,6 +93,9 @@ function App() {
   }
 
   const isCoursesPath = currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
+  const courseId = currentPath.startsWith('/student/courses/')
+    ? decodeURIComponent(currentPath.split('/').pop())
+    : null
   const studentTitle = currentPath === '/student/learning-profile'
     ? 'Hồ sơ năng lực'
     : isCoursesPath
@@ -113,6 +117,8 @@ function App() {
     >
       {currentPath === '/student/learning-profile' ? (
         <LearningProfile />
+      ) : courseId ? (
+        <CourseDetail courseId={courseId} onBack={() => navigateStudent('/student/courses')} />
       ) : isCoursesPath ? (
         <MyCourses onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)} />
       ) : (

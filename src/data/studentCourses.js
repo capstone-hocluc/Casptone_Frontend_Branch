@@ -25,7 +25,7 @@ export const studentCourses = [
     thumbnail: null,
   },
   {
-    id: 'logic-data-skills',
+    id: 'science-data-logic',
     type: 'supplementary',
     subject: 'Tư duy khoa học',
     title: 'Kỹ năng Logic & Phân tích số liệu',
@@ -49,7 +49,7 @@ export const studentCourses = [
     thumbnail: null,
   },
   {
-    id: 'probability-topic',
+    id: 'math-probability',
     type: 'supplementary',
     subject: 'Toán học',
     title: 'Chuyên đề Xác suất',
