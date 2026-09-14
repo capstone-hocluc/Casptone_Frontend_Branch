@@ -1,0 +1,58 @@
+import {
+  Activity,
+  BadgeCheck,
+  BarChart3,
+  BookOpen,
+  Brain,
+  Calculator,
+  ClipboardCheck,
+  Clock3,
+  FlaskConical,
+  Languages,
+  ListChecks,
+  Target,
+  Trophy,
+} from 'lucide-react'
+
+export const componentIcons = {
+  vietnamese: Languages,
+  english: BookOpen,
+  math: Calculator,
+  science: FlaskConical,
+}
+
+export const componentColors = {
+  vietnamese: '#1B4DE4',
+  english: '#D97706',
+  math: '#16A05B',
+  science: '#6D54D4',
+}
+
+export const learningMetricIcons = {
+  lessons: BookOpen,
+  time: Clock3,
+  questions: ClipboardCheck,
+  topics: Brain,
+}
+
+export const practiceOverviewIcons = {
+  completed: ClipboardCheck,
+  latest: Activity,
+  best: Trophy,
+  average: BarChart3,
+}
+
+export const practiceStatIcons = {
+  accuracy: Target,
+  time: Clock3,
+  questions: ListChecks,
+  completed: BadgeCheck,
+}
+
+export const tabs = [
+  { key: 'overview', label: 'Tổng quan' },
+  { key: 'learning', label: 'Học tập' },
+  { key: 'practice', label: 'Luyện đề' },
+]
+
+export const practiceFilters = ['Tất cả', 'Thi thử', 'Mini Test']

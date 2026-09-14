@@ -1,0 +1,7 @@
+node_modules
+dist
+dist-ssr
+.playwright-mcp
+docs
+*.lock
+package-lock.json
