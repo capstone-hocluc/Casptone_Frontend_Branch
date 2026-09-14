@@ -1,0 +1,115 @@
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
+const ACCESS_TOKEN_KEY = 'hocluc.accessToken'
+const REFRESH_TOKEN_KEY = 'hocluc.refreshToken'
+
+export class ApiError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
+interface RequestOptions {
+  method?: string
+  body?: unknown
+  auth?: boolean
+}
+
+async function request(path: string, { method = 'GET', body, auth = false }: RequestOptions = {}) {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (auth) {
+    const token = getAccessToken()
+    if (token) headers.Authorization = `Bearer ${token}`
+  }
+
+  let response: Response
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    })
+  } catch {
+    // fetch itself threw: no network / server unreachable, there is no response to read.
+    throw new Error('Không thể kết nối máy chủ. Kiểm tra mạng và thử lại.')
+  }
+
+  const data = await response.json().catch(() => null)
+  if (!response.ok) {
+    // A 401 on a call that carried a token means the session itself is invalid/expired -
+    // every caller would otherwise have to remember to handle this the same way, so it's
+    // handled once, here, instead of per-component.
+    if (auth && response.status === 401) {
+      clearTokens()
+      // window.location.href below is a full page navigation, which unmounts
+      // React (and any in-memory toast) before it can render - so the message
+      // is handed off through sessionStorage and shown after the reload instead.
+      sessionStorage.setItem(
+        'hocluc.pendingToast',
+        'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.'
+      )
+      window.location.href = '/login'
+    }
+    throw new ApiError(data?.message || `Request failed with status ${response.status}`, response.status)
+  }
+  return data
+}
+
+export function getAccessToken() {
+  return localStorage.getItem(ACCESS_TOKEN_KEY)
+}
+
+export function setTokens({ accessToken, refreshToken }: { accessToken?: string; refreshToken?: string }) {
+  if (accessToken) localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
+  if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+}
+
+export function clearTokens() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+}
+
+// Decodes the role/subject out of the JWT payload without a full JWT library -
+// this app only needs to read the claims already trusted from a same-origin login response.
+export function decodeToken(token: string) {
+  try {
+    const payload = token.split('.')[1]
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+export async function login(email: string, password: string) {
+  const data = await request('/api/v1/auth/login', {
+    method: 'POST',
+    body: { email, password },
+  })
+  const { accessToken, refreshToken } = data.data
+  setTokens({ accessToken, refreshToken })
+  return decodeToken(accessToken)
+}
+
+export async function studentRegister(payload: unknown) {
+  return request('/api/v1/auth/student-register', { method: 'POST', body: payload })
+}
+
+export async function confirmRegistration(payload: unknown) {
+  return request('/api/v1/auth/confirm', { method: 'POST', body: payload })
+}
+
+export async function forgotPassword(email: string) {
+  return request('/api/v1/auth/forgot-password', { method: 'POST', body: { email } })
+}
+
+export async function resetPassword(payload: unknown) {
+  return request('/api/v1/auth/reset-password', { method: 'POST', body: payload })
+}
+
+export async function getMyProfile() {
+  return request('/api/v1/users/me', { auth: true })
+}
