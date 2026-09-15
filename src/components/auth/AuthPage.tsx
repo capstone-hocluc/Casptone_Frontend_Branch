@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
 import Logo from '../common/Logo'
-import { studentRegister } from '../../lib/api'
 import { getErrorMessage } from '../../lib/errors'
-import { confirmAccount, login as loginAccount } from '../../services/authService'
+import {
+  confirmAccount,
+  login as loginAccount,
+  registerStudent,
+} from '../../services/authService'
 
 const roles = [
   { id: 'student', label: 'Học sinh' },
@@ -442,7 +445,7 @@ function AuthPage({
 
     setRegisterLoading(true)
     try {
-      const response = await studentRegister({
+      const response = await registerStudent({
         email,
         password: authPassword,
         firstName,
