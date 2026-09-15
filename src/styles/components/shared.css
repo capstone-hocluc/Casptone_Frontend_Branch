@@ -1,0 +1,105 @@
+/* Toast notifications (global error/system messages) */
+.hl-toast-viewport {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 32px));
+}
+.hl-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(17, 24, 58, 0.16);
+  font-size: 14px;
+  line-height: 1.45;
+  animation: hl-toast-in 0.18s ease-out;
+}
+.hl-toast--error {
+  background: #fff3f4;
+  border: 1px solid #ffd1d5;
+  color: #b3232e;
+}
+.hl-toast--success {
+  background: #eefbf3;
+  border: 1px solid #c8e8d3;
+  color: #186a44;
+}
+.hl-toast span {
+  flex: 1;
+}
+.hl-toast button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.hl-toast button:hover {
+  opacity: 1;
+}
+@keyframes hl-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error boundary fallback */
+.hl-error-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 100vh;
+  padding: 32px;
+  text-align: center;
+}
+.hl-error-fallback h1 {
+  margin: 0;
+  color: #26304d;
+  font-size: 20px;
+}
+.hl-error-fallback p {
+  margin: 0;
+  color: #7b86a2;
+  font-size: 14px;
+  max-width: 420px;
+}
+.hl-error-fallback button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 20px;
+  background: #1b4de4;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Shared staff UI primitives (src/components/ui/) — one set of
+   classes reused by every staff screen instead of near-duplicate
+   per-screen CSS (status pills, stat tiles, filter bars, tables).
+   ============================================================ */
+
+
+
+
+
+/* Form validation error text (react-hook-form + zod) */
+.hl-form-error { display: block; margin-top: 4px; color: var(--color-badge-danger-text); font-size: 14px; font-weight: 600; }
+

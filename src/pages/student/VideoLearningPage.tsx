@@ -14,6 +14,7 @@ import {
   Volume2,
   X,
 } from 'lucide-react'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { dashboardSummary } from '../../data/studentDashboard'
 import {
   findCourseActivity,
@@ -53,6 +54,12 @@ function getMockAiResponse(prompt, lessonTitle) {
 }
 
 function LearningHeader({ course, onBack }) {
+  const { profile } = useCurrentUser()
+  const displayName =
+    profile?.displayName ||
+    [profile?.lastName, profile?.firstName].filter(Boolean).join(' ') ||
+    dashboardSummary.studentName
+
   return (
     <header className="hl-video-learn-header">
       <div>
@@ -69,8 +76,8 @@ function LearningHeader({ course, onBack }) {
         <strong>{course.title}</strong>
       </div>
       <img
-        src={dashboardSummary.avatar || '/avatar-minhanh.jpg'}
-        alt={dashboardSummary.studentName}
+        src={profile?.avatarUrl || dashboardSummary.avatar || '/avatar-minhanh.jpg'}
+        alt={displayName}
       />
     </header>
   )

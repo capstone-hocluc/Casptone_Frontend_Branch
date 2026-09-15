@@ -1,0 +1,78 @@
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --color-primary: #1b4de4;
+  --color-primary-dark: #1230a6;
+  --color-accent: #fbc34f;
+  --color-heading: #11183a;
+  --color-body: #5b647f;
+
+  /* Semantic design tokens (staff dashboard) */
+  --color-text-heading: #11183a;
+  --color-text-heading-soft: #35405e;
+  --color-text-strong: #26304d;
+  --color-text-label: #495674;
+  --color-text-body: #58657f;
+  --color-text-muted: #7b86a2;
+  --color-text-subtle: #8791aa;
+
+  --color-border-primary: #dde5f3;
+  --color-border-subtle: #eef1f7;
+
+  --color-surface: #ffffff;
+  --color-surface-soft: #f9fafd;
+  --color-surface-hover: #fafbff;
+
+  --color-badge-success-bg: #e3f7ec;
+  --color-badge-success-text: #227a58;
+  --color-badge-warning-bg: #fff3d7;
+  --color-badge-warning-text: #a56800;
+  --color-badge-danger-bg: #ffebed;
+  --color-badge-danger-text: #d84954;
+  --color-badge-info-bg: #eaf0ff;
+  --color-badge-info-text: #315dc7;
+  --color-badge-neutral-bg: #eef1f6;
+  --color-badge-neutral-text: #6c7893;
+
+  /* Site-wide tokens (landing, auth, student app, teacher dashboard) */
+  --color-text-secondary: #66728d;
+  --color-text-emphasis: #2a3354;
+  --color-text-faint: #7d889d;
+  --color-text-dark: #252a36;
+  --color-text-dim: #33415f;
+  --color-text-heading-muted: #42506e;
+
+  --color-success: #16a05b;
+  --color-warning: #d97706;
+  --color-warning-dark: #dca400;
+  --color-danger: #e8324a;
+  --color-link: #086bff;
+  --color-violet: #6d54d4;
+  --color-sky: #31a8ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text-heading);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
+

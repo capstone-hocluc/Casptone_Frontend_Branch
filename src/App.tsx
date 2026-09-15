@@ -11,9 +11,11 @@ import LearningActivity from './pages/student/LearningActivity'
 import VideoLearningPage from './pages/student/VideoLearningPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
+import { useCurrentUser } from './hooks/useCurrentUser'
 import { logout } from './services/authService.ts'
 
 function App() {
+  const { clearCurrentUser } = useCurrentUser()
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
@@ -127,6 +129,7 @@ function App() {
     try {
       await logout()
     } finally {
+      clearCurrentUser()
       setPendingVerificationEmail('')
       window.history.replaceState({}, '', '/login')
       setAuthMode('login')
