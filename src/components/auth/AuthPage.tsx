@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
 import Logo from '../common/Logo'
-import { login as apiLogin } from '../../lib/api'
+import { login as apiLogin, studentRegister } from '../../lib/api'
 import { getErrorMessage } from '../../lib/errors'
 
 const roles = [
@@ -9,14 +9,114 @@ const roles = [
   { id: 'teacher', label: 'Giáo viên' },
 ]
 
+const passwordRequirementRules = [
+  {
+    key: 'length',
+    label: 'Ít nhất 8 ký tự',
+    missingLabel: '8 ký tự',
+    message: 'Mật khẩu phải có ít nhất 8 ký tự.',
+    test: (value: string) => value.length >= 8,
+  },
+  {
+    key: 'uppercase',
+    label: 'Có chữ hoa',
+    missingLabel: 'chữ hoa',
+    message: 'Mật khẩu phải có ít nhất 1 chữ hoa.',
+    test: (value: string) => /[A-Z]/.test(value),
+  },
+  {
+    key: 'lowercase',
+    label: 'Có chữ thường',
+    missingLabel: 'chữ thường',
+    message: 'Mật khẩu phải có ít nhất 1 chữ thường.',
+    test: (value: string) => /[a-z]/.test(value),
+  },
+  {
+    key: 'number',
+    label: 'Có chữ số',
+    missingLabel: 'chữ số',
+    message: 'Mật khẩu phải có ít nhất 1 chữ số.',
+    test: (value: string) => /\d/.test(value),
+  },
+  {
+    key: 'special',
+    label: 'Có ký tự đặc biệt',
+    missingLabel: 'ký tự đặc biệt',
+    message: 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt.',
+    test: (value: string) => /[^A-Za-z0-9]/.test(value),
+  },
+]
+
+function getPasswordRequirements(value: string) {
+  return passwordRequirementRules.map((rule) => ({
+    ...rule,
+    met: rule.test(value),
+  }))
+}
+
+function validatePassword(value: string) {
+  if (!value) return 'Vui lòng nhập mật khẩu.'
+  return getPasswordRequirements(value).find((rule) => !rule.met)?.message || ''
+}
+
+function joinRequirementLabels(labels: string[]) {
+  if (labels.length <= 1) return labels[0] || ''
+  if (labels.length === 2) return `${labels[0]} và ${labels[1]}`
+  return `${labels.slice(0, -1).join(', ')} và ${labels[labels.length - 1]}`
+}
+
+function getPasswordHelper(value: string) {
+  if (!value) {
+    return {
+      text: 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+      isError: false,
+    }
+  }
+
+  const missingRules = getPasswordRequirements(value).filter((rule) => !rule.met)
+  if (!missingRules.length) return { text: '', isError: false }
+
+  const needsLength = missingRules.some((rule) => rule.key === 'length')
+  const missingLabels = missingRules
+    .filter((rule) => rule.key !== 'length')
+    .map((rule) => rule.missingLabel)
+
+  if (needsLength) {
+    return {
+      text: missingLabels.length
+        ? `Mật khẩu cần ít nhất 8 ký tự và thêm ${joinRequirementLabels(missingLabels)}.`
+        : 'Mật khẩu cần ít nhất 8 ký tự.',
+      isError: true,
+    }
+  }
+
+  return {
+    text:
+      missingLabels.length === 1
+        ? `Mật khẩu cần có ít nhất 1 ${missingLabels[0]}.`
+        : `Mật khẩu cần thêm ${joinRequirementLabels(missingLabels)}.`,
+    isError: true,
+  }
+}
+
 function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBack }) {
   const [mode, setMode] = useState(initialMode)
   const [role, setRole] = useState('student')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
+  const [signupForm, setSignupForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    confirmPassword: '',
+  })
   const [loginLoading, setLoginLoading] = useState(false)
   const [loginError, setLoginError] = useState('')
+  const [registerLoading, setRegisterLoading] = useState(false)
+  const [registerSuccess, setRegisterSuccess] = useState('')
+  const [registerErrors, setRegisterErrors] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [recoveryStep, setRecoveryStep] = useState(1)
   const [resendCountdown, setResendCountdown] = useState(0)
   const [recoveryLoading, setRecoveryLoading] = useState(false)
@@ -139,15 +239,17 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
     setRecoveryErrors((current) => ({ ...current, [key]: '' }))
     setRecoverySuccess('')
   }
+  const updateSignup = (key, value) => {
+    setSignupForm((current) => ({ ...current, [key]: value }))
+    setRegisterErrors((current) => ({ ...current, [key]: '', general: '' }))
+    setRegisterSuccess('')
+  }
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
   const passwordIssues = (value) =>
-    [
-      value.length >= 8 ? '' : 'Ít nhất 8 ký tự',
-      /[A-Z]/.test(value) ? '' : 'Có ít nhất 1 chữ hoa',
-      /[a-z]/.test(value) ? '' : 'Có ít nhất 1 chữ thường',
-      /\d/.test(value) ? '' : 'Có ít nhất 1 chữ số',
-      /[^A-Za-z0-9]/.test(value) ? '' : 'Có ít nhất 1 ký tự đặc biệt',
-    ].filter(Boolean)
+    getPasswordRequirements(value)
+      .filter((rule) => !rule.met)
+      .map((rule) => rule.label)
+  const passwordHelper = getPasswordHelper(authPassword)
 
   const submitRecoveryEmail = () => {
     const nextErrors: Record<string, string> = {}
@@ -289,6 +391,58 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
       setLoginError(getErrorMessage(error))
     } finally {
       setLoginLoading(false)
+    }
+  }
+
+  const submitRegister = async () => {
+    if (registerLoading) return
+
+    const email = authEmail.trim()
+    const firstName = signupForm.firstName.trim()
+    const lastName = signupForm.lastName.trim()
+    const phone = signupForm.phone.trim()
+    const nextErrors: Record<string, string> = {}
+
+    if (!lastName) nextErrors.lastName = 'Vui lòng nhập họ.'
+    if (!firstName) nextErrors.firstName = 'Vui lòng nhập tên.'
+    if (!email) nextErrors.email = 'Vui lòng nhập email.'
+    else if (!isValidEmail(email)) nextErrors.email = 'Email chưa đúng định dạng.'
+    if (!phone) nextErrors.phone = 'Vui lòng nhập số điện thoại.'
+    nextErrors.password = validatePassword(authPassword)
+    if (!signupForm.confirmPassword) nextErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
+    else if (authPassword !== signupForm.confirmPassword)
+      nextErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
+
+    Object.keys(nextErrors).forEach((key) => {
+      if (!nextErrors[key]) delete nextErrors[key]
+    })
+    setRegisterErrors(nextErrors)
+    setRegisterSuccess('')
+    if (Object.keys(nextErrors).length) return
+
+    setRegisterLoading(true)
+    try {
+      const response = await studentRegister({
+        email,
+        password: authPassword,
+        firstName,
+        lastName,
+        phone,
+        role: 'STUDENT',
+      })
+
+      setRegisterSuccess(
+        response?.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.'
+      )
+      onContinue?.(email)
+    } catch (error) {
+      const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      setRegisterErrors({
+        ...fieldErrors,
+        general: getErrorMessage(error) || 'Đăng ký không thành công. Vui lòng thử lại.',
+      })
+    } finally {
+      setRegisterLoading(false)
     }
   }
 
@@ -564,18 +718,20 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                       : 'Đăng nhập để tiếp tục hành trình học tập của bạn.'}
                   </p>
                 </div>
-                <div className="hl-auth-tabs" role="tablist" aria-label="Loại tài khoản">
-                  {roles.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={role === item.id ? 'is-active' : ''}
-                      onClick={() => setRole(item.id)}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
+                {!isSignup && (
+                  <div className="hl-auth-tabs" role="tablist" aria-label="Loại tài khoản">
+                    {roles.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={role === item.id ? 'is-active' : ''}
+                        onClick={() => setRole(item.id)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <button type="button" className="hl-auth-google">
                   <span className="hl-google-mark">G</span>
                   <span>{isSignup ? 'Đăng ký với Google' : 'Đăng nhập với Google'}</span>
@@ -586,30 +742,83 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                   <span />
                 </div>
                 {isSignup && (
-                  <label className="hl-auth-label">
-                    Họ và tên
-                    <span className="hl-auth-input">
-                      <NotebookPen size={19} />
-                      <input type="text" placeholder="Nguyễn Văn An" />
-                    </span>
-                  </label>
+                  <div className="hl-auth-name-row">
+                    <label className="hl-auth-label">
+                      Họ
+                      <span className={`hl-auth-input ${registerErrors.lastName ? 'has-error' : ''}`}>
+                        <NotebookPen size={19} />
+                        <input
+                          type="text"
+                          placeholder="Nguyễn"
+                          value={signupForm.lastName}
+                          onChange={(event) => updateSignup('lastName', event.target.value)}
+                          autoComplete="family-name"
+                        />
+                      </span>
+                      {registerErrors.lastName && (
+                        <small className="hl-auth-error">{registerErrors.lastName}</small>
+                      )}
+                    </label>
+                    <label className="hl-auth-label">
+                      Tên
+                      <span className={`hl-auth-input ${registerErrors.firstName ? 'has-error' : ''}`}>
+                        <NotebookPen size={19} />
+                        <input
+                          type="text"
+                          placeholder="An"
+                          value={signupForm.firstName}
+                          onChange={(event) => updateSignup('firstName', event.target.value)}
+                          autoComplete="given-name"
+                        />
+                      </span>
+                      {registerErrors.firstName && (
+                        <small className="hl-auth-error">{registerErrors.firstName}</small>
+                      )}
+                    </label>
+                  </div>
                 )}
                 <label className="hl-auth-label">
                   Email
-                  <span className="hl-auth-input">
+                  <span className={`hl-auth-input ${registerErrors.email ? 'has-error' : ''}`}>
                     <Mail size={19} />
                     <input
                       type="email"
                       placeholder="you@example.com"
                       value={authEmail}
-                      onChange={(event) => setAuthEmail(event.target.value)}
+                      onChange={(event) => {
+                        setAuthEmail(event.target.value)
+                        setLoginError('')
+                        setRegisterErrors((current) => ({ ...current, email: '', general: '' }))
+                        setRegisterSuccess('')
+                      }}
                       autoComplete="email"
                     />
                   </span>
+                  {isSignup && registerErrors.email && (
+                    <small className="hl-auth-error">{registerErrors.email}</small>
+                  )}
                 </label>
+                {isSignup && (
+                  <label className="hl-auth-label">
+                    Số điện thoại
+                    <span className={`hl-auth-input ${registerErrors.phone ? 'has-error' : ''}`}>
+                      <NotebookPen size={19} />
+                      <input
+                        type="tel"
+                        placeholder="0901234567"
+                        value={signupForm.phone}
+                        onChange={(event) => updateSignup('phone', event.target.value)}
+                        autoComplete="tel"
+                      />
+                    </span>
+                    {registerErrors.phone && (
+                      <small className="hl-auth-error">{registerErrors.phone}</small>
+                    )}
+                  </label>
+                )}
                 <label className="hl-auth-label">
                   Mật khẩu
-                  <span className="hl-auth-input">
+                  <span className={`hl-auth-input ${registerErrors.password ? 'has-error' : ''}`}>
                     <LockKeyhole size={19} />
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -618,8 +827,15 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                       onChange={(event) => {
                         setAuthPassword(event.target.value)
                         setLoginError('')
+                        setRegisterErrors((current) => ({
+                          ...current,
+                          password: '',
+                          confirmPassword: '',
+                          general: '',
+                        }))
+                        setRegisterSuccess('')
                       }}
-                      autoComplete="current-password"
+                      autoComplete={isSignup ? 'new-password' : 'current-password'}
                     />
                     <button
                       type="button"
@@ -630,8 +846,56 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                       {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
                     </button>
                   </span>
+                  {isSignup && registerErrors.password && (
+                    <small className="hl-auth-error">{registerErrors.password}</small>
+                  )}
+                  {isSignup && !registerErrors.password && passwordHelper.text && (
+                    <small
+                      className={`hl-auth-password-note ${
+                        passwordHelper.isError ? 'is-error' : ''
+                      }`}
+                    >
+                      {passwordHelper.text}
+                    </small>
+                  )}
                 </label>
+                {isSignup && (
+                  <label className="hl-auth-label">
+                    Xác nhận mật khẩu
+                    <span
+                      className={`hl-auth-input ${registerErrors.confirmPassword ? 'has-error' : ''}`}
+                    >
+                      <LockKeyhole size={19} />
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Nhập lại mật khẩu"
+                        value={signupForm.confirmPassword}
+                        onChange={(event) => updateSignup('confirmPassword', event.target.value)}
+                        autoComplete="new-password"
+                      />
+                      <button
+                        type="button"
+                        className="hl-auth-eye"
+                        onClick={() => setShowConfirmPassword((value) => !value)}
+                        aria-label={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      >
+                        {showConfirmPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                      </button>
+                    </span>
+                    {registerErrors.confirmPassword && (
+                      <small className="hl-auth-error">{registerErrors.confirmPassword}</small>
+                    )}
+                  </label>
+                )}
                 {!isSignup && loginError && <small className="hl-auth-error">{loginError}</small>}
+                {isSignup && registerSuccess && (
+                  <div className="hl-auth-success" role="status">
+                    {registerSuccess}
+                  </div>
+                )}
+                {isSignup && registerErrors.general && (
+                  <small className="hl-auth-error">{registerErrors.general}</small>
+                )}
                 {!isSignup && (
                   <button type="button" className="hl-auth-forgot" onClick={openRecovery}>
                     Quên mật khẩu?
@@ -640,10 +904,16 @@ function AuthPage({ mode: initialMode = 'login', onModeChange, onContinue, onBac
                 <button
                   type="button"
                   className="hl-auth-submit"
-                  disabled={!isSignup && loginLoading}
-                  onClick={isSignup ? () => onContinue?.(authEmail) : submitLogin}
+                  disabled={isSignup ? registerLoading : loginLoading}
+                  onClick={isSignup ? submitRegister : submitLogin}
                 >
-                  {isSignup ? 'Đăng ký ngay' : loginLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                  {isSignup
+                    ? registerLoading
+                      ? 'Đang đăng ký...'
+                      : 'Đăng ký ngay'
+                    : loginLoading
+                      ? 'Đang đăng nhập...'
+                      : 'Đăng nhập'}
                 </button>
                 <p className="hl-auth-switch">
                   {isSignup ? 'Bạn đã có tài khoản?' : 'Chưa có tài khoản?'}{' '}

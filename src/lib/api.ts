@@ -1,14 +1,17 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://api.hocluc.com'
 
 const ACCESS_TOKEN_KEY = 'hocluc.accessToken'
 const REFRESH_TOKEN_KEY = 'hocluc.refreshToken'
 
 export class ApiError extends Error {
   status: number
+  errors?: Record<string, string>
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, errors?: Record<string, string>) {
     super(message)
     this.status = status
+    this.errors = errors
   }
 }
 
@@ -38,7 +41,7 @@ async function request(path: string, { method = 'GET', body, auth = false }: Req
   }
 
   const data = await response.json().catch(() => null)
-  if (!response.ok) {
+  if (!response.ok || data?.success === false) {
     // A 401 on a call that carried a token means the session itself is invalid/expired -
     // every caller would otherwise have to remember to handle this the same way, so it's
     // handled once, here, instead of per-component.
@@ -53,7 +56,11 @@ async function request(path: string, { method = 'GET', body, auth = false }: Req
       )
       window.location.href = '/login'
     }
-    throw new ApiError(data?.message || `Request failed with status ${response.status}`, response.status)
+    throw new ApiError(
+      data?.message || `Request failed with status ${response.status}`,
+      response.status,
+      data?.errors
+    )
   }
   return data
 }
