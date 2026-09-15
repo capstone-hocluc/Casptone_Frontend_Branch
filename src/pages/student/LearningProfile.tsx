@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CalendarDays, Pencil } from 'lucide-react'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { learningProfilePage } from '../../data/learningProfile'
 import { tabs } from './learning-profile/icons'
 import OverviewTab from './learning-profile/OverviewTab'
@@ -12,6 +13,11 @@ function LearningProfile() {
   const [analysis, setAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const profile = learningProfilePage
+  const { profile: currentUser } = useCurrentUser()
+  const displayName =
+    currentUser?.displayName ||
+    [currentUser?.lastName, currentUser?.firstName].filter(Boolean).join(' ') ||
+    profile.studentName
   const heroMetrics = [
     { label: 'Hiện tại', value: profile.currentScore },
     { label: 'Điểm gần nhất', value: profile.latestScore },
@@ -59,7 +65,7 @@ function LearningProfile() {
             />
             <div className="hl-profile-hero-content">
               <h2>
-                Hi, <span>{profile.studentName}</span>
+                Hi, <span>{displayName}</span>
               </h2>
               <p>Hãy tiếp tục học mỗi ngày - nỗ lực của bạn sẽ được đền đáp!</p>
               <div className="hl-profile-hero-exam">

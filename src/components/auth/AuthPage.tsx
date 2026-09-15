@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
 import Logo from '../common/Logo'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { getErrorMessage } from '../../lib/errors'
 import { showSuccessToast } from '../../lib/toastBus'
 import {
@@ -108,6 +109,7 @@ function AuthPage({
   onContinue,
   onBack,
 }) {
+  const { loadCurrentUser } = useCurrentUser()
   const [mode, setMode] = useState(initialMode)
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
@@ -448,6 +450,11 @@ function AuthPage({
     setLoginLoading(true)
     try {
       await loginAccount({ email, password: authPassword })
+      const profile = await loadCurrentUser()
+      if (profile.role !== 'STUDENT') {
+        setLoginError('Tài khoản này hiện chưa được hỗ trợ trong khu vực Học sinh.')
+        return
+      }
       onContinue?.(email)
     } catch (error) {
       const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
