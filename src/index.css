@@ -660,6 +660,9 @@ body {
 .hl-auth-recovery .hl-auth-label {
   margin-top: 0;
 }
+.hl-auth-verification-label {
+  font-weight: 500;
+}
 .hl-auth-recovery .hl-auth-input {
   width: 100%;
 }
@@ -676,6 +679,30 @@ body {
   font-size: 13px;
   line-height: 1.55;
   box-shadow: 0 12px 22px rgba(54, 179, 126, 0.08);
+}
+.hl-auth-verification-resend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -4px 0 0;
+  color: #7c88a8;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.hl-auth-verification-resend button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.hl-auth-verification-resend button:disabled {
+  color: #98a2bc;
+  cursor: not-allowed;
 }
 .hl-auth-email-notice {
   display: flex;
@@ -729,9 +756,17 @@ body {
   color: var(--color-primary);
   font: inherit;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color 0.15s ease;
+}
+.hl-auth-recovery-back:hover {
+  color: var(--color-primary-dark);
 }
 .hl-auth-recovery-back:disabled {
   cursor: progress;
@@ -2746,6 +2781,29 @@ body {
   font-size: 13px;
   line-height: 1.6;
 }
+.hl-auth-page.is-verification .hl-auth-art-copy {
+  padding-top: 42px;
+  max-width: 460px;
+}
+.hl-auth-page.is-verification .hl-auth-heading--compact {
+  width: 100%;
+  margin-bottom: 6px;
+}
+.hl-auth-page.is-verification .hl-auth-heading--compact h1 {
+  margin-top: 0;
+  font-weight: 700;
+}
+.hl-auth-page.is-verification .hl-auth-heading--compact p {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.hl-auth-page.is-verification .hl-auth-art-image {
+  right: -8%;
+  bottom: -9%;
+  width: 64%;
+  max-height: 58%;
+}
 
 @media (min-width: 900px) and (max-height: 850px) {
   .hl-auth-page {
@@ -2853,6 +2911,15 @@ body {
   .hl-auth-art-image {
     width: 72%;
     max-height: 70%;
+  }
+  .hl-auth-page.is-verification .hl-auth-art-copy {
+    padding-top: 34px;
+  }
+  .hl-auth-page.is-verification .hl-auth-art-image {
+    right: -9%;
+    bottom: -11%;
+    width: 58%;
+    max-height: 52%;
   }
 }
 .hl-auth-doodle {

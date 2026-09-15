@@ -79,26 +79,17 @@ export function clearTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
-// Decodes the role/subject out of the JWT payload without a full JWT library -
-// this app only needs to read the claims already trusted from a same-origin login response.
-export function decodeToken(token: string) {
-  try {
-    const payload = token.split('.')[1]
-    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
-    return JSON.parse(json)
-  } catch {
-    return null
-  }
-}
-
 export async function login(email: string, password: string) {
   const data = await request('/api/v1/auth/login', {
     method: 'POST',
     body: { email, password },
   })
-  const { accessToken, refreshToken } = data.data
+  const { accessToken, refreshToken } = data?.data || {}
+  if (!accessToken || !refreshToken) {
+    throw new ApiError('Đăng nhập không thành công. Máy chủ chưa trả về đầy đủ token.', 0)
+  }
   setTokens({ accessToken, refreshToken })
-  return decodeToken(accessToken)
+  return data
 }
 
 export async function studentRegister(payload: unknown) {

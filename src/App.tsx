@@ -40,6 +40,7 @@ function App() {
   const [currentPath, setCurrentPath] = useState(
     () => window.location.pathname.replace(/\/$/, '') || '/'
   )
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('')
 
   useEffect(() => {
     const openAuth = (event) => {
@@ -78,7 +79,8 @@ function App() {
     setCurrentPath('/onboarding')
   }
 
-  const goToEmailVerification = () => {
+  const goToEmailVerification = (email = '') => {
+    setPendingVerificationEmail(email)
     window.history.pushState({}, '', '/verify-email')
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
@@ -110,15 +112,9 @@ function App() {
     setAuthMode(`teacher-${page}`)
     setCurrentPath(paths[page])
   }
-  const goAfterLogin = (email, claims) => {
-    const role = claims?.role?.toUpperCase?.().replace(/^ROLE_/, '')
-    if (role === 'STAFF' || role === 'MANAGER' || role === 'ADMINISTRATOR')
-      navigateStaff('dashboard')
-    else if (role === 'TEACHER') {
-      window.history.pushState({}, '', '/teacher/dashboard')
-      setAuthMode('teacher-dashboard')
-      setCurrentPath('/teacher/dashboard')
-    } else goToOnboarding()
+  const goAfterLogin = () => {
+    setPendingVerificationEmail('')
+    navigateStudent('/student/dashboard')
   }
 
   const navigateStudent = (path) => {
@@ -230,6 +226,7 @@ function App() {
       mode={authMode}
       onModeChange={navigateAuth}
       onContinue={authMode === 'signup' ? goToEmailVerification : goAfterLogin}
+      verificationEmail={pendingVerificationEmail}
       onBack={backToLanding}
     />
   ) : (
