@@ -25,6 +25,10 @@ export function showErrorToast(message: string) {
   emitToast({ id: Date.now() + Math.random(), variant: 'error', message })
 }
 
+export function showSuccessToast(message: string) {
+  emitToast({ id: Date.now() + Math.random(), variant: 'success', message })
+}
+
 // Runs once per page load (module-level, not a React effect) so it isn't
 // affected by StrictMode's dev-only double-invoke of effects, which would
 // otherwise read+clear this key before the surviving mount's listener exists.

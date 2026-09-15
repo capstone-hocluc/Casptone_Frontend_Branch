@@ -12,6 +12,8 @@ interface StudentTopbarProps {
   onToggleSidebar?: () => void
   onNavigateHome?: () => void
   onNavigateLearningProfile?: () => void
+  onLogout?: () => void
+  logoutLoading?: boolean
 }
 
 function StudentTopbar({
@@ -19,6 +21,8 @@ function StudentTopbar({
   onToggleSidebar,
   onNavigateHome,
   onNavigateLearningProfile,
+  onLogout,
+  logoutLoading = false,
 }: StudentTopbarProps) {
   const [profileOpen, setProfileOpen] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
@@ -127,10 +131,14 @@ function StudentTopbar({
               </button>
               <button
                 type="button"
-                onClick={() => showMessage('Tính năng Đăng xuất đang được phát triển.')}
+                onClick={() => {
+                  setProfileOpen(false)
+                  onLogout?.()
+                }}
+                disabled={logoutLoading}
               >
                 <LogOut size={16} />
-                Đăng xuất
+                {logoutLoading ? 'Đang đăng xuất...' : 'Đăng xuất'}
               </button>
             </div>
           )}

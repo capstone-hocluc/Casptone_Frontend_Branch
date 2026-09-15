@@ -9,10 +9,20 @@ interface StudentLayoutProps {
   subtitle?: ReactNode
   onNavigate: (path: string) => void
   onBack?: () => void
+  onLogout?: () => void
+  logoutLoading?: boolean
   children: ReactNode
 }
 
-function StudentLayout({ currentPath, title, subtitle, onNavigate, children }: StudentLayoutProps) {
+function StudentLayout({
+  currentPath,
+  title,
+  subtitle,
+  onNavigate,
+  onLogout,
+  logoutLoading = false,
+  children,
+}: StudentLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
 
   return (
@@ -24,6 +34,8 @@ function StudentLayout({ currentPath, title, subtitle, onNavigate, children }: S
         onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
         onNavigateHome={() => onNavigate('/student/dashboard')}
         onNavigateLearningProfile={() => onNavigate('/student/learning-profile')}
+        onLogout={onLogout}
+        logoutLoading={logoutLoading}
       />
       <StudentSidebar
         currentPath={currentPath}

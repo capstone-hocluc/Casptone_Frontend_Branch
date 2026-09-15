@@ -2,16 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
 import Logo from '../common/Logo'
 import { getErrorMessage } from '../../lib/errors'
+import { showSuccessToast } from '../../lib/toastBus'
 import {
   confirmAccount,
+  forgotPassword,
   login as loginAccount,
   registerStudent,
+  resetPassword,
 } from '../../services/authService'
-
-const roles = [
-  { id: 'student', label: 'Học sinh' },
-  { id: 'teacher', label: 'Giáo viên' },
-]
 
 const passwordRequirementRules = [
   {
@@ -111,7 +109,6 @@ function AuthPage({
   onBack,
 }) {
   const [mode, setMode] = useState(initialMode)
-  const [role, setRole] = useState('student')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
   const [signupForm, setSignupForm] = useState({
@@ -134,6 +131,7 @@ function AuthPage({
   const [recoverySuccess, setRecoverySuccess] = useState('')
   const [recoveryForm, setRecoveryForm] = useState({
     email: '',
+    otp: '',
     password: '',
     confirmPassword: '',
   })
@@ -167,6 +165,7 @@ function AuthPage({
     setRecoveryErrors({})
     setRecoveryForm({
       email: '',
+      otp: '',
       password: '',
       confirmPassword: '',
     })
@@ -215,7 +214,7 @@ function AuthPage({
       resetRecovery()
     } else if (initialMode === 'reset-password') {
       clearRecoveryTimers()
-      setRecoveryStep(3)
+      setRecoveryStep(2)
       setRecoveryLoading(false)
       setRecoverySuccess('')
       setRecoveryErrors({})
@@ -263,21 +262,28 @@ function AuthPage({
       .filter((rule) => !rule.met)
       .map((rule) => rule.label)
   const passwordHelper = getPasswordHelper(authPassword)
+  const recoveryPasswordHelper = getPasswordHelper(recoveryForm.password)
   const currentVerificationEmail = verificationEmail || authEmail
   const verificationCountdownLabel = `00:${String(verificationCountdown).padStart(2, '0')}`
 
-  const submitRecoveryEmail = () => {
+  const submitRecoveryEmail = async () => {
+    if (recoveryLoading) return
+    const email = recoveryForm.email.trim()
     const nextErrors: Record<string, string> = {}
-    if (!recoveryForm.email.trim()) nextErrors.email = 'Vui lòng nhập email đã đăng ký.'
-    else if (!isValidEmail(recoveryForm.email)) nextErrors.email = 'Email chưa đúng định dạng.'
+    if (!email) nextErrors.email = 'Vui lòng nhập email đã đăng ký.'
+    else if (!isValidEmail(email)) nextErrors.email = 'Email chưa đúng định dạng.'
     setRecoveryErrors(nextErrors)
     if (Object.keys(nextErrors).length) return
 
     setRecoveryLoading(true)
     setRecoverySuccess('')
     clearRecoveryTimers()
-    const timer = window.setTimeout(() => {
-      setRecoveryLoading(false)
+    try {
+      const response = await forgotPassword({ email })
+      setRecoveryForm((current) => ({ ...current, email }))
+      setRecoverySuccess(
+        response?.message || 'Mã xác nhận đặt lại mật khẩu đã được gửi tới email của bạn.'
+      )
       setRecoveryStep(2)
       setResendCountdown(60)
       const interval = window.setInterval(() => {
@@ -290,17 +296,36 @@ function AuthPage({
         })
       }, 1000)
       recoveryIntervals.current.push(interval)
-    }, 1100)
-    recoveryTimers.current.push(timer)
+    } catch (error) {
+      const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      setRecoveryErrors({
+        email:
+          fieldErrors.email ||
+          getErrorMessage(error) ||
+          'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại.',
+      })
+    } finally {
+      setRecoveryLoading(false)
+    }
   }
 
-  const resendRecoveryEmail = () => {
+  const resendResetOtp = async () => {
     if (recoveryLoading || resendCountdown > 0) return
+    const email = recoveryForm.email.trim()
+    if (!email) {
+      setRecoveryErrors((current) => ({
+        ...current,
+        otp: 'Không tìm thấy email khôi phục. Vui lòng quay lại và nhập email.',
+      }))
+      return
+    }
+
     setRecoveryLoading(true)
+    setRecoverySuccess('')
     clearRecoveryTimers()
-    const timer = window.setTimeout(() => {
-      setRecoveryLoading(false)
-      setRecoverySuccess('Email đặt lại mật khẩu đã được gửi lại. Hãy kiểm tra hộp thư của bạn.')
+    try {
+      const response = await forgotPassword({ email })
+      setRecoverySuccess(response?.message || 'Mã xác nhận mới đã được gửi tới email của bạn.')
       setResendCountdown(60)
       const interval = window.setInterval(() => {
         setResendCountdown((current) => {
@@ -312,14 +337,26 @@ function AuthPage({
         })
       }, 1000)
       recoveryIntervals.current.push(interval)
-    }, 800)
-    recoveryTimers.current.push(timer)
+    } catch (error) {
+      setRecoveryErrors((current) => ({
+        ...current,
+        otp: getErrorMessage(error) || 'Không thể gửi lại mã. Vui lòng thử lại.',
+      }))
+    } finally {
+      setRecoveryLoading(false)
+    }
   }
 
-  const submitRecoveryPassword = () => {
+  const submitResetPassword = async () => {
+    if (recoveryLoading) return
+    const email = recoveryForm.email.trim()
+    const otp = recoveryForm.otp.trim()
     const nextErrors: Record<string, string> = {}
-    const issues = passwordIssues(recoveryForm.password)
 
+    if (!email) nextErrors.otp = 'Không tìm thấy email khôi phục. Vui lòng yêu cầu mã mới.'
+    else if (!otp) nextErrors.otp = 'Vui lòng nhập mã xác nhận.'
+
+    const issues = passwordIssues(recoveryForm.password)
     if (!recoveryForm.password) nextErrors.password = 'Vui lòng nhập mật khẩu mới.'
     else if (issues.length) nextErrors.password = issues.join(' · ')
     if (!recoveryForm.confirmPassword)
@@ -333,15 +370,22 @@ function AuthPage({
     setRecoveryLoading(true)
     setRecoverySuccess('')
     clearRecoveryTimers()
-    const timer = window.setTimeout(() => {
+    try {
+      const response = await resetPassword({ email, otp, newPassword: recoveryForm.password })
+      showSuccessToast(
+        response?.message || 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập bằng mật khẩu mới.'
+      )
+      backToLogin()
+    } catch (error) {
+      const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      const hasFieldErrors = Boolean(fieldErrors.otp || fieldErrors.newPassword || fieldErrors.password)
+      setRecoveryErrors({
+        otp: fieldErrors.otp || (!hasFieldErrors ? getErrorMessage(error) : '') || '',
+        password: fieldErrors.newPassword || fieldErrors.password || '',
+      })
+    } finally {
       setRecoveryLoading(false)
-      setRecoverySuccess('Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ.')
-      const redirectTimer = window.setTimeout(() => {
-        backToLogin()
-      }, 1400)
-      recoveryTimers.current.push(redirectTimer)
-    }, 1000)
-    recoveryTimers.current.push(timer)
+    }
   }
 
   const submitVerification = async () => {
@@ -475,41 +519,39 @@ function AuthPage({
       submitRecoveryEmail()
       return
     }
-    submitRecoveryPassword()
+    submitResetPassword()
   }
 
   const renderRecoveryStep = () => {
     const isStepOne = recoveryStep === 1
-    const isEmailSentStep = recoveryStep === 2
+    const resendCountdownLabel = `00:${String(resendCountdown).padStart(2, '0')}`
     const buttonLabel = recoveryLoading
       ? isStepOne
-        ? 'Đang gửi email...'
+        ? 'Đang gửi mã...'
         : 'Đang đặt lại...'
       : isStepOne
-        ? 'Gửi link đặt lại'
-        : 'Xác nhận và đặt lại'
+        ? 'Gửi mã xác nhận'
+        : 'Đặt lại mật khẩu'
 
     return (
       <div className={`hl-auth-recovery ${recoveryLoading ? 'is-loading' : ''}`}>
         <div className="hl-auth-heading hl-auth-heading--compact">
           <span className="hl-auth-kicker">Khôi phục mật khẩu</span>
-          <h1>
-            {isStepOne
-              ? 'Nhận link đặt lại mật khẩu'
-              : isEmailSentStep
-                ? 'Kiểm tra email của bạn'
-                : 'Đặt lại mật khẩu mới'}
-          </h1>
+          <h1>{isStepOne ? 'Nhận mã đặt lại mật khẩu' : 'Đặt lại mật khẩu'}</h1>
           <p>
-            {isStepOne
-              ? 'Nhập email đã đăng ký. Chúng tôi sẽ gửi link để bạn đặt lại mật khẩu.'
-              : isEmailSentStep
-                ? 'Hãy kiểm tra hộp thư và bấm vào link trong email để mở trang đặt lại mật khẩu.'
-                : 'Tạo mật khẩu mới đủ mạnh và xác nhận lại để hoàn tất.'}
+            {isStepOne ? (
+              'Nhập email đã đăng ký. Chúng tôi sẽ gửi mã xác nhận để bạn đặt lại mật khẩu.'
+            ) : (
+              <>
+                Mã xác nhận đã được gửi tới{' '}
+                <strong>{recoveryForm.email || 'email của bạn'}</strong>. Nhập mã và mật khẩu mới
+                để tiếp tục.
+              </>
+            )}
           </p>
         </div>
 
-        {recoverySuccess && (
+        {isStepOne && recoverySuccess && (
           <div className="hl-auth-success" role="status">
             {recoverySuccess}
           </div>
@@ -533,28 +575,36 @@ function AuthPage({
                 <small className="hl-auth-error">{recoveryErrors.email}</small>
               )}
             </label>
-          ) : isEmailSentStep ? (
-            <>
-              <div className="hl-auth-email-notice">
-                <Mail size={28} />
-                <strong>Link đặt lại đã được gửi</strong>
-                <span>Kiểm tra email {recoveryForm.email} và bấm vào link để tiếp tục.</span>
-              </div>
-              <button
-                type="button"
-                className="hl-auth-resend"
-                onClick={resendRecoveryEmail}
-                disabled={recoveryLoading || resendCountdown > 0}
-              >
-                {recoveryLoading
-                  ? 'Đang gửi lại email...'
-                  : resendCountdown > 0
-                    ? `Gửi lại email sau ${resendCountdown}s`
-                    : 'Gửi lại email'}
-              </button>
-            </>
           ) : (
             <>
+              <label className="hl-auth-label hl-auth-verification-label">
+                Mã xác nhận
+                <span
+                  className={`hl-auth-input hl-auth-verification-code ${recoveryErrors.otp ? 'has-error' : ''}`}
+                >
+                  <LockKeyhole size={19} />
+                  <input
+                    placeholder="Nhập mã xác nhận"
+                    value={recoveryForm.otp}
+                    onChange={(event) => updateRecovery('otp', event.target.value)}
+                    autoComplete="one-time-code"
+                    aria-label="Mã xác nhận đặt lại mật khẩu"
+                  />
+                </span>
+                {recoveryErrors.otp && (
+                  <small className="hl-auth-error">{recoveryErrors.otp}</small>
+                )}
+              </label>
+              <div className="hl-auth-verification-resend">
+                <span>Chưa nhận được mã?</span>
+                <button
+                  type="button"
+                  onClick={resendResetOtp}
+                  disabled={recoveryLoading || resendCountdown > 0}
+                >
+                  {resendCountdown > 0 ? `Gửi lại sau ${resendCountdownLabel}` : 'Gửi lại mã'}
+                </button>
+              </div>
               <label className="hl-auth-label">
                 Mật khẩu mới
                 <span className={`hl-auth-input ${recoveryErrors.password ? 'has-error' : ''}`}>
@@ -575,11 +625,18 @@ function AuthPage({
                     {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
                 </span>
-                <small className="hl-auth-helper">
-                  Mật khẩu mạnh cần tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt.
-                </small>
-                {recoveryErrors.password && (
+                {recoveryErrors.password ? (
                   <small className="hl-auth-error">{recoveryErrors.password}</small>
+                ) : (
+                  recoveryPasswordHelper.text && (
+                    <small
+                      className={`hl-auth-password-note ${
+                        recoveryPasswordHelper.isError ? 'is-error' : ''
+                      }`}
+                    >
+                      {recoveryPasswordHelper.text}
+                    </small>
+                  )
                 )}
               </label>
               <label className="hl-auth-label">
@@ -604,31 +661,25 @@ function AuthPage({
           )}
         </div>
 
-        {recoveryStep !== 2 && (
-          <div className="hl-auth-recovery-actions">
-            <button
-              type="button"
-              className="hl-auth-submit"
-              onClick={handleRecoverySubmit}
-              disabled={recoveryLoading}
-            >
-              {buttonLabel}
-            </button>
-            <button
-              type="button"
-              className="hl-auth-recovery-back"
-              onClick={backToLogin}
-              disabled={recoveryLoading}
-            >
-              Quay lại đăng nhập
-            </button>
-          </div>
-        )}
-        {recoveryStep === 2 && (
-          <button type="button" className="hl-auth-recovery-back" onClick={backToLogin}>
+        <div className="hl-auth-recovery-actions">
+          <button
+            type="button"
+            className="hl-auth-submit"
+            onClick={handleRecoverySubmit}
+            disabled={recoveryLoading}
+          >
+            {buttonLabel}
+          </button>
+          <button
+            type="button"
+            className="hl-auth-recovery-back"
+            onClick={backToLogin}
+            disabled={recoveryLoading}
+          >
+            <ArrowLeft size={15} />
             Quay lại đăng nhập
           </button>
-        )}
+        </div>
       </div>
     )
   }
@@ -705,7 +756,11 @@ function AuthPage({
   )
 
   return (
-    <main className={`hl-auth-page ${isEmailVerification ? 'is-verification' : ''}`}>
+    <main
+      className={`hl-auth-page ${isEmailVerification ? 'is-verification' : ''} ${
+        isRecovery ? 'is-recovery' : ''
+      }`}
+    >
       <button
         className="hl-auth-back"
         type="button"
@@ -736,20 +791,6 @@ function AuthPage({
                       : 'Đăng nhập để tiếp tục hành trình học tập của bạn.'}
                   </p>
                 </div>
-                {!isSignup && (
-                  <div className="hl-auth-tabs" role="tablist" aria-label="Loại tài khoản">
-                    {roles.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        className={role === item.id ? 'is-active' : ''}
-                        onClick={() => setRole(item.id)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
                 <button type="button" className="hl-auth-google">
                   <span className="hl-google-mark">G</span>
                   <span>{isSignup ? 'Đăng ký với Google' : 'Đăng nhập với Google'}</span>

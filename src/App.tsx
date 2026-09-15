@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
@@ -11,6 +11,7 @@ import LearningActivity from './pages/student/LearningActivity'
 import VideoLearningPage from './pages/student/VideoLearningPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
+import { logout } from './services/authService.ts'
 
 function App() {
   const getAuthMode = () => {
@@ -41,6 +42,8 @@ function App() {
     () => window.location.pathname.replace(/\/$/, '') || '/'
   )
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState('')
+  const [logoutLoading, setLogoutLoading] = useState(false)
+  const logoutInFlight = useRef(false)
 
   useEffect(() => {
     const openAuth = (event) => {
@@ -117,6 +120,22 @@ function App() {
     navigateStudent('/student/dashboard')
   }
 
+  const handleLogout = async () => {
+    if (logoutInFlight.current) return
+    logoutInFlight.current = true
+    setLogoutLoading(true)
+    try {
+      await logout()
+    } finally {
+      setPendingVerificationEmail('')
+      window.history.replaceState({}, '', '/login')
+      setAuthMode('login')
+      setCurrentPath('/login')
+      logoutInFlight.current = false
+      setLogoutLoading(false)
+    }
+  }
+
   const navigateStudent = (path) => {
     if (
       !['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(path) &&
@@ -157,6 +176,8 @@ function App() {
       subtitle={studentSubtitle}
       onNavigate={navigateStudent}
       onBack={backToLanding}
+      onLogout={handleLogout}
+      logoutLoading={logoutLoading}
     >
       {currentPath === '/student/learning-profile' ? (
         <LearningProfile />
@@ -200,6 +221,8 @@ function App() {
         page={authMode.replace('teacher-', '')}
         onNavigate={navigateTeacher}
         onBack={backToLanding}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
       />
     )
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />

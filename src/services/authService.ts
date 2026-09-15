@@ -32,14 +32,18 @@ export interface RefreshTokenRequest {
   refreshToken: string
 }
 
+export interface LogoutRequest {
+  refreshToken: string
+}
+
 export interface ForgotPasswordRequest {
   email: string
 }
 
 export interface ResetPasswordRequest {
-  email?: string
-  otp?: string
-  password?: string
+  email: string
+  otp: string
+  newPassword: string
 }
 
 function ensureTokenData(response: ApiResponse<TokenData>, fallbackMessage: string) {
@@ -86,14 +90,30 @@ export function refreshToken() {
 }
 
 export async function forgotPassword({ email }: ForgotPasswordRequest) {
-  return request('/api/v1/auth/forgot-password', { method: 'POST', body: { email } })
+  return request<string>('/api/v1/auth/forgot-password', {
+    method: 'POST',
+    body: { email: email.trim() },
+  })
 }
 
-export async function resetPassword(payload: ResetPasswordRequest) {
-  return request('/api/v1/auth/reset-password', { method: 'POST', body: payload })
+export async function resetPassword({ email, otp, newPassword }: ResetPasswordRequest) {
+  return request<string>('/api/v1/auth/reset-password', {
+    method: 'POST',
+    body: { email: email.trim(), otp, newPassword },
+  })
 }
 
-export function logout() {
-  clearTokens()
-}
+export async function logout() {
+  const storedRefreshToken = getRefreshToken()
 
+  try {
+    if (storedRefreshToken) {
+      await request('/api/v1/auth/logout', {
+        method: 'POST',
+        body: { refreshToken: storedRefreshToken } satisfies LogoutRequest,
+      })
+    }
+  } finally {
+    clearTokens()
+  }
+}
