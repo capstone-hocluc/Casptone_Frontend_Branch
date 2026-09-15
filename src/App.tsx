@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
@@ -11,6 +11,7 @@ import LearningActivity from './pages/student/LearningActivity'
 import VideoLearningPage from './pages/student/VideoLearningPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
+import { logout } from './services/authService.ts'
 
 function App() {
   const getAuthMode = () => {
@@ -40,6 +41,9 @@ function App() {
   const [currentPath, setCurrentPath] = useState(
     () => window.location.pathname.replace(/\/$/, '') || '/'
   )
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('')
+  const [logoutLoading, setLogoutLoading] = useState(false)
+  const logoutInFlight = useRef(false)
 
   useEffect(() => {
     const openAuth = (event) => {
@@ -78,7 +82,8 @@ function App() {
     setCurrentPath('/onboarding')
   }
 
-  const goToEmailVerification = () => {
+  const goToEmailVerification = (email = '') => {
+    setPendingVerificationEmail(email)
     window.history.pushState({}, '', '/verify-email')
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
@@ -110,15 +115,25 @@ function App() {
     setAuthMode(`teacher-${page}`)
     setCurrentPath(paths[page])
   }
-  const goAfterLogin = (email, claims) => {
-    const role = claims?.role?.toUpperCase?.().replace(/^ROLE_/, '')
-    if (role === 'STAFF' || role === 'MANAGER' || role === 'ADMINISTRATOR')
-      navigateStaff('dashboard')
-    else if (role === 'TEACHER') {
-      window.history.pushState({}, '', '/teacher/dashboard')
-      setAuthMode('teacher-dashboard')
-      setCurrentPath('/teacher/dashboard')
-    } else goToOnboarding()
+  const goAfterLogin = () => {
+    setPendingVerificationEmail('')
+    navigateStudent('/student/dashboard')
+  }
+
+  const handleLogout = async () => {
+    if (logoutInFlight.current) return
+    logoutInFlight.current = true
+    setLogoutLoading(true)
+    try {
+      await logout()
+    } finally {
+      setPendingVerificationEmail('')
+      window.history.replaceState({}, '', '/login')
+      setAuthMode('login')
+      setCurrentPath('/login')
+      logoutInFlight.current = false
+      setLogoutLoading(false)
+    }
   }
 
   const navigateStudent = (path) => {
@@ -161,6 +176,8 @@ function App() {
       subtitle={studentSubtitle}
       onNavigate={navigateStudent}
       onBack={backToLanding}
+      onLogout={handleLogout}
+      logoutLoading={logoutLoading}
     >
       {currentPath === '/student/learning-profile' ? (
         <LearningProfile />
@@ -204,6 +221,8 @@ function App() {
         page={authMode.replace('teacher-', '')}
         onNavigate={navigateTeacher}
         onBack={backToLanding}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
       />
     )
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
@@ -230,6 +249,7 @@ function App() {
       mode={authMode}
       onModeChange={navigateAuth}
       onContinue={authMode === 'signup' ? goToEmailVerification : goAfterLogin}
+      verificationEmail={pendingVerificationEmail}
       onBack={backToLanding}
     />
   ) : (

@@ -295,7 +295,7 @@ function CreateSessionModal({ onClose, onCreate }) {
   )
 }
 
-function TeacherDashboard({ onBack, onNavigate, page = 'dashboard' }) {
+function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false, page = 'dashboard' }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [graded, setGraded] = useState([])
@@ -489,10 +489,14 @@ function TeacherDashboard({ onBack, onNavigate, page = 'dashboard' }) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => action('Tính năng đăng xuất đang được chuẩn bị.')}
+                      onClick={() => {
+                        setProfileOpen(false)
+                        onLogout?.()
+                      }}
+                      disabled={logoutLoading}
                     >
                       <LogOut size={17} />
-                      Đăng xuất
+                      {logoutLoading ? 'Đang đăng xuất...' : 'Đăng xuất'}
                     </button>
                   </div>
                 </div>
