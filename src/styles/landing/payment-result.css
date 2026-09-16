@@ -1,0 +1,140 @@
+.hl-payres-page {
+  min-height: 100vh;
+  background: var(--color-surface-soft);
+}
+
+.hl-payres-main-wrap {
+  padding: 130px 24px 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.hl-payres-container {
+  width: 100%;
+  max-width: 520px;
+}
+
+.hl-payres-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 20px;
+  padding: 40px 32px;
+  box-shadow: 0 20px 44px -30px rgba(17, 24, 58, 0.35);
+}
+
+.hl-payres-card svg.is-success {
+  color: var(--color-success);
+}
+
+.hl-payres-card svg.is-warning {
+  color: var(--color-warning);
+}
+
+.hl-payres-card svg.is-danger {
+  color: var(--color-danger);
+}
+
+.hl-payres-card h1 {
+  font-size: 20px;
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.hl-payres-card p {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.hl-payres-info-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 0;
+  text-align: left;
+}
+
+.hl-payres-info-list div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+}
+
+.hl-payres-info-list dt {
+  color: var(--color-text-faint);
+}
+
+.hl-payres-info-list dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.hl-payres-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.hl-payres-cta {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #fff;
+  background: var(--color-primary);
+  padding: 12px 20px;
+  border-radius: 30px;
+}
+
+.hl-payres-cta:hover {
+  background: var(--color-primary-dark);
+}
+
+.hl-payres-cta.is-secondary {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+.hl-payres-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-secondary);
+}
+
+.hl-payres-state svg {
+  color: var(--color-primary);
+}
+
+.hl-payres-state button {
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (max-width: 640px) {
+  .hl-payres-main-wrap {
+    padding-top: 100px;
+  }
+}

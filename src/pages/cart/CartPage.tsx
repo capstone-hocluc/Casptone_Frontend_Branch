@@ -11,9 +11,10 @@ import { showErrorToast, showSuccessToast } from '../../lib/toastBus'
 
 interface CartPageProps {
   onBrowseCourses: () => void
+  onGoToCheckout: () => void
 }
 
-function CartPage({ onBrowseCourses }: CartPageProps) {
+function CartPage({ onBrowseCourses, onGoToCheckout }: CartPageProps) {
   const [cart, setCart] = useState<Cart | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
@@ -53,7 +54,7 @@ function CartPage({ onBrowseCourses }: CartPageProps) {
   }
 
   const handleCheckout = () => {
-    showErrorToast('Tính năng thanh toán đang được phát triển, vui lòng quay lại sau.')
+    onGoToCheckout()
   }
 
   return (
