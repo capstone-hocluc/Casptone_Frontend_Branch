@@ -3,6 +3,10 @@ import LandingPage from './pages/LandingPage'
 import CourseCatalogPage from './pages/CourseCatalogPage'
 import CourseDetailPage from './pages/course/CourseDetailPage'
 import CartPage from './pages/cart/CartPage'
+import CheckoutPage from './pages/checkout/CheckoutPage'
+import MyOrdersPage from './pages/orders/MyOrdersPage'
+import OrderDetailPage from './pages/orders/OrderDetailPage'
+import PaymentResultPage from './pages/payment/PaymentResultPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
@@ -42,6 +46,9 @@ function App() {
     if (path === '/reset-password') return 'reset-password'
     if (path === '/courses') return 'courses'
     if (path === '/cart') return 'cart'
+    if (path === '/checkout') return 'checkout'
+    if (path === '/orders') return 'orders'
+    if (path === '/payment/result') return 'payment-result'
     return path === '/signup' ? 'signup' : path === '/login' ? 'login' : null
   }
 
@@ -186,6 +193,11 @@ function App() {
     ? decodeURIComponent(currentPath.split('/')[2] || '')
     : null
 
+  const isOrderDetailPath = currentPath.startsWith('/orders/') && currentPath !== '/orders/'
+  const orderDetailId = isOrderDetailPath
+    ? decodeURIComponent(currentPath.split('/')[2] || '')
+    : null
+
   const isCoursesPath =
     currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
   const coursePathParts = currentPath.startsWith('/student/courses/')
@@ -304,10 +316,46 @@ function App() {
         onGoToCart={() => navigateTo('/cart')}
       />
     )
+  if (orderDetailId)
+    return (
+      <OrderDetailPage
+        key={orderDetailId}
+        orderId={orderDetailId}
+        onBackToOrders={() => navigateTo('/orders')}
+        onGoToMyCourses={() => navigateStudent('/student/courses')}
+      />
+    )
   if (authMode === 'courses')
     return <CourseCatalogPage onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)} />
   if (authMode === 'cart')
-    return <CartPage onBrowseCourses={() => navigateTo('/courses')} />
+    return (
+      <CartPage
+        onBrowseCourses={() => navigateTo('/courses')}
+        onGoToCheckout={() => navigateTo('/checkout')}
+      />
+    )
+  if (authMode === 'checkout')
+    return (
+      <CheckoutPage
+        onOrderCreated={(orderId) => navigateTo(`/orders/${orderId}`)}
+        onBackToCart={() => navigateTo('/cart')}
+      />
+    )
+  if (authMode === 'orders')
+    return (
+      <MyOrdersPage
+        onOpenOrder={(orderId) => navigateTo(`/orders/${orderId}`)}
+        onBrowseCourses={() => navigateTo('/courses')}
+      />
+    )
+  if (authMode === 'payment-result')
+    return (
+      <PaymentResultPage
+        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onOpenOrder={(orderId) => navigateTo(`/orders/${orderId}`)}
+        onGoToOrders={() => navigateTo('/orders')}
+      />
+    )
   return authMode ? (
     <AuthPage
       mode={authMode}

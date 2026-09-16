@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, LogOut, ShoppingCart, Sparkles, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, PackageSearch, ShoppingCart, Sparkles, UserRound } from 'lucide-react'
 import { navLinks } from '../../data/content'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Logo from './Logo'
@@ -206,6 +206,17 @@ function Navbar() {
                   >
                     <UserRound size={16} />
                     Hồ sơ
+                  </button>
+                  <button
+                    type="button"
+                    className="hl-nav-menu-item"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      navigateTo('/orders')
+                    }}
+                  >
+                    <PackageSearch size={16} />
+                    Đơn hàng của tôi
                   </button>
                   <button
                     type="button"
