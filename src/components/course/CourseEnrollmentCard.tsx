@@ -6,13 +6,17 @@ import { formatCoursePrice } from '../../lib/courseFormat'
 interface CourseEnrollmentCardProps {
   course: CourseDetail
   onStartLearning: () => void
-  onCartActionUnavailable: (message: string) => void
+  onAddToCart: () => void
+  addingToCart: boolean
+  onGoToCart: () => void
 }
 
 function CourseEnrollmentCard({
   course,
   onStartLearning,
-  onCartActionUnavailable,
+  onAddToCart,
+  addingToCart,
+  onGoToCart,
 }: CourseEnrollmentCardProps) {
   const [imageError, setImageError] = useState(false)
   const showImage = Boolean(course.imageUrl) && !imageError
@@ -48,13 +52,7 @@ function CourseEnrollmentCard({
             Vào học
           </button>
         ) : course.inCart ? (
-          <button
-            type="button"
-            className="hl-cd-enroll-cta is-secondary"
-            onClick={() =>
-              onCartActionUnavailable('Trang giỏ hàng đang được phát triển, vui lòng quay lại sau.')
-            }
-          >
+          <button type="button" className="hl-cd-enroll-cta is-secondary" onClick={onGoToCart}>
             <ShoppingCart size={16} />
             Xem giỏ hàng
           </button>
@@ -62,14 +60,11 @@ function CourseEnrollmentCard({
           <button
             type="button"
             className="hl-cd-enroll-cta"
-            onClick={() =>
-              onCartActionUnavailable(
-                'Tính năng thêm vào giỏ hàng đang được phát triển, vui lòng quay lại sau.'
-              )
-            }
+            onClick={onAddToCart}
+            disabled={addingToCart}
           >
             <ShoppingCart size={16} />
-            Thêm vào giỏ hàng
+            {addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
           </button>
         )}
       </div>
