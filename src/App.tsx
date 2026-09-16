@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
+import CourseCatalogPage from './pages/CourseCatalogPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
 import StudentDashboard from './pages/student/StudentDashboard'
 import LearningProfile from './pages/student/LearningProfile'
+import AccountProfile from './pages/student/AccountProfile'
 import MyCourses from './pages/student/MyCourses'
 import CourseDetail from './pages/student/CourseDetail'
 import LearningActivity from './pages/student/LearningActivity'
@@ -46,6 +48,7 @@ function App() {
     if (path === '/verify-email') return 'verify-email'
     if (path === '/forgot-password') return 'forgot-password'
     if (path === '/reset-password') return 'reset-password'
+    if (path === '/courses') return 'courses'
     return path === '/signup' ? 'signup' : path === '/login' ? 'login' : null
   }
 
@@ -61,6 +64,14 @@ function App() {
     window.history.pushState({}, '', `/${mode}`)
     setAuthMode(mode)
     setCurrentPath(`/${mode}`)
+  }
+
+  // Generic route push used by components with no prop path back to App
+  // (e.g. Navbar, nested deep inside LandingPage) via the `hl-navigate` event.
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', path)
+    setAuthMode(getAuthMode())
+    setCurrentPath(path.replace(/\/$/, '') || '/')
   }
 
   const backToLanding = () => {
@@ -143,22 +154,33 @@ function App() {
       setAuthMode(getAuthMode())
       setCurrentPath(window.location.pathname.replace(/\/$/, '') || '/')
     }
+    const onNavigate = (event) => {
+      const path = event.detail?.path
+      if (path) navigateTo(path)
+    }
     const onLogoutRequested = () => {
       handleLogout()
     }
     window.addEventListener('open-auth', openAuth)
     window.addEventListener('popstate', syncPath)
+    window.addEventListener('hl-navigate', onNavigate)
     window.addEventListener('hl-logout', onLogoutRequested)
     return () => {
       window.removeEventListener('open-auth', openAuth)
       window.removeEventListener('popstate', syncPath)
+      window.removeEventListener('hl-navigate', onNavigate)
       window.removeEventListener('hl-logout', onLogoutRequested)
     }
   }, [])
 
   const navigateStudent = (path) => {
     if (
-      !['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(path) &&
+      ![
+        '/student/dashboard',
+        '/student/learning-profile',
+        '/student/courses',
+        '/student/profile',
+      ].includes(path) &&
       !path.startsWith('/student/courses/')
     )
       return
@@ -179,15 +201,19 @@ function App() {
   const studentTitle =
     currentPath === '/student/learning-profile'
       ? 'Hồ sơ năng lực'
-      : isCoursesPath
-        ? 'Khóa học của tôi'
-        : 'Tổng quan'
+      : currentPath === '/student/profile'
+        ? 'Hồ sơ của tôi'
+        : isCoursesPath
+          ? 'Khóa học của tôi'
+          : 'Tổng quan'
   const studentSubtitle =
     currentPath === '/student/learning-profile'
       ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
-      : isCoursesPath
-        ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
-        : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
+      : currentPath === '/student/profile'
+        ? 'Quản lý thông tin cá nhân, hồ sơ học tập và bảo mật tài khoản.'
+        : isCoursesPath
+          ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
+          : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
 
   const renderStudentDashboard = () => (
     <StudentLayout
@@ -201,6 +227,8 @@ function App() {
     >
       {currentPath === '/student/learning-profile' ? (
         <LearningProfile />
+      ) : currentPath === '/student/profile' ? (
+        <AccountProfile />
       ) : isActivityPath ? (
         <LearningActivity
           courseId={courseId}
@@ -260,10 +288,20 @@ function App() {
     )
   }
   if (
-    ['/student/dashboard', '/student/learning-profile', '/student/courses'].includes(currentPath) ||
-    currentPath.startsWith('/student/courses/')
+    [
+      '/student/dashboard',
+      '/student/learning-profile',
+      '/student/courses',
+      '/student/profile',
+    ].includes(currentPath) || currentPath.startsWith('/student/courses/')
   )
     return renderStudentDashboard()
+  if (authMode === 'courses')
+    return (
+      <CourseCatalogPage
+        onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)}
+      />
+    )
   return authMode ? (
     <AuthPage
       mode={authMode}

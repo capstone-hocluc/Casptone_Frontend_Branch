@@ -1,5 +1,7 @@
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://api.hocluc.com'
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  'https://developments.hocluc.com'
 
 const ACCESS_TOKEN_KEY = 'hocluc.accessToken'
 const REFRESH_TOKEN_KEY = 'hocluc.refreshToken'
@@ -34,8 +36,11 @@ export interface RequestOptions {
   retryOnUnauthorized?: boolean
 }
 
-function createHeaders(auth: boolean) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+function createHeaders(auth: boolean, isFormData: boolean) {
+  const headers: Record<string, string> = {}
+  // Leave Content-Type unset for FormData bodies so the browser can add the
+  // multipart boundary itself - setting it manually breaks the upload.
+  if (!isFormData) headers['Content-Type'] = 'application/json'
   if (auth) {
     const token = getAccessToken()
     if (token) headers.Authorization = `Bearer ${token}`
@@ -47,12 +52,13 @@ export async function request<T = unknown>(
   path: string,
   { method = 'GET', body, auth = false, retryOnUnauthorized = true }: RequestOptions = {}
 ): Promise<ApiResponse<T>> {
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
-      headers: createHeaders(auth),
-      body: body ? JSON.stringify(body) : undefined,
+      headers: createHeaders(auth, isFormData),
+      body: isFormData ? (body as FormData) : body ? JSON.stringify(body) : undefined,
     })
   } catch {
     // fetch itself threw: no network / server unreachable, there is no response to read.

@@ -1,34 +1,46 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import MyCourseCard from '../../components/student/MyCourseCard'
-import {
-  studentCourses,
-  studentCourseSubjects,
-  studentCourseTypes,
-} from '../../data/studentCourses'
+import { getErrorMessage } from '../../lib/errors'
+import { getMyCourses } from '../../services/courseService'
+import type { MyCourseEnrollment } from '../../services/courseService'
 
 function MyCourses({ onOpenCourse }) {
-  const [activeType, setActiveType] = useState('main')
-  const [activeSubject, setActiveSubject] = useState('Tất cả')
   const [query, setQuery] = useState('')
+  const [enrollments, setEnrollments] = useState<MyCourseEnrollment[]>([])
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const coursesByType = useMemo(
-    () => studentCourses.filter((course) => course.type === activeType),
-    [activeType]
-  )
-  const visibleCourses = useMemo(() => {
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      setStatus('loading')
+      try {
+        const response = await getMyCourses()
+        if (cancelled) return
+        setEnrollments(response.data || [])
+        setStatus('ready')
+      } catch (error) {
+        if (cancelled) return
+        setErrorMessage(getErrorMessage(error) || 'Không thể tải danh sách khóa học.')
+        setStatus('error')
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const visibleEnrollments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
-
-    return coursesByType.filter((course) => {
-      const matchesSubject = activeSubject === 'Tất cả' || course.subject === activeSubject
-      const matchesQuery = !normalizedQuery || course.title.toLowerCase().includes(normalizedQuery)
-      return matchesSubject && matchesQuery
-    })
-  }, [activeSubject, coursesByType, query])
-
-  const activeTypeLabel =
-    studentCourseTypes.find((type) => type.key === activeType)?.label || 'Khóa học'
-  const hasCoursesInType = coursesByType.length > 0
+    if (!normalizedQuery) return enrollments
+    return enrollments.filter((enrollment) =>
+      enrollment.course.title.toLowerCase().includes(normalizedQuery)
+    )
+  }, [enrollments, query])
 
   return (
     <section className="hl-student-page hl-my-courses-page">
@@ -39,39 +51,8 @@ function MyCourses({ onOpenCourse }) {
         </div>
       </header>
 
-      <div className="hl-my-courses-tabs" role="tablist" aria-label="Loại khóa học">
-        {studentCourseTypes.map((type) => (
-          <button
-            key={type.key}
-            type="button"
-            role="tab"
-            aria-selected={activeType === type.key}
-            className={activeType === type.key ? 'is-active' : ''}
-            onClick={() => {
-              setActiveType(type.key)
-              setActiveSubject('Tất cả')
-              setQuery('')
-            }}
-          >
-            {type.label}
-          </button>
-        ))}
-      </div>
-
       <article className="hl-my-courses-panel">
         <div className="hl-my-courses-toolbar">
-          <div className="hl-my-courses-filters" aria-label="Lọc theo môn học">
-            {studentCourseSubjects.map((subject) => (
-              <button
-                key={subject}
-                type="button"
-                className={activeSubject === subject ? 'is-active' : ''}
-                onClick={() => setActiveSubject(subject)}
-              >
-                {subject}
-              </button>
-            ))}
-          </div>
           <label className="hl-my-courses-search">
             <Search size={17} />
             <input
@@ -85,30 +66,50 @@ function MyCourses({ onOpenCourse }) {
 
         <div className="hl-my-courses-group-head">
           <div>
-            <h2>{activeTypeLabel}</h2>
-            <span>{coursesByType.length} khóa học</span>
+            <h2>Khóa học của tôi</h2>
+            <span>{enrollments.length} khóa học</span>
           </div>
         </div>
 
-        {hasCoursesInType ? (
-          <div className="hl-my-courses-grid">
-            {visibleCourses.map((course) => (
-              <MyCourseCard key={course.id} course={course} onOpen={onOpenCourse} />
-            ))}
-            {!visibleCourses.length && (
-              <div className="hl-my-courses-empty">
-                <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-                <strong>Không tìm thấy khóa học</strong>
-                <p>Thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
-              </div>
-            )}
-          </div>
-        ) : (
+        {status === 'loading' && (
           <div className="hl-my-courses-empty">
             <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Bạn chưa có khóa học nào trong nhóm này.</strong>
+            <strong>Đang tải khóa học...</strong>
           </div>
         )}
+
+        {status === 'error' && (
+          <div className="hl-my-courses-empty">
+            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+            <strong>Không thể tải khóa học</strong>
+            <p>{errorMessage}</p>
+          </div>
+        )}
+
+        {status === 'ready' &&
+          (enrollments.length ? (
+            <div className="hl-my-courses-grid">
+              {visibleEnrollments.map((enrollment) => (
+                <MyCourseCard
+                  key={enrollment.course.id}
+                  enrollment={enrollment}
+                  onOpen={onOpenCourse}
+                />
+              ))}
+              {!visibleEnrollments.length && (
+                <div className="hl-my-courses-empty">
+                  <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+                  <strong>Không tìm thấy khóa học</strong>
+                  <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="hl-my-courses-empty">
+              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+              <strong>Bạn chưa đăng ký khóa học nào.</strong>
+            </div>
+          ))}
       </article>
     </section>
   )
