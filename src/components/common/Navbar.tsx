@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, LogOut, Sparkles, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, ShoppingCart, Sparkles, UserRound } from 'lucide-react'
 import { navLinks } from '../../data/content'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Logo from './Logo'
@@ -101,7 +101,27 @@ function Navbar() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
           {profile ? (
-            <div className="hl-nav-user" ref={menuRef} style={{ position: 'relative' }}>
+            <>
+              <button
+                type="button"
+                aria-label="Giỏ hàng"
+                onClick={() => navigateTo('/cart')}
+                style={{
+                  width: 40,
+                  height: 40,
+                  flexShrink: 0,
+                  border: '1px solid rgba(27,77,228,.16)',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  color: '#2A3354',
+                  display: 'grid',
+                  placeItems: 'center',
+                }}
+              >
+                <ShoppingCart size={18} />
+              </button>
+              <div className="hl-nav-user" ref={menuRef} style={{ position: 'relative' }}>
               <button
                 type="button"
                 onClick={() => setMenuOpen((current) => !current)}
@@ -200,7 +220,8 @@ function Navbar() {
                   </button>
                 </div>
               )}
-            </div>
+              </div>
+            </>
           ) : (
             <>
               <button

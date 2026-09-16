@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import CourseCatalogPage from './pages/CourseCatalogPage'
 import CourseDetailPage from './pages/course/CourseDetailPage'
+import CartPage from './pages/cart/CartPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
@@ -40,6 +41,7 @@ function App() {
     if (path === '/forgot-password') return 'forgot-password'
     if (path === '/reset-password') return 'reset-password'
     if (path === '/courses') return 'courses'
+    if (path === '/cart') return 'cart'
     return path === '/signup' ? 'signup' : path === '/login' ? 'login' : null
   }
 
@@ -299,10 +301,13 @@ function App() {
         onBackToHome={backToLanding}
         onBackToCatalog={() => navigateTo('/courses')}
         onStartLearning={(id) => navigateStudent(`/student/courses/${id}`)}
+        onGoToCart={() => navigateTo('/cart')}
       />
     )
   if (authMode === 'courses')
     return <CourseCatalogPage onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)} />
+  if (authMode === 'cart')
+    return <CartPage onBrowseCourses={() => navigateTo('/courses')} />
   return authMode ? (
     <AuthPage
       mode={authMode}
