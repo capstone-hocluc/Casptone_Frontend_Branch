@@ -45,6 +45,7 @@ function StudentLayout({
         onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
         onNavigateHome={() => onNavigate('/student/dashboard')}
         onNavigateLearningProfile={() => onNavigate('/student/learning-profile')}
+        onNavigateProfile={() => onNavigate('/student/profile')}
         onLogout={onLogout}
         logoutLoading={logoutLoading}
       />

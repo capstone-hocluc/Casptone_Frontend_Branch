@@ -12,6 +12,7 @@ interface StudentTopbarProps {
   onToggleSidebar?: () => void
   onNavigateHome?: () => void
   onNavigateLearningProfile?: () => void
+  onNavigateProfile?: () => void
   onLogout?: () => void
   logoutLoading?: boolean
 }
@@ -21,6 +22,7 @@ function StudentTopbar({
   onToggleSidebar,
   onNavigateHome,
   onNavigateLearningProfile,
+  onNavigateProfile,
   onLogout,
   logoutLoading = false,
 }: StudentTopbarProps) {
@@ -38,6 +40,11 @@ function StudentTopbar({
   const openLearningProfile = () => {
     setProfileOpen(false)
     onNavigateLearningProfile?.()
+  }
+
+  const openProfile = () => {
+    setProfileOpen(false)
+    onNavigateProfile?.()
   }
 
   useEffect(() => {
@@ -111,10 +118,7 @@ function StudentTopbar({
           </button>
           {profileOpen && (
             <div className="hl-student-profile-menu">
-              <button
-                type="button"
-                onClick={() => showMessage('Tính năng Hồ sơ cá nhân đang được phát triển.')}
-              >
+              <button type="button" onClick={openProfile}>
                 <UserRound size={16} />
                 Hồ sơ cá nhân
               </button>

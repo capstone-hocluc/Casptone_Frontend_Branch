@@ -1,11 +1,5 @@
-import { ArrowRight, BookOpen, CheckCircle2, CircleDot } from 'lucide-react'
-
-const subjectTone = {
-  'Toán học': 'green',
-  'Tiếng Việt': 'blue',
-  'Tiếng Anh': 'amber',
-  'Tư duy khoa học': 'violet',
-}
+import { ArrowRight, BookOpen, CheckCircle2, CircleDot, Users } from 'lucide-react'
+import type { MyCourseEnrollment } from '../../services/courseService'
 
 const statusLabels = {
   'not-started': 'Chưa bắt đầu',
@@ -13,40 +7,57 @@ const statusLabels = {
   completed: 'Hoàn thành',
 }
 
-function MyCourseCard({ course, onOpen }) {
-  const tone = subjectTone[course.subject] || 'blue'
-  const isCompleted = course.status === 'completed'
+function getStatus(progress: number) {
+  if (progress >= 100) return 'completed'
+  if (progress > 0) return 'in-progress'
+  return 'not-started'
+}
+
+interface MyCourseCardProps {
+  enrollment: MyCourseEnrollment
+  onOpen: (course: MyCourseEnrollment['course']) => void
+}
+
+function MyCourseCard({ enrollment, onOpen }: MyCourseCardProps) {
+  const { course } = enrollment
+  const progress = Math.max(0, Math.min(100, enrollment.progressPercentage ?? 0))
+  const status = getStatus(progress)
+  const isCompleted = status === 'completed'
+  const badgeLabel = course.targetExam || course.track || 'Khóa học'
 
   return (
     <button type="button" className="hl-my-course-card" onClick={() => onOpen(course)}>
-      <div className={`hl-my-course-cover is-${tone}`}>
-        <span>{course.subject}</span>
+      <div className="hl-my-course-cover">
+        <span>{badgeLabel}</span>
         <BookOpen size={34} />
       </div>
 
       <div className="hl-my-course-body">
         <div>
-          <span className={`hl-my-course-subject is-${tone}`}>{course.subject}</span>
+          <span className="hl-my-course-subject">{badgeLabel}</span>
           <h3>{course.title}</h3>
-          <p>{course.description}</p>
+          <p>{course.description || 'Chưa có mô tả cho khóa học này.'}</p>
         </div>
 
         <div className="hl-my-course-progress">
           <div>
             <span>Tiến độ</span>
-            <strong>{course.progress}%</strong>
+            <strong>{progress}%</strong>
           </div>
           <div className="hl-my-course-progress-bar" aria-hidden="true">
-            <span style={{ width: `${course.progress}%` }} />
+            <span style={{ width: `${progress}%` }} />
           </div>
           <div>
-            <span>
-              {course.completedLessons}/{course.totalLessons} bài học
-            </span>
             <strong className={isCompleted ? 'is-completed' : ''}>
               {isCompleted ? <CheckCircle2 size={14} /> : <CircleDot size={14} />}
-              {statusLabels[course.status]}
+              {statusLabels[status]}
             </strong>
+            {enrollment.activeStudyGroupName && (
+              <span>
+                <Users size={13} />
+                {enrollment.activeStudyGroupName}
+              </span>
+            )}
           </div>
         </div>
 

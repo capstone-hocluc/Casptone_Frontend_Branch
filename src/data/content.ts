@@ -4,11 +4,11 @@ const U = (id, w, h) =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&auto=format&q=80`
 
 export const navLinks = [
-  { label: 'Trang chủ', href: '#top' },
-  { label: 'Kỳ thi', href: '#exams' },
-  { label: 'Học tập', href: '#learn' },
-  { label: 'Bảng giá', href: '#pricing' },
-  { label: 'Hỏi đáp', href: '#faq' },
+  { label: 'Trang chủ', href: '/#top' },
+  { label: 'Kỳ thi', href: '/#exams' },
+  { label: 'Học tập', href: '/#learn' },
+  { label: 'Bảng giá', href: '/#pricing' },
+  { label: 'Hỏi đáp', href: '/#faq' },
 ]
 
 export const stats = [
