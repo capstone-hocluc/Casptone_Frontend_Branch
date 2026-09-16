@@ -1,26 +1,6 @@
 import { ArrowRight, BookOpen, CheckCircle2, Sparkles } from 'lucide-react'
 import type { Course } from '../../services/courseService'
-
-function prettifyEnum(value?: string) {
-  if (!value) return ''
-  return value
-    .toLowerCase()
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
-function formatDate(value?: string) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString('vi-VN')
-}
-
-function formatPrice(price?: number) {
-  if (!price) return 'Miễn phí'
-  return `${price.toLocaleString('vi-VN')} ₫`
-}
+import { formatCoursePrice, formatDate, prettifyEnum } from '../../lib/courseFormat'
 
 interface CourseCardProps {
   course: Course
@@ -66,7 +46,7 @@ function CourseCard({ course, onOpen }: CourseCardProps) {
         )}
 
         <div className="hl-catalog-footer">
-          <span className="hl-catalog-price">{formatPrice(course.price)}</span>
+          <span className="hl-catalog-price">{formatCoursePrice(course.price)}</span>
           {course.purchased ? (
             <span className="hl-catalog-cta is-owned">
               Vào học

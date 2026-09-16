@@ -38,3 +38,76 @@ export async function getMyCourses() {
 export async function getMainCourses() {
   return request<Course[]>('/api/v1/courses/main', { auth: true })
 }
+
+export interface CourseLesson {
+  id: string
+  title: string
+  description?: string
+  contentType?: string
+  durationSeconds?: number
+  sequence?: number
+  preview?: boolean
+  videoUrl?: string
+  quizCount?: number
+  assignmentCount?: number
+}
+
+export interface CourseChapter {
+  id: string
+  title: string
+  description?: string
+  sequence?: number
+  quizCount?: number
+  lessons: CourseLesson[]
+}
+
+export interface CourseSection {
+  sectionCourseId: string
+  title: string
+  description?: string
+  categoryId?: string
+  categoryName?: string
+  sequence?: number
+  chapters: CourseChapter[]
+}
+
+export interface CoursePhase {
+  id: string
+  name: string
+  description?: string
+  sequence?: number
+  sections: CourseSection[]
+}
+
+export interface CourseDetail {
+  id: string
+  title: string
+  slug?: string
+  description?: string
+  shortIntroduction?: string
+  imageUrl?: string
+  videoUrl?: string
+  track?: string
+  startDate?: string
+  endDate?: string
+  examSessionDate?: string
+  targetExam?: string
+  paid?: boolean
+  price?: number
+  purchased?: boolean
+  inCart?: boolean
+  phaseCount?: number
+  sectionCount?: number
+  chapterCount?: number
+  lessonCount?: number
+  quizCount?: number
+  totalDurationSeconds?: number
+  phases?: CoursePhase[]
+}
+
+// Public course detail. Same opportunistic-auth rationale as getMainCourses -
+// guests can view it, a logged-in student's request also resolves
+// purchased/inCart for them.
+export async function getCourseDetail(courseId: string) {
+  return request<CourseDetail>(`/api/v1/courses/${encodeURIComponent(courseId)}`, { auth: true })
+}
