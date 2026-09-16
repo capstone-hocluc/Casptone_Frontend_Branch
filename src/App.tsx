@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import CourseCatalogPage from './pages/CourseCatalogPage'
+import CourseDetailPage from './pages/course/CourseDetailPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
@@ -177,6 +178,12 @@ function App() {
     setCurrentPath(path)
   }
 
+  const isPublicCourseDetailPath =
+    currentPath.startsWith('/courses/') && currentPath !== '/courses/'
+  const publicCourseId = isPublicCourseDetailPath
+    ? decodeURIComponent(currentPath.split('/')[2] || '')
+    : null
+
   const isCoursesPath =
     currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
   const coursePathParts = currentPath.startsWith('/student/courses/')
@@ -284,12 +291,18 @@ function App() {
     ].includes(currentPath) || currentPath.startsWith('/student/courses/')
   )
     return renderStudentDashboard()
-  if (authMode === 'courses')
+  if (publicCourseId)
     return (
-      <CourseCatalogPage
-        onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)}
+      <CourseDetailPage
+        key={publicCourseId}
+        courseId={publicCourseId}
+        onBackToHome={backToLanding}
+        onBackToCatalog={() => navigateTo('/courses')}
+        onStartLearning={(id) => navigateStudent(`/student/courses/${id}`)}
       />
     )
+  if (authMode === 'courses')
+    return <CourseCatalogPage onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)} />
   return authMode ? (
     <AuthPage
       mode={authMode}
