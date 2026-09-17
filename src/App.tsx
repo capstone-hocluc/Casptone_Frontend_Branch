@@ -21,6 +21,15 @@ function App() {
     if (path === '/staff/dashboard') return 'staff-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
+    if (/^\/teacher\/my-courses\/[^/]+\/quiz$/.test(path)) {
+      return `teacher-quiz-${path.split('/')[3]}`
+    }
+    if (/^\/teacher\/my-courses\/[^/]+\/quiz\/new$/.test(path)) {
+      return `teacher-quiz-new-${path.split('/')[3]}`
+    }
+    if (/^\/teacher\/my-courses\/[^/]+\/assignments$/.test(path)) {
+      return `teacher-assignments-${path.split('/')[3]}`
+    }
     if (path === '/teacher/information') return 'teacher-information'
     if (path === '/staff/students') return 'staff-students'
     if (path === '/staff/students/hs-24091') return 'staff-detail'
@@ -113,9 +122,10 @@ function App() {
       courses: '/teacher/my-courses',
       information: '/teacher/information',
     }
-    window.history.pushState({}, '', paths[page])
+    const path = page.startsWith('quiz-new-') ? `/teacher/my-courses/${page.replace('quiz-new-', '')}/quiz/new` : page.startsWith('quiz-') ? `/teacher/my-courses/${page.replace('quiz-', '')}/quiz` : page.startsWith('assignments-') ? `/teacher/my-courses/${page.replace('assignments-', '')}/assignments` : paths[page]
+    window.history.pushState({}, '', path)
     setAuthMode(`teacher-${page}`)
-    setCurrentPath(paths[page])
+    setCurrentPath(path)
   }
   const goAfterLogin = () => {
     setPendingVerificationEmail('')

@@ -26,6 +26,8 @@ import {
 import Logo from '../common/Logo'
 import TeacherCourses from './TeacherCourses'
 import TeacherInformation from './TeacherInformation'
+import TeacherQuiz from './TeacherQuiz'
+import TeacherAssignments from './TeacherAssignments'
 
 const overview = [
   {
@@ -296,11 +298,18 @@ function CreateSessionModal({ onClose, onCreate }) {
 }
 
 function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false, page = 'dashboard' }) {
+  const quizCreateMode = page.startsWith('quiz-new-')
+  const quizCourseId = quizCreateMode ? page.replace('quiz-new-', '') : page.startsWith('quiz-') ? page.replace('quiz-', '') : null
+  const assignmentCourseId = page.startsWith('assignments-') ? page.replace('assignments-', '') : null
+  const detailCourseId = quizCourseId || assignmentCourseId
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [graded, setGraded] = useState([])
-  const [view, setView] = useState(page)
-  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [view, setView] = useState(detailCourseId ? 'courses' : page)
+  const [selectedCourse, setSelectedCourse] = useState(() => courses.find((course) => course.id === detailCourseId) || null)
+  const [quizCourse, setQuizCourse] = useState(() => courses.find((course) => course.id === quizCourseId) || null)
+  const [assignmentCourse, setAssignmentCourse] = useState(() => courses.find((course) => course.id === assignmentCourseId) || null)
+  const [assignmentPreset, setAssignmentPreset] = useState(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const [sessionModalOpen, setSessionModalOpen] = useState(false)
   const [upcomingSessions, setUpcomingSessions] = useState(initialSessions)
@@ -320,8 +329,27 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
     else setView('courses')
   }
   const openCourse = (course) => {
+    setQuizCourse(null)
+    setAssignmentPreset(null)
     setSelectedCourse(course)
     setView('courses')
+  }
+  const openQuiz = (course) => {
+    setQuizCourse(course)
+    setSelectedCourse(course)
+    setView('courses')
+    if (onNavigate) onNavigate(`quiz-new-${course.id}`)
+  }
+  const openAssignments = (course, module = null) => {
+    setAssignmentCourse(course)
+    setSelectedCourse(course)
+    setView('courses')
+    if (module) {
+      setAssignmentPreset({ targetType: 'Bài học', target: module.lesson || module.title })
+      return
+    }
+    setAssignmentPreset(null)
+    if (onNavigate) onNavigate(`assignments-${course.id}`)
   }
   const createSession = (session) => {
     setUpcomingSessions((items) => [
@@ -707,6 +735,10 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
                 </aside>
               </div>
             </>
+          ) : assignmentCourse ? (
+            <TeacherAssignments course={assignmentCourse} assignmentPreset={assignmentPreset} onBack={() => onNavigate ? onNavigate('courses') : setAssignmentCourse(null)} onAction={action} />
+          ) : quizCourse ? (
+            <TeacherQuiz course={quizCourse} startCreating={quizCreateMode} onBack={() => onNavigate ? onNavigate('courses') : setQuizCourse(null)} onAction={action} />
           ) : (
             <TeacherCourses
               courses={courses}
@@ -714,6 +746,8 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
               onOpenCourse={openCourse}
               onBack={openCourses}
               onAction={action}
+              onOpenQuiz={openQuiz}
+              onOpenAssignments={openAssignments}
             />
           )}
         </div>

@@ -12,14 +12,15 @@ import {
 } from 'lucide-react'
 
 const courseModules = [
-  { title: 'Chương 01 · Hàm số và đồ thị', lessons: 6, status: 'Đã hoàn thành', progress: 100 },
+  { title: 'Chương 01 · Hàm số và đồ thị', lesson: 'Bài 06 · Hàm số bậc hai', lessons: 6, status: 'Đã hoàn thành', progress: 100 },
   {
     title: 'Chương 02 · Phương trình, bất phương trình',
+    lesson: 'Bài 08 · Phương trình mũ',
     lessons: 8,
     status: 'Đang giảng dạy',
     progress: 62,
   },
-  { title: 'Chương 03 · Xác suất và thống kê', lessons: 5, status: 'Sắp mở', progress: 0 },
+  { title: 'Chương 03 · Xác suất và thống kê', lesson: 'Bài 10 · Xác suất cơ bản', lessons: 5, status: 'Sắp mở', progress: 0 },
 ]
 
 function CourseCard({ course, onOpen }) {
@@ -55,7 +56,7 @@ function CourseCard({ course, onOpen }) {
   )
 }
 
-function CourseDetail({ course, onBack, onAction }) {
+function CourseDetail({ course, onBack, onAction, onOpenQuiz, onOpenAssignments }) {
   const [activeModule, setActiveModule] = useState(courseModules[0].title)
   const [activeQuickAction, setActiveQuickAction] = useState('')
   const [modules, setModules] = useState(courseModules)
@@ -72,7 +73,13 @@ function CourseDetail({ course, onBack, onAction }) {
   const addContent = (event) => {
     event.preventDefault()
     if (!contentTitle.trim()) return
-    const newModule = { title: contentTitle.trim(), lessons: 0, status: 'Sắp mở', progress: 0 }
+    const newModule = {
+      title: contentTitle.trim(),
+      lesson: contentTitle.trim(),
+      lessons: 0,
+      status: 'Sắp mở',
+      progress: 0,
+    }
     setModules((items) => [...items, newModule])
     setActiveModule(newModule.title)
     setContentTitle('')
@@ -145,6 +152,16 @@ function CourseDetail({ course, onBack, onAction }) {
                 >
                   <ArrowRight size={17} />
                 </button>
+                {activeModule === module.title && (
+                  <button
+                    type="button"
+                    className="hl-teacher-module-assignment"
+                    onClick={() => onOpenAssignments(course, module)}
+                  >
+                    <ClipboardList size={14} />
+                    Giao bài tập theo bài học
+                  </button>
+                )}
               </article>
             ))}
           </div>
@@ -182,10 +199,18 @@ function CourseDetail({ course, onBack, onAction }) {
               <button
                 type="button"
                 className={activeQuickAction === 'assignments' ? 'is-active' : ''}
-                onClick={() => selectQuickAction('assignments', 'Đã mở danh sách bài tập.')}
+                onClick={() => onOpenAssignments(course)}
               >
                 <ClipboardList size={17} />
                 Quản lý bài tập
+              </button>
+              <button
+                type="button"
+                className={activeQuickAction === 'quiz' ? 'is-active' : ''}
+                onClick={() => onOpenQuiz(course)}
+              >
+                <ClipboardList size={17} />
+                Quản lý bài kiểm tra
               </button>
               <button
                 type="button"
@@ -254,9 +279,9 @@ function CourseDetail({ course, onBack, onAction }) {
   )
 }
 
-function TeacherCourses({ courses, selectedCourse, onOpenCourse, onBack, onAction }) {
+function TeacherCourses({ courses, selectedCourse, onOpenCourse, onBack, onAction, onOpenQuiz, onOpenAssignments }) {
   if (selectedCourse)
-    return <CourseDetail course={selectedCourse} onBack={onBack} onAction={onAction} />
+    return <CourseDetail course={selectedCourse} onBack={onBack} onAction={onAction} onOpenQuiz={onOpenQuiz} onOpenAssignments={onOpenAssignments} />
   return (
     <section className="hl-teacher-courses-page">
       <div className="hl-teacher-title">
