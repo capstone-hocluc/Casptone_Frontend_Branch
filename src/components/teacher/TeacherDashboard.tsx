@@ -28,6 +28,7 @@ import TeacherCourses from './TeacherCourses'
 import TeacherInformation from './TeacherInformation'
 import TeacherQuiz from './TeacherQuiz'
 import TeacherAssignments from './TeacherAssignments'
+import TeacherMockExams from './TeacherMockExams'
 
 const overview = [
   {
@@ -415,6 +416,8 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
             label="Học viên"
             onClick={() => action('Danh sách học viên đang được chuẩn bị.')}
           />
+          <span className="hl-teacher-group-label">Đánh giá</span>
+          <NavItem icon={ClipboardCheck} label="Bài thi thử" active={view === 'mock-exams'} onClick={() => onNavigate ? onNavigate('mock-exams') : setView('mock-exams')} />
         </nav>
       </aside>
       {sidebarOpen && (
@@ -549,6 +552,8 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
           )}
           {view === 'information' ? (
             <TeacherInformation onBack={() => onNavigate?.('dashboard')} onNotify={action} />
+          ) : view === 'mock-exams' ? (
+            <TeacherMockExams onBack={() => onNavigate?.('dashboard')} onAction={action} />
           ) : view === 'dashboard' ? (
             <>
               <div className="hl-teacher-title">

@@ -21,6 +21,7 @@ function App() {
     if (path === '/staff/dashboard') return 'staff-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
+    if (path === '/teacher/mock-exams') return 'teacher-mock-exams'
     if (/^\/teacher\/my-courses\/[^/]+\/quiz$/.test(path)) {
       return `teacher-quiz-${path.split('/')[3]}`
     }
@@ -120,6 +121,7 @@ function App() {
     const paths = {
       dashboard: '/teacher/dashboard',
       courses: '/teacher/my-courses',
+      'mock-exams': '/teacher/mock-exams',
       information: '/teacher/information',
     }
     const path = page.startsWith('quiz-new-') ? `/teacher/my-courses/${page.replace('quiz-new-', '')}/quiz/new` : page.startsWith('quiz-') ? `/teacher/my-courses/${page.replace('quiz-', '')}/quiz` : page.startsWith('assignments-') ? `/teacher/my-courses/${page.replace('assignments-', '')}/assignments` : paths[page]

@@ -10,6 +10,7 @@ import {
   PlayCircle,
   Users,
 } from 'lucide-react'
+import TeacherLessonEditor from './TeacherLessonEditor'
 
 const courseModules = [
   { title: 'Chương 01 · Hàm số và đồ thị', lesson: 'Bài 06 · Hàm số bậc hai', lessons: 6, status: 'Đã hoàn thành', progress: 100 },
@@ -62,10 +63,7 @@ function CourseDetail({ course, onBack, onAction, onOpenQuiz, onOpenAssignments 
   const [modules, setModules] = useState(courseModules)
   const [contentModalOpen, setContentModalOpen] = useState(false)
   const [contentTitle, setContentTitle] = useState('')
-  const selectModule = (module) => {
-    setActiveModule(module.title)
-    onAction(`Đang mở ${module.title}.`)
-  }
+  const [editingLesson, setEditingLesson] = useState(null)
   const selectQuickAction = (label, message) => {
     setActiveQuickAction(label)
     onAction(message)
@@ -86,6 +84,7 @@ function CourseDetail({ course, onBack, onAction, onOpenQuiz, onOpenAssignments 
     setContentModalOpen(false)
     onAction(`Đã thêm “${newModule.title}” vào nội dung lớp.`)
   }
+  if (editingLesson) return <TeacherLessonEditor course={course} lesson={editingLesson} onBack={() => setEditingLesson(null)} onNotify={onAction} />
   return (
     <section className="hl-teacher-course-management">
       <button type="button" className="hl-teacher-text-back" onClick={onBack}>
@@ -148,7 +147,7 @@ function CourseDetail({ course, onBack, onAction, onOpenQuiz, onOpenAssignments 
                 <button
                   type="button"
                   aria-label={`Mở ${module.title}`}
-                  onClick={() => selectModule(module)}
+                  onClick={() => setEditingLesson(module)}
                 >
                   <ArrowRight size={17} />
                 </button>
