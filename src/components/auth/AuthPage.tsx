@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, NotebookPen } from 'lucide-react'
 import Logo from '../common/Logo'
+import GoogleSignInButton from './GoogleSignInButton'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { getErrorMessage } from '../../lib/errors'
 import { showSuccessToast } from '../../lib/toastBus'
 import {
   confirmAccount,
   forgotPassword,
+  googleAuth,
   login as loginAccount,
   registerStudent,
+  resendOtp,
   resetPassword,
 } from '../../services/authService'
 
@@ -121,6 +124,7 @@ function AuthPage({
   })
   const [loginLoading, setLoginLoading] = useState(false)
   const [loginError, setLoginError] = useState('')
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [loginErrors, setLoginErrors] = useState<Record<string, string>>({})
   const [registerLoading, setRegisterLoading] = useState(false)
   const [registerSuccess, setRegisterSuccess] = useState('')
@@ -429,9 +433,29 @@ function AuthPage({
     }
   }
 
-  const handleVerificationResend = () => {
-    if (verificationLoading || verificationCountdown > 0 || verificationSuccess) return
-    setVerificationError('Chức năng gửi lại mã sẽ được cập nhật khi có API hỗ trợ.')
+  const handleVerificationResend = async () => {
+    if (verificationLoading || verificationCountdown > 0) return
+    if (!currentVerificationEmail) {
+      setVerificationError('Không tìm thấy email đăng ký. Vui lòng đăng ký lại.')
+      return
+    }
+
+    setVerificationLoading(true)
+    setVerificationError('')
+    try {
+      const response = await resendOtp({ email: currentVerificationEmail })
+      showSuccessToast(response?.message || 'Mã xác nhận mới đã được gửi tới email của bạn.')
+      // The previous code is no longer valid once a new one is issued.
+      setVerificationCode('')
+      startVerificationCountdown()
+    } catch (error) {
+      const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      setVerificationError(
+        fieldErrors.email || getErrorMessage(error) || 'Không thể gửi lại mã. Vui lòng thử lại.'
+      )
+    } finally {
+      setVerificationLoading(false)
+    }
   }
 
   const submitLogin = async () => {
@@ -465,6 +489,33 @@ function AuthPage({
       )
     } finally {
       setLoginLoading(false)
+    }
+  }
+
+  // Same post-auth path as submitLogin: tokens are already stored by
+  // googleAuth() through the shared ensureTokenData() helper, so from here
+  // on this is identical to a normal login - load the profile, gate on
+  // role, then hand off to the same onContinue navigation. The backend
+  // alone decides whether this credential was a login or a first-time
+  // registration; nothing here branches on that.
+  const handleGoogleCredential = async (idToken: string) => {
+    if (googleLoading) return
+    setGoogleLoading(true)
+    setLoginError('')
+    try {
+      await googleAuth({ idToken })
+      const profile = await loadCurrentUser()
+      if (profile.role !== 'STUDENT') {
+        setLoginError('Tài khoản này hiện chưa được hỗ trợ trong khu vực Học sinh.')
+        return
+      }
+      onContinue?.(profile.email)
+    } catch (error) {
+      setLoginError(
+        getErrorMessage(error) || 'Đăng nhập với Google không thành công. Vui lòng thử lại.'
+      )
+    } finally {
+      setGoogleLoading(false)
     }
   }
 
@@ -729,14 +780,16 @@ function AuthPage({
         <button
           type="button"
           onClick={handleVerificationResend}
-          disabled={verificationLoading || verificationCountdown > 0 || Boolean(verificationSuccess)}
+          disabled={verificationLoading || verificationCountdown > 0}
           title={
-            verificationCountdown > 0
-              ? `Có thể gửi lại sau ${verificationCountdownLabel}`
-              : 'Chưa có API gửi lại mã'
+            verificationCountdown > 0 ? `Có thể gửi lại sau ${verificationCountdownLabel}` : undefined
           }
         >
-          {verificationCountdown > 0 ? `Gửi lại sau ${verificationCountdownLabel}` : 'Gửi lại mã'}
+          {verificationLoading
+            ? 'Đang gửi...'
+            : verificationCountdown > 0
+              ? `Gửi lại sau ${verificationCountdownLabel}`
+              : 'Gửi lại mã'}
         </button>
       </div>
 
@@ -798,10 +851,11 @@ function AuthPage({
                       : 'Đăng nhập để tiếp tục hành trình học tập của bạn.'}
                   </p>
                 </div>
-                <button type="button" className="hl-auth-google">
-                  <span className="hl-google-mark">G</span>
-                  <span>{isSignup ? 'Đăng ký với Google' : 'Đăng nhập với Google'}</span>
-                </button>
+                <GoogleSignInButton
+                  isSignup={isSignup}
+                  disabled={googleLoading}
+                  onCredential={handleGoogleCredential}
+                />
                 <div className="hl-auth-divider">
                   <span />
                   HOẶC
