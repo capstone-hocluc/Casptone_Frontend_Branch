@@ -7,6 +7,12 @@ import CheckoutPage from './pages/checkout/CheckoutPage'
 import MyOrdersPage from './pages/orders/MyOrdersPage'
 import OrderDetailPage from './pages/orders/OrderDetailPage'
 import PaymentResultPage from './pages/payment/PaymentResultPage'
+import PaymentInstructionsPage from './pages/payment/PaymentInstructionsPage'
+import CourseStudyPage from './pages/course/CourseStudyPage'
+import LessonPage from './pages/course/LessonPage'
+import QuizDetailPage from './pages/assessments/QuizDetailPage'
+import QuizAttemptPage from './pages/assessments/QuizAttemptPage'
+import QuizReviewPage from './pages/assessments/QuizReviewPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
@@ -68,8 +74,11 @@ function App() {
 
   // Generic route push used by components with no prop path back to App
   // (e.g. Navbar, nested deep inside LandingPage) via the `hl-navigate` event.
-  const navigateTo = (path) => {
-    window.history.pushState({}, '', path)
+  // `state` is optional history state - used to hand data (e.g. SePay payment
+  // instructions) to the next page without a prop path, since it's not
+  // returned by GET endpoints and would otherwise be lost on navigation.
+  const navigateTo = (path, state = {}) => {
+    window.history.pushState(state, '', path)
     setAuthMode(getAuthMode())
     setCurrentPath(path.replace(/\/$/, '') || '/')
   }
@@ -187,15 +196,65 @@ function App() {
     setCurrentPath(path)
   }
 
-  const isPublicCourseDetailPath =
-    currentPath.startsWith('/courses/') && currentPath !== '/courses/'
+  // Segments for any '/courses/...' path: ['courses', courseId, 'study'?, 'lessons'?, lessonId?]
+  const courseRouteSegments = currentPath.startsWith('/courses/')
+    ? currentPath.split('/').filter(Boolean)
+    : []
+  const isCourseStudyLessonPath =
+    courseRouteSegments.length === 5 &&
+    courseRouteSegments[2] === 'study' &&
+    courseRouteSegments[3] === 'lessons'
+  const isCourseStudyRootPath =
+    courseRouteSegments.length === 3 && courseRouteSegments[2] === 'study'
+  const isPublicCourseDetailPath = courseRouteSegments.length === 2
+
+  const studyCourseId =
+    isCourseStudyRootPath || isCourseStudyLessonPath
+      ? decodeURIComponent(courseRouteSegments[1] || '')
+      : null
+  const studyLessonId = isCourseStudyLessonPath
+    ? decodeURIComponent(courseRouteSegments[4] || '')
+    : null
   const publicCourseId = isPublicCourseDetailPath
-    ? decodeURIComponent(currentPath.split('/')[2] || '')
+    ? decodeURIComponent(courseRouteSegments[1] || '')
     : null
 
-  const isOrderDetailPath = currentPath.startsWith('/orders/') && currentPath !== '/orders/'
+  // Segments for any '/orders/...' path: ['orders', orderId, 'payment'?]
+  const orderRouteSegments = currentPath.startsWith('/orders/')
+    ? currentPath.split('/').filter(Boolean)
+    : []
+  const isOrderPaymentPath =
+    orderRouteSegments.length === 3 && orderRouteSegments[2] === 'payment'
+  const isOrderDetailPath = orderRouteSegments.length === 2
+
+  const orderPaymentOrderId = isOrderPaymentPath
+    ? decodeURIComponent(orderRouteSegments[1] || '')
+    : null
   const orderDetailId = isOrderDetailPath
-    ? decodeURIComponent(currentPath.split('/')[2] || '')
+    ? decodeURIComponent(orderRouteSegments[1] || '')
+    : null
+
+  // Segments for any '/assessments/...' path:
+  // ['assessments','quizzes',quizId,'attempts'?,attemptId?]
+  // or ['assessments','attempts',attemptId,'review']
+  const assessmentSegments = currentPath.startsWith('/assessments/')
+    ? currentPath.split('/').filter(Boolean)
+    : []
+  const isQuizDetailPath = assessmentSegments.length === 3 && assessmentSegments[1] === 'quizzes'
+  const isQuizAttemptPath =
+    assessmentSegments.length === 5 &&
+    assessmentSegments[1] === 'quizzes' &&
+    assessmentSegments[3] === 'attempts'
+  const isAttemptReviewPath =
+    assessmentSegments.length === 4 &&
+    assessmentSegments[1] === 'attempts' &&
+    assessmentSegments[3] === 'review'
+
+  const quizDetailId = isQuizDetailPath ? decodeURIComponent(assessmentSegments[2] || '') : null
+  const attemptQuizId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[2] || '') : null
+  const quizAttemptId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[4] || '') : null
+  const reviewAttemptId = isAttemptReviewPath
+    ? decodeURIComponent(assessmentSegments[2] || '')
     : null
 
   const isCoursesPath =
@@ -254,7 +313,10 @@ function App() {
           }
         />
       ) : isCoursesPath ? (
-        <MyCourses onOpenCourse={(course) => navigateStudent(`/student/courses/${course.id}`)} />
+        <MyCourses
+          onOpenCourse={(course) => navigateTo(`/courses/${course.id}/study`)}
+          onBrowseCourses={() => navigateTo('/courses')}
+        />
       ) : (
         <StudentDashboard
           onOpenLearningProfile={() => navigateStudent('/student/learning-profile')}
@@ -305,6 +367,58 @@ function App() {
     ].includes(currentPath) || currentPath.startsWith('/student/courses/')
   )
     return renderStudentDashboard()
+  if (studyLessonId)
+    return (
+      <LessonPage
+        key={`${studyCourseId}-${studyLessonId}`}
+        courseId={studyCourseId}
+        lessonId={studyLessonId}
+        onBackToStudy={() => navigateTo(`/courses/${studyCourseId}/study`)}
+        onNavigateLesson={(lessonId) =>
+          navigateTo(`/courses/${studyCourseId}/study/lessons/${lessonId}`)
+        }
+        onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+      />
+    )
+  if (studyCourseId)
+    return (
+      <CourseStudyPage
+        key={studyCourseId}
+        courseId={studyCourseId}
+        onBackToCourseDetail={() => navigateTo(`/courses/${studyCourseId}`)}
+        onOpenLesson={(lessonId) => navigateTo(`/courses/${studyCourseId}/study/lessons/${lessonId}`)}
+        onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+      />
+    )
+  if (quizAttemptId && attemptQuizId)
+    return (
+      <QuizAttemptPage
+        key={quizAttemptId}
+        quizId={attemptQuizId}
+        attemptId={quizAttemptId}
+        onExit={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+        onSubmitted={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
+      />
+    )
+  if (quizDetailId)
+    return (
+      <QuizDetailPage
+        key={quizDetailId}
+        quizId={quizDetailId}
+        onStartAttempt={(quizId, attemptId) =>
+          navigateTo(`/assessments/quizzes/${quizId}/attempts/${attemptId}`)
+        }
+        onOpenReview={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
+      />
+    )
+  if (reviewAttemptId)
+    return (
+      <QuizReviewPage
+        key={reviewAttemptId}
+        attemptId={reviewAttemptId}
+        onBackToQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+      />
+    )
   if (publicCourseId)
     return (
       <CourseDetailPage
@@ -312,8 +426,17 @@ function App() {
         courseId={publicCourseId}
         onBackToHome={backToLanding}
         onBackToCatalog={() => navigateTo('/courses')}
-        onStartLearning={(id) => navigateStudent(`/student/courses/${id}`)}
+        onStartLearning={(id) => navigateTo(`/courses/${id}/study`)}
         onGoToCart={() => navigateTo('/cart')}
+      />
+    )
+  if (orderPaymentOrderId)
+    return (
+      <PaymentInstructionsPage
+        key={orderPaymentOrderId}
+        orderId={orderPaymentOrderId}
+        onGoToOrderDetail={() => navigateTo(`/orders/${orderPaymentOrderId}`)}
+        onGoToMyCourses={() => navigateStudent('/student/courses')}
       />
     )
   if (orderDetailId)
@@ -323,6 +446,9 @@ function App() {
         orderId={orderDetailId}
         onBackToOrders={() => navigateTo('/orders')}
         onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onPaymentReady={(paymentData) =>
+          navigateTo(`/orders/${paymentData.order.id}/payment`, paymentData)
+        }
       />
     )
   if (authMode === 'courses')
@@ -337,7 +463,9 @@ function App() {
   if (authMode === 'checkout')
     return (
       <CheckoutPage
-        onOrderCreated={(orderId) => navigateTo(`/orders/${orderId}`)}
+        onOrderCreated={(paymentData) =>
+          navigateTo(`/orders/${paymentData.order.id}/payment`, paymentData)
+        }
         onBackToCart={() => navigateTo('/cart')}
       />
     )

@@ -4,8 +4,7 @@ import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import Chatbot from '../../components/landing/Chatbot'
 import OrderStatusBadge from '../../components/orders/OrderStatusBadge'
-import { cancelOrder, getOrder, payOrder, type Order } from '../../services/orderService'
-import { openPaymentUrl } from '../../services/paymentService'
+import { cancelOrder, getOrder, payOrder, type Order, type OrderPaymentData } from '../../services/orderService'
 import { getErrorMessage } from '../../lib/errors'
 import { ApiError } from '../../lib/api'
 import { showErrorToast, showSuccessToast } from '../../lib/toastBus'
@@ -16,6 +15,7 @@ interface OrderDetailPageProps {
   orderId: string
   onBackToOrders: () => void
   onGoToMyCourses: () => void
+  onPaymentReady: (paymentData: OrderPaymentData) => void
 }
 
 function formatDateTime(value: string | null) {
@@ -25,7 +25,12 @@ function formatDateTime(value: string | null) {
   return date.toLocaleString('vi-VN')
 }
 
-function OrderDetailPage({ orderId, onBackToOrders, onGoToMyCourses }: OrderDetailPageProps) {
+function OrderDetailPage({
+  orderId,
+  onBackToOrders,
+  onGoToMyCourses,
+  onPaymentReady,
+}: OrderDetailPageProps) {
   const [order, setOrder] = useState<Order | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
@@ -62,9 +67,7 @@ function OrderDetailPage({ orderId, onBackToOrders, onGoToMyCourses }: OrderDeta
     try {
       const result = await payOrder(order.id)
       setOrder(result.order)
-      if (result.paymentUrl) {
-        openPaymentUrl(result.paymentUrl)
-      }
+      onPaymentReady(result)
     } catch (error) {
       showErrorToast(getErrorMessage(error))
     } finally {

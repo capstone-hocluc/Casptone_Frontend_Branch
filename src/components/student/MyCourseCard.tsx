@@ -1,5 +1,6 @@
-import { ArrowRight, BookOpen, CheckCircle2, CircleDot, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, CircleDot, Users } from 'lucide-react'
 import type { MyCourseEnrollment } from '../../services/courseService'
+import { formatDate, prettifyEnum } from '../../lib/courseFormat'
 
 const statusLabels = {
   'not-started': 'Chưa bắt đầu',
@@ -24,6 +25,8 @@ function MyCourseCard({ enrollment, onOpen }: MyCourseCardProps) {
   const status = getStatus(progress)
   const isCompleted = status === 'completed'
   const badgeLabel = course.targetExam || course.track || 'Khóa học'
+  const enrolledAtLabel = formatDate(enrollment.enrolledAt)
+  const enrollmentTypeLabel = prettifyEnum(enrollment.enrollmentType)
 
   return (
     <button type="button" className="hl-my-course-card" onClick={() => onOpen(course)}>
@@ -37,11 +40,18 @@ function MyCourseCard({ enrollment, onOpen }: MyCourseCardProps) {
           <span className="hl-my-course-subject">{badgeLabel}</span>
           <h3>{course.title}</h3>
           <p>{course.description || 'Chưa có mô tả cho khóa học này.'}</p>
+          {(enrolledAtLabel || enrollmentTypeLabel) && (
+            <div className="hl-my-course-meta">
+              <CalendarDays size={12} />
+              {enrolledAtLabel && <span>Đăng ký: {enrolledAtLabel}</span>}
+              {enrollmentTypeLabel && <span>{enrollmentTypeLabel}</span>}
+            </div>
+          )}
         </div>
 
         <div className="hl-my-course-progress">
           <div>
-            <span>Tiến độ</span>
+            <span>Tiến độ học tập</span>
             <strong>{progress}%</strong>
           </div>
           <div className="hl-my-course-progress-bar" aria-hidden="true">

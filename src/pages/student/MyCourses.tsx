@@ -5,17 +5,22 @@ import { getErrorMessage } from '../../lib/errors'
 import { getMyCourses } from '../../services/courseService'
 import type { MyCourseEnrollment } from '../../services/courseService'
 
-function MyCourses({ onOpenCourse }) {
+interface MyCoursesProps {
+  onOpenCourse: (course: MyCourseEnrollment['course']) => void
+  onBrowseCourses: () => void
+}
+
+function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const [query, setQuery] = useState('')
   const [enrollments, setEnrollments] = useState<MyCourseEnrollment[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
 
     async function load() {
-      setStatus('loading')
       try {
         const response = await getMyCourses()
         if (cancelled) return
@@ -23,7 +28,7 @@ function MyCourses({ onOpenCourse }) {
         setStatus('ready')
       } catch (error) {
         if (cancelled) return
-        setErrorMessage(getErrorMessage(error) || 'Không thể tải danh sách khóa học.')
+        setErrorMessage(getErrorMessage(error) || 'Không thể tải khóa học của bạn')
         setStatus('error')
       }
     }
@@ -32,7 +37,7 @@ function MyCourses({ onOpenCourse }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadKey])
 
   const visibleEnrollments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -72,17 +77,28 @@ function MyCourses({ onOpenCourse }) {
         </div>
 
         {status === 'loading' && (
-          <div className="hl-my-courses-empty">
-            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Đang tải khóa học...</strong>
+          <div className="hl-my-courses-grid">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div className="hl-my-course-skeleton" key={index} aria-hidden="true" />
+            ))}
           </div>
         )}
 
         {status === 'error' && (
           <div className="hl-my-courses-empty">
             <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Không thể tải khóa học</strong>
+            <strong>Không thể tải khóa học của bạn</strong>
             <p>{errorMessage}</p>
+            <button
+              type="button"
+              className="hl-my-courses-empty-cta"
+              onClick={() => {
+                setStatus('loading')
+                setReloadKey((current) => current + 1)
+              }}
+            >
+              Thử lại
+            </button>
           </div>
         )}
 
@@ -107,7 +123,11 @@ function MyCourses({ onOpenCourse }) {
           ) : (
             <div className="hl-my-courses-empty">
               <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-              <strong>Bạn chưa đăng ký khóa học nào.</strong>
+              <strong>Bạn chưa có khóa học nào</strong>
+              <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
+              <button type="button" className="hl-my-courses-empty-cta" onClick={onBrowseCourses}>
+                Khám phá khóa học
+              </button>
             </div>
           ))}
       </article>
