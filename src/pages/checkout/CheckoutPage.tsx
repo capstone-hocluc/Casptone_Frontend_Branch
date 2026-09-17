@@ -4,14 +4,14 @@ import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import Chatbot from '../../components/landing/Chatbot'
 import { getCart, type Cart } from '../../services/cartService'
-import { checkout } from '../../services/orderService'
+import { checkout, type OrderPaymentData } from '../../services/orderService'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { getErrorMessage } from '../../lib/errors'
 import { showErrorToast } from '../../lib/toastBus'
 import { formatCoursePrice } from '../../lib/courseFormat'
 
 interface CheckoutPageProps {
-  onOrderCreated: (orderId: string) => void
+  onOrderCreated: (paymentData: OrderPaymentData) => void
   onBackToCart: () => void
 }
 
@@ -51,7 +51,7 @@ function CheckoutPage({ onOrderCreated, onBackToCart }: CheckoutPageProps) {
     setSubmitting(true)
     try {
       const result = await checkout()
-      onOrderCreated(result.order.id)
+      onOrderCreated(result)
     } catch (error) {
       showErrorToast(getErrorMessage(error))
     } finally {

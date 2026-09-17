@@ -9,6 +9,7 @@ export interface OrderItem {
 export interface Order {
   id: string
   orderCode: string
+  paymentCode: string
   status: string
   totalAmount: number
   createdAt: string
@@ -18,13 +19,21 @@ export interface Order {
   items: OrderItem[]
 }
 
-export interface OrderPaymentResult {
+// Returned by checkout() and payOrder() - SePay bank-transfer/QR instructions.
+// GET /orders/{orderId} does NOT include these fields (see getOrder below),
+// so this data only ever comes fresh from one of those two calls.
+export interface OrderPaymentData {
   order: Order
-  paymentUrl: string
+  paymentCode: string
+  bankCode: string
+  accountNumber: string
+  accountName: string
+  amount: number
+  qrUrl: string
 }
 
-export async function checkout(): Promise<OrderPaymentResult> {
-  const response = await request<OrderPaymentResult>('/api/v1/orders/checkout', {
+export async function checkout(): Promise<OrderPaymentData> {
+  const response = await request<OrderPaymentData>('/api/v1/orders/checkout', {
     method: 'POST',
     auth: true,
   })
@@ -45,8 +54,8 @@ export async function getMyOrders(): Promise<Order[]> {
   return response.data || []
 }
 
-export async function payOrder(orderId: string): Promise<OrderPaymentResult> {
-  const response = await request<OrderPaymentResult>(
+export async function payOrder(orderId: string): Promise<OrderPaymentData> {
+  const response = await request<OrderPaymentData>(
     `/api/v1/orders/${encodeURIComponent(orderId)}/pay`,
     { method: 'POST', auth: true }
   )
