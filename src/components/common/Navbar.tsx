@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { navLinks } from '../../data/content'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Logo from './Logo'
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const { profile } = useCurrentUser()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -63,29 +65,78 @@ function Navbar() {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
-          <button
-            type="button"
-            className="hl-by"
-            onClick={() =>
-              window.dispatchEvent(new CustomEvent('open-auth', { detail: { mode: 'login' } }))
-            }
-            style={{
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-              color: '#3a2a05',
-              fontWeight: 800,
-              fontSize: 13.5,
-              letterSpacing: '.5px',
-              textTransform: 'uppercase',
-              padding: '13px 24px',
-              borderRadius: 40,
-              boxShadow: '0 8px 20px rgba(244,169,60,.4)',
-            }}
-          >
-            Đăng nhập
-          </button>
+          {profile ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <img
+                src={profile.avatarUrl || '/avatar-minhanh.jpg'}
+                alt={profile.displayName || profile.email}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '1px solid rgba(27,77,228,.16)',
+                }}
+              />
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  color: '#2A3354',
+                  maxWidth: 140,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {profile.displayName ||
+                  [profile.lastName, profile.firstName].filter(Boolean).join(' ') ||
+                  profile.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('hl-logout'))}
+                style={{
+                  border: '1px solid rgba(27,77,228,.24)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  background: 'transparent',
+                  color: '#1B4DE4',
+                  fontWeight: 700,
+                  fontSize: 12.5,
+                  letterSpacing: '.3px',
+                  padding: '9px 16px',
+                  borderRadius: 30,
+                }}
+              >
+                Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="hl-by"
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent('open-auth', { detail: { mode: 'login' } }))
+              }
+              style={{
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
+                color: '#3a2a05',
+                fontWeight: 800,
+                fontSize: 13.5,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '13px 24px',
+                borderRadius: 40,
+                boxShadow: '0 8px 20px rgba(244,169,60,.4)',
+              }}
+            >
+              Đăng nhập
+            </button>
+          )}
           <button
             type="button"
             aria-label="Mở menu"

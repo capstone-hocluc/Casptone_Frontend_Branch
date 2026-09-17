@@ -46,6 +46,14 @@ export interface ResetPasswordRequest {
   newPassword: string
 }
 
+export interface GoogleAuthRequest {
+  idToken: string
+}
+
+export interface ResendOtpRequest {
+  email: string
+}
+
 function ensureTokenData(response: ApiResponse<TokenData>, fallbackMessage: string) {
   const { accessToken, refreshToken } = response.data || {}
   if (!accessToken || !refreshToken) {
@@ -80,6 +88,23 @@ export async function login({ email, password }: LoginRequest) {
   )
 }
 
+// Sends only the Google ID token, obtained from Google's own sign-in flow -
+// never an access token or profile fields collected client-side. Backend
+// decides whether this is a login or a first-time registration; the
+// response shape (accessToken/refreshToken) is identical to login(), so it
+// goes through the same ensureTokenData() storage path.
+export async function googleAuth({ idToken }: GoogleAuthRequest) {
+  const response = await request<TokenData>('/api/v1/auth/google', {
+    method: 'POST',
+    body: { idToken } satisfies GoogleAuthRequest,
+  })
+
+  return ensureTokenData(
+    response,
+    'Đăng nhập với Google không thành công. Máy chủ chưa trả về đầy đủ token.'
+  )
+}
+
 export async function refreshSession() {
   const response = await refreshTokenRequest(getRefreshToken())
   return ensureTokenData(response, 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.')
@@ -100,6 +125,13 @@ export async function resetPassword({ email, otp, newPassword }: ResetPasswordRe
   return request<string>('/api/v1/auth/reset-password', {
     method: 'POST',
     body: { email: email.trim(), otp, newPassword },
+  })
+}
+
+export async function resendOtp({ email }: ResendOtpRequest) {
+  return request<string>('/api/v1/auth/resend-otp', {
+    method: 'POST',
+    body: { email: email.trim() } satisfies ResendOtpRequest,
   })
 }
 

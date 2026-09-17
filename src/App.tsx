@@ -57,25 +57,6 @@ function App() {
   const [logoutLoading, setLogoutLoading] = useState(false)
   const logoutInFlight = useRef(false)
 
-  useEffect(() => {
-    const openAuth = (event) => {
-      const mode = event.detail?.mode || 'login'
-      window.history.pushState({}, '', `/${mode}`)
-      setAuthMode(mode)
-      setCurrentPath(`/${mode}`)
-    }
-    const syncPath = () => {
-      setAuthMode(getAuthMode())
-      setCurrentPath(window.location.pathname.replace(/\/$/, '') || '/')
-    }
-    window.addEventListener('open-auth', openAuth)
-    window.addEventListener('popstate', syncPath)
-    return () => {
-      window.removeEventListener('open-auth', openAuth)
-      window.removeEventListener('popstate', syncPath)
-    }
-  }, [])
-
   const navigateAuth = (mode) => {
     window.history.pushState({}, '', `/${mode}`)
     setAuthMode(mode)
@@ -131,7 +112,7 @@ function App() {
   }
   const goAfterLogin = () => {
     setPendingVerificationEmail('')
-    navigateStudent('/student/dashboard')
+    backToLanding()
   }
 
   const handleLogout = async () => {
@@ -150,6 +131,30 @@ function App() {
       setLogoutLoading(false)
     }
   }
+
+  useEffect(() => {
+    const openAuth = (event) => {
+      const mode = event.detail?.mode || 'login'
+      window.history.pushState({}, '', `/${mode}`)
+      setAuthMode(mode)
+      setCurrentPath(`/${mode}`)
+    }
+    const syncPath = () => {
+      setAuthMode(getAuthMode())
+      setCurrentPath(window.location.pathname.replace(/\/$/, '') || '/')
+    }
+    const onLogoutRequested = () => {
+      handleLogout()
+    }
+    window.addEventListener('open-auth', openAuth)
+    window.addEventListener('popstate', syncPath)
+    window.addEventListener('hl-logout', onLogoutRequested)
+    return () => {
+      window.removeEventListener('open-auth', openAuth)
+      window.removeEventListener('popstate', syncPath)
+      window.removeEventListener('hl-logout', onLogoutRequested)
+    }
+  }, [])
 
   const navigateStudent = (path) => {
     if (
