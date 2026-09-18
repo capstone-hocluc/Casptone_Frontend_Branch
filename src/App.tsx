@@ -13,6 +13,10 @@ import LessonPage from './pages/course/LessonPage'
 import QuizDetailPage from './pages/assessments/QuizDetailPage'
 import QuizAttemptPage from './pages/assessments/QuizAttemptPage'
 import QuizReviewPage from './pages/assessments/QuizReviewPage'
+import PlacementIntroPage from './pages/assessments/PlacementIntroPage'
+import PlacementAttemptPage from './pages/assessments/PlacementAttemptPage'
+import PlacementReviewPage from './pages/assessments/PlacementReviewPage'
+import PlacementResultPage from './pages/assessments/PlacementResultPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentLayout from './components/student/StudentLayout'
@@ -269,6 +273,28 @@ function App() {
     ? decodeURIComponent(assessmentSegments[2] || '')
     : null
 
+  // Placement segments: ['assessments','placement','result'? | 'attempts',attemptId?,'review'?]
+  const isPlacementIntroPath =
+    assessmentSegments.length === 2 && assessmentSegments[1] === 'placement'
+  const isPlacementResultPath =
+    assessmentSegments.length === 3 &&
+    assessmentSegments[1] === 'placement' &&
+    assessmentSegments[2] === 'result'
+  const isPlacementAttemptPath =
+    assessmentSegments.length === 4 &&
+    assessmentSegments[1] === 'placement' &&
+    assessmentSegments[2] === 'attempts'
+  const isPlacementReviewPath =
+    assessmentSegments.length === 5 &&
+    assessmentSegments[1] === 'placement' &&
+    assessmentSegments[2] === 'attempts' &&
+    assessmentSegments[4] === 'review'
+
+  const placementAttemptId =
+    isPlacementAttemptPath || isPlacementReviewPath
+      ? decodeURIComponent(assessmentSegments[3] || '')
+      : null
+
   const isCoursesPath =
     currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
   const coursePathParts = currentPath.startsWith('/student/courses/')
@@ -429,6 +455,40 @@ function App() {
         key={reviewAttemptId}
         attemptId={reviewAttemptId}
         onBackToQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+      />
+    )
+  if (isPlacementReviewPath && placementAttemptId)
+    return (
+      <PlacementReviewPage
+        key={placementAttemptId}
+        attemptId={placementAttemptId}
+        onBack={() => navigateTo('/assessments/placement/result')}
+      />
+    )
+  if (isPlacementAttemptPath && placementAttemptId)
+    return (
+      <PlacementAttemptPage
+        key={placementAttemptId}
+        attemptId={placementAttemptId}
+        onExit={() => navigateTo('/assessments/placement')}
+        onSubmitted={() => navigateTo('/assessments/placement/result')}
+      />
+    )
+  if (isPlacementResultPath)
+    return (
+      <PlacementResultPage
+        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
+        onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
+      />
+    )
+  if (isPlacementIntroPath)
+    return (
+      <PlacementIntroPage
+        onStartAttempt={(attemptId) =>
+          navigateTo(`/assessments/placement/attempts/${attemptId}`)
+        }
+        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
+        onBack={backToLanding}
       />
     )
   if (publicCourseId)

@@ -39,6 +39,12 @@ export async function getMainCourses() {
   return request<Course[]>('/api/v1/courses/main', { auth: true })
 }
 
+// Same Course shape as /courses/main - backend decides what's suggested
+// (e.g. after a placement result); no recommendation logic lives here.
+export async function getSuggestedCourses() {
+  return request<Course[]>('/api/v1/courses/main/suggested', { auth: true })
+}
+
 export interface CourseLesson {
   id: string
   title: string

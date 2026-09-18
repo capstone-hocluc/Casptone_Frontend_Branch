@@ -184,3 +184,86 @@ export async function getAttemptReview(attemptId: string): Promise<QuizReview> {
   if (!response.data) throw new Error('Không thể tải kết quả bài kiểm tra.')
   return response.data
 }
+
+// ==================================================
+// Placement assessment
+//
+// A placement attempt is still just an "attempt" in the same backend
+// resource space as a course quiz attempt - GET/save-answer/submit/review
+// all go through the exact same generic endpoints and types above
+// (getAttempt, saveAnswer, submitAttempt, getAttemptReview, QuizAttemptDetail,
+// QuizReview). Only the test definition and the start/history/result
+// endpoints are placement-specific, so that's all that's added below.
+// ==================================================
+
+// Same question/option shape as a course quiz (QuizQuestion) - reused as-is.
+export interface PlacementTest {
+  id: string
+  title: string
+  description: string | null
+  durationMinutes: number
+  examFileUrl: string | null
+  questions: QuizQuestion[]
+}
+
+export async function getPlacementTest(): Promise<PlacementTest> {
+  const response = await request<PlacementTest>('/api/v1/assessments/placement', { auth: true })
+  if (!response.data) throw new Error('Không thể tải bài kiểm tra đầu vào.')
+  return response.data
+}
+
+// No request body - same start-or-resume contract as startQuizAttempt.
+export async function startPlacementAttempt(): Promise<StartAttemptResult> {
+  const response = await request<StartAttemptResult>('/api/v1/assessments/placement/attempts', {
+    method: 'POST',
+    auth: true,
+  })
+  if (!response.data) throw new Error('Không thể bắt đầu bài kiểm tra đầu vào.')
+  return response.data
+}
+
+// Same summary shape as a course quiz's embedded attempts[] (QuizAttemptSummary)
+// - reused as-is. Placement's test definition has no embedded attempt
+// history/inProgressAttemptId of its own, so this endpoint is how the intro
+// screen detects a resumable attempt.
+export async function getPlacementAttemptHistory(): Promise<QuizAttemptSummary[]> {
+  const response = await request<QuizAttemptSummary[]>(
+    '/api/v1/assessments/placement/attempts/me',
+    { auth: true }
+  )
+  return response.data || []
+}
+
+export interface PlacementCategoryResult {
+  categoryId: string
+  categoryName: string
+  correctCount: number
+  wrongCount: number
+  totalCount: number
+  score: number
+  percentage: number
+}
+
+export interface PlacementResult {
+  id: string
+  totalQuestions: number
+  correctCount: number
+  wrongCount: number
+  score: number
+  overallPercentage: number
+  timeSpentSeconds: number
+  level: string
+  weakCategoryId: string | null
+  weakCategoryName: string | null
+  strongCategoryId: string | null
+  strongCategoryName: string | null
+  categories: PlacementCategoryResult[]
+}
+
+export async function getPlacementResult(): Promise<PlacementResult> {
+  const response = await request<PlacementResult>('/api/v1/assessments/results/me', {
+    auth: true,
+  })
+  if (!response.data) throw new Error('Không thể tải kết quả bài kiểm tra đầu vào.')
+  return response.data
+}
