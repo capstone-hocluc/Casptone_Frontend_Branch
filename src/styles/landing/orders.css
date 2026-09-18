@@ -316,6 +316,25 @@
   padding-bottom: 0;
 }
 
+.hl-orders-item.is-clickable {
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.hl-orders-item.is-clickable:hover,
+.hl-orders-item.is-clickable:focus-visible {
+  background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
 .hl-orders-item strong {
   flex-shrink: 0;
   color: var(--color-text-heading);

@@ -16,6 +16,7 @@ interface OrderDetailPageProps {
   onBackToOrders: () => void
   onGoToMyCourses: () => void
   onPaymentReady: (paymentData: OrderPaymentData) => void
+  onOpenCourse: (courseId: string) => void
 }
 
 function formatDateTime(value: string | null) {
@@ -30,6 +31,7 @@ function OrderDetailPage({
   onBackToOrders,
   onGoToMyCourses,
   onPaymentReady,
+  onOpenCourse,
 }: OrderDetailPageProps) {
   const [order, setOrder] = useState<Order | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading')
@@ -176,10 +178,15 @@ function OrderDetailPage({
                   <h2>Khóa học</h2>
                   <div className="hl-orders-items">
                     {order.items.map((item) => (
-                      <div className="hl-orders-item" key={item.courseId}>
+                      <button
+                        type="button"
+                        className="hl-orders-item is-clickable"
+                        key={item.courseId}
+                        onClick={() => onOpenCourse(item.courseId)}
+                      >
                         <span>{item.courseTitle}</span>
                         <strong>{formatCoursePrice(item.unitPrice)}</strong>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </section>

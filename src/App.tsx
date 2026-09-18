@@ -522,6 +522,7 @@ function App() {
         onPaymentReady={(paymentData) =>
           navigateTo(`/orders/${paymentData.order.id}/payment`, paymentData)
         }
+        onOpenCourse={(courseId) => navigateTo(`/courses/${courseId}`)}
       />
     )
   if (authMode === 'courses')
