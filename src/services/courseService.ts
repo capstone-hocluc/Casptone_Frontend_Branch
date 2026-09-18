@@ -223,3 +223,60 @@ export async function getCourseStudy(courseId: string): Promise<CourseStudy> {
   if (!response.data) throw new Error('Không thể tải nội dung học tập của khóa học.')
   return response.data
 }
+
+// Same item shape as CourseStudy.nextLiveClass (CourseStudyLiveClass) -
+// reused as-is for next/upcoming/past here instead of a duplicate type.
+export interface CourseLiveClasses {
+  courseId: string
+  courseTitle: string
+  next: CourseStudyLiveClass | null
+  upcoming: CourseStudyLiveClass[]
+  past: CourseStudyLiveClass[]
+}
+
+export async function getCourseLiveClasses(courseId: string): Promise<CourseLiveClasses> {
+  const response = await request<CourseLiveClasses>(
+    `/api/v1/courses/${encodeURIComponent(courseId)}/live-classes`,
+    { auth: true }
+  )
+  if (!response.data) throw new Error('Không thể tải lịch học trực tuyến.')
+  return response.data
+}
+
+export interface CatchUpRecording {
+  liveClassId: string
+  title: string
+  startTime: string
+  recordingUrl: string | null
+}
+
+export interface SectionOrderItem {
+  sectionCourseId: string
+  sectionCourseTitle: string
+  phaseName: string
+  sequence: number
+  categoryId: string | null
+  categoryName: string | null
+  priority: boolean
+}
+
+export interface EnrollmentPlan {
+  // Known example: NEW_COURSE_FULL_ROADMAP. Not assumed to be the only value.
+  branch: string
+  message: string | null
+  // Course-timeline-elapsed, NOT student lesson/learning progress.
+  elapsedPercentage: number
+  // Same Course shape as /courses/main - reused as-is.
+  recommendedCourse: Course | null
+  catchUpRecordings: CatchUpRecording[]
+  sectionOrder: SectionOrderItem[]
+}
+
+export async function getCourseEnrollmentPlan(courseId: string): Promise<EnrollmentPlan> {
+  const response = await request<EnrollmentPlan>(
+    `/api/v1/courses/${encodeURIComponent(courseId)}/enrollment-plan`,
+    { auth: true }
+  )
+  if (!response.data) throw new Error('Không thể tải lộ trình học.')
+  return response.data
+}

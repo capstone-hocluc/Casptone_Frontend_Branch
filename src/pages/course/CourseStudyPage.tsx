@@ -9,7 +9,9 @@ import ContinueLearningCard from '../../components/study/ContinueLearningCard'
 import NextLiveClassCard from '../../components/study/NextLiveClassCard'
 import StudyGroupCard from '../../components/study/StudyGroupCard'
 import StudyCurriculum from '../../components/study/StudyCurriculum'
-import { getCourseStudy, type CourseStudy } from '../../services/courseService'
+import StudyLiveClassesTab from '../../components/study/StudyLiveClassesTab'
+import StudyEnrollmentPlanTab from '../../components/study/StudyEnrollmentPlanTab'
+import { getCourseStudy, type Course, type CourseStudy } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
 import { ApiError } from '../../lib/api'
 
@@ -18,13 +20,23 @@ interface CourseStudyPageProps {
   onBackToCourseDetail: () => void
   onOpenLesson: (lessonId: string) => void
   onOpenQuiz: (quizId: string) => void
+  onOpenCourse: (course: Course) => void
 }
+
+type StudyTab = 'content' | 'live' | 'plan'
+
+const TABS: { key: StudyTab; label: string }[] = [
+  { key: 'content', label: 'Nội dung học' },
+  { key: 'live', label: 'Lớp học trực tuyến' },
+  { key: 'plan', label: 'Lộ trình học' },
+]
 
 function CourseStudyPage({
   courseId,
   onBackToCourseDetail,
   onOpenLesson,
   onOpenQuiz,
+  onOpenCourse,
 }: CourseStudyPageProps) {
   const [study, setStudy] = useState<CourseStudy | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
@@ -32,6 +44,7 @@ function CourseStudyPage({
   )
   const [errorMessage, setErrorMessage] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
+  const [activeTab, setActiveTab] = useState<StudyTab>('content')
 
   useEffect(() => {
     let cancelled = false
@@ -112,16 +125,42 @@ function CourseStudyPage({
             <div className="hl-study-grid">
               <StudyHeader study={study} />
               <StudyProgressCard study={study} />
-              <ContinueLearningCard study={study} onOpenLesson={onOpenLesson} />
-              {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
-              {study.activeStudyGroupName && (
-                <StudyGroupCard name={study.activeStudyGroupName} />
+
+              <div className="hl-study-tabs" role="tablist">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === tab.key}
+                    className={`hl-study-tab-btn${activeTab === tab.key ? ' is-active' : ''}`}
+                    onClick={() => setActiveTab(tab.key)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === 'content' && (
+                <>
+                  <ContinueLearningCard study={study} onOpenLesson={onOpenLesson} />
+                  {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
+                  {study.activeStudyGroupName && (
+                    <StudyGroupCard name={study.activeStudyGroupName} />
+                  )}
+                  <StudyCurriculum
+                    phases={study.phases}
+                    onOpenLesson={onOpenLesson}
+                    onOpenQuiz={onOpenQuiz}
+                  />
+                </>
               )}
-              <StudyCurriculum
-                phases={study.phases}
-                onOpenLesson={onOpenLesson}
-                onOpenQuiz={onOpenQuiz}
-              />
+
+              {activeTab === 'live' && <StudyLiveClassesTab courseId={courseId} />}
+
+              {activeTab === 'plan' && (
+                <StudyEnrollmentPlanTab courseId={courseId} onOpenCourse={onOpenCourse} />
+              )}
             </div>
           )}
         </div>

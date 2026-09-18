@@ -620,3 +620,152 @@
     justify-content: center;
   }
 }
+
+/* Study tabs */
+.hl-study-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.hl-study-tab-btn {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-text-faint);
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+.hl-study-tab-btn.is-active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Live classes list (shared by StudyLiveClassesTab and catch-up recordings) */
+.hl-live-class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hl-live-class-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+}
+
+.hl-live-class-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hl-live-class-row-main strong {
+  font-size: 13.5px;
+  color: var(--color-text-heading);
+}
+
+.hl-live-class-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.hl-live-class-row-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hl-live-class-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.hl-live-class-row-actions .hl-study-live-cta {
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+/* Enrollment plan */
+.hl-plan-elapsed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 12px 0 8px;
+}
+
+.hl-plan-elapsed-row strong {
+  color: var(--color-text-heading);
+}
+
+.hl-plan-recommended-grid {
+  grid-template-columns: minmax(0, 320px);
+}
+
+.hl-plan-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hl-plan-section-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+}
+
+.hl-plan-section-row div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hl-plan-section-row strong {
+  font-size: 13.5px;
+  color: var(--color-text-heading);
+}
+
+.hl-plan-section-meta {
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.hl-plan-priority-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--color-warning-dark);
+  background: var(--color-badge-warning-bg);
+  padding: 4px 9px;
+  border-radius: 20px;
+}

@@ -426,6 +426,7 @@ function App() {
         onBackToCourseDetail={() => navigateTo(`/courses/${studyCourseId}`)}
         onOpenLesson={(lessonId) => navigateTo(`/courses/${studyCourseId}/study/lessons/${lessonId}`)}
         onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
+        onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
       />
     )
   if (quizAttemptId && attemptQuizId)
