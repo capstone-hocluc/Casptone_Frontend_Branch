@@ -33,12 +33,15 @@ import Logo from '../common/Logo'
 import Sidebar from '../ui/Sidebar'
 import NavItem, { SidebarGroupLabel } from '../ui/NavItem'
 import PageHeading from '../ui/PageHeading'
+import DropdownField from '../ui/DropdownField'
 import StudyGroupManagement from './StudyGroupManagement'
 import ScheduleManagement from './ScheduleManagement'
 import AttendanceManagement from './AttendanceManagement'
 import TuitionManagement from './TuitionManagement'
 import InvoiceManagement from './InvoiceManagement'
 import PaymentManagement from './PaymentManagement'
+
+const toDropdownOptions = (values) => values.map((value) => ({ id: value, label: value }))
 
 const seedStudents = [
   {
@@ -818,19 +821,30 @@ function StudentList({ students, setStudents, navigate, action }) {
           </label>
           <span>
             <Filter size={16} />
-            <select value={fee} onChange={(event) => filter(setFee, event.target.value)}>
-              <option>Tất cả</option>
-              <option>Đã thanh toán</option>
-              <option>Chờ thanh toán</option>
-              <option>Quá hạn</option>
-            </select>
+            <DropdownField
+              ariaLabel="Trạng thái học phí"
+              className="w-auto"
+              options={toDropdownOptions(['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Quá hạn'])}
+              value={fee}
+              onChange={(value) => {
+                if (value !== null) filter(setFee, value)
+              }}
+            />
           </span>
-          <select value={batch} onChange={(event) => filter(setBatch, event.target.value)}>
-            <option>Tất cả</option>
-            <option>ĐGNL 12A · K24</option>
-            <option>ĐGNL 12B · K24</option>
-            <option>ĐGNL 11A · K25</option>
-          </select>
+          <DropdownField
+            ariaLabel="Batch học viên"
+            className="w-auto"
+            options={toDropdownOptions([
+              'Tất cả',
+              'ĐGNL 12A · K24',
+              'ĐGNL 12B · K24',
+              'ĐGNL 11A · K25',
+            ])}
+            value={batch}
+            onChange={(value) => {
+              if (value !== null) filter(setBatch, value)
+            }}
+          />
         </div>
         <div className="hl-staff-table">
           <div className="hl-staff-tr hl-staff-list-row head">
@@ -955,11 +969,14 @@ function StudentModal({ form, setForm, close, submit }) {
         </label>
         <label>
           Khóa học / batch
-          <select value={form.batch} onChange={(event) => update('batch', event.target.value)}>
-            <option>ĐGNL 12A · K24</option>
-            <option>ĐGNL 12B · K24</option>
-            <option>ĐGNL 11A · K25</option>
-          </select>
+          <DropdownField
+            ariaLabel="Khóa học / batch"
+            options={toDropdownOptions(['ĐGNL 12A · K24', 'ĐGNL 12B · K24', 'ĐGNL 11A · K25'])}
+            value={form.batch}
+            onChange={(value) => {
+              if (value !== null) update('batch', value)
+            }}
+          />
         </label>
         <div className="hl-staff-modal-actions">
           <button type="button" onClick={close}>
@@ -1196,12 +1213,15 @@ function StaffEnrollmentPage({ students, enrollments, setEnrollments, action, no
               placeholder="Tìm học viên, khóa học hoặc mã ghi danh..."
             />
           </label>
-          <select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option>Tất cả</option>
-            <option>Đang chờ</option>
-            <option>Đã duyệt</option>
-            <option>Đã hủy</option>
-          </select>
+          <DropdownField
+            ariaLabel="Trạng thái ghi danh"
+            className="w-auto"
+            options={toDropdownOptions(['Tất cả', 'Đang chờ', 'Đã duyệt', 'Đã hủy'])}
+            value={status}
+            onChange={(value) => {
+              if (value !== null) setStatus(value)
+            }}
+          />
           <span>{rows.length} lượt ghi danh</span>
         </div>
         <div className="hl-staff-table">
@@ -1261,29 +1281,30 @@ function EnrollmentModal({ students, form, setForm, onClose, onSubmit }) {
         <p>Hệ thống sẽ tự tạo một bản ghi học phí ở trạng thái chờ thanh toán.</p>
         <label>
           Học viên
-          <select
-            required
+          <DropdownField
+            ariaLabel="Học viên"
+            options={[
+              { id: '', label: 'Chọn học viên' },
+              ...students.map((student) => ({
+                id: student.id,
+                label: `${student.name} · ${student.id}`,
+              })),
+            ]}
             value={form.studentId}
-            onChange={(event) => setForm({ ...form, studentId: event.target.value })}
-          >
-            <option value="">Chọn học viên</option>
-            {students.map((student) => (
-              <option value={student.id} key={student.id}>
-                {student.name} · {student.id}
-              </option>
-            ))}
-          </select>
+            isRequired
+            onChange={(value) => setForm({ ...form, studentId: value ?? '' })}
+          />
         </label>
         <label>
           Khóa học / batch
-          <select
+          <DropdownField
+            ariaLabel="Khóa học / batch"
+            options={toDropdownOptions(['ĐGNL 12A · K24', 'ĐGNL 12B · K24', 'ĐGNL 11A · K25'])}
             value={form.batch}
-            onChange={(event) => setForm({ ...form, batch: event.target.value })}
-          >
-            <option>ĐGNL 12A · K24</option>
-            <option>ĐGNL 12B · K24</option>
-            <option>ĐGNL 11A · K25</option>
-          </select>
+            onChange={(value) => {
+              if (value !== null) setForm({ ...form, batch: value })
+            }}
+          />
         </label>
         <div className="hl-staff-modal-actions">
           <button type="button" onClick={onClose}>
@@ -1370,12 +1391,20 @@ function BatchManagementV2({ page, students, batches, setBatches, onNavigate, ac
                     placeholder="Tìm lớp học, khóa học, giảng viên..."
                   />
                 </label>
-                <select value={filter} onChange={(event) => setFilter(event.target.value)}>
-                  <option>Tất cả</option>
-                  <option>Đang hoạt động</option>
-                  <option>Sắp khai giảng</option>
-                  <option>Đã kết thúc</option>
-                </select>
+                <DropdownField
+                  ariaLabel="Trạng thái lớp học"
+                  className="w-auto"
+                  options={toDropdownOptions([
+                    'Tất cả',
+                    'Đang hoạt động',
+                    'Sắp khai giảng',
+                    'Đã kết thúc',
+                  ])}
+                  value={filter}
+                  onChange={(value) => {
+                    if (value !== null) setFilter(value)
+                  }}
+                />
               </section>
               <div className="hl-batch-grid">
                 {list.map((item) => (
@@ -1544,10 +1573,14 @@ function BatchModal({ form, setForm, close, submit }) {
         </label>
         <label>
           Khóa học
-          <select value={form.course} onChange={(event) => update('course', event.target.value)}>
-            <option>Luyện thi ĐGNL toàn diện</option>
-            <option>Nền tảng ĐGNL lớp 11</option>
-          </select>
+          <DropdownField
+            ariaLabel="Khóa học"
+            options={toDropdownOptions(['Luyện thi ĐGNL toàn diện', 'Nền tảng ĐGNL lớp 11'])}
+            value={form.course}
+            onChange={(value) => {
+              if (value !== null) update('course', value)
+            }}
+          />
         </label>
         <label>
           Giảng viên phụ trách
@@ -1560,10 +1593,14 @@ function BatchModal({ form, setForm, close, submit }) {
         </label>
         <label>
           Trạng thái
-          <select value={form.status} onChange={(event) => update('status', event.target.value)}>
-            <option>Sắp khai giảng</option>
-            <option>Đang hoạt động</option>
-          </select>
+          <DropdownField
+            ariaLabel="Trạng thái lớp học"
+            options={toDropdownOptions(['Sắp khai giảng', 'Đang hoạt động'])}
+            value={form.status}
+            onChange={(value) => {
+              if (value !== null) update('status', value)
+            }}
+          />
         </label>
         <div className="hl-staff-modal-actions">
           <button type="button" onClick={close}>

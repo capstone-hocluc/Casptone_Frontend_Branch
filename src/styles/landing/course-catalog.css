@@ -281,7 +281,7 @@
 }
 
 .hl-catalog-filters button,
-.hl-catalog-filters select {
+.hl-catalog-filters [data-dropdown-trigger] {
   min-height: 34px;
   border: 1px solid #d9e4f4;
   border-radius: 999px;
@@ -299,7 +299,7 @@
 }
 
 .hl-catalog-filters button:hover,
-.hl-catalog-filters select:hover {
+.hl-catalog-filters [data-dropdown-trigger]:hover {
   border-color: #bfd4ff;
   color: var(--color-primary);
 }
@@ -310,7 +310,7 @@
   color: var(--color-primary);
 }
 
-.hl-catalog-filters select {
+.hl-catalog-filters [data-dropdown-trigger] {
   max-width: 100%;
   padding: 0 12px;
   outline: 0;
@@ -318,7 +318,7 @@
 }
 
 .hl-catalog-filters button:focus-visible,
-.hl-catalog-filters select:focus-visible,
+.hl-catalog-filters [data-dropdown-trigger]:focus-visible,
 .hl-catalog-search:focus-within {
   border-color: rgba(27, 77, 228, 0.55);
   box-shadow: 0 0 0 4px rgba(27, 77, 228, 0.09);

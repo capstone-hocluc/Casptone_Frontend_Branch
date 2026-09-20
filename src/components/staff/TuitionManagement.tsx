@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { CheckCircle2, CircleDollarSign, Pencil } from 'lucide-react'
@@ -11,6 +11,7 @@ import DataTable from '../ui/DataTable'
 import Modal from '../ui/Modal'
 import StatusBadge from '../ui/StatusBadge'
 import StatCard from '../ui/StatCard'
+import DropdownField from '../ui/DropdownField'
 
 const initialTuition = [
   {
@@ -171,6 +172,7 @@ function TuitionManagement() {
   const modal = useModal()
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -268,11 +270,18 @@ function TuitionManagement() {
               </label>
               <label>
                 Trạng thái
-                <select {...register('status')}>
-                  {statuses.map((status) => (
-                    <option key={status}>{status}</option>
-                  ))}
-                </select>
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <DropdownField
+                      ariaLabel="Trạng thái học phí"
+                      options={statuses.map((status) => ({ id: status, label: status }))}
+                      value={field.value}
+                      onChange={(value) => field.onChange(value ?? '')}
+                    />
+                  )}
+                />
               </label>
             </div>
             <label className="hl-tuition-note">

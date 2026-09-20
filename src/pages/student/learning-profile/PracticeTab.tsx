@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Bot, CheckCircle2, ClipboardCheck, GraduationCap, Maximize2, Target } from 'lucide-react'
 import ScrollableModal from '../../../components/student/common/ScrollableModal'
+import DropdownField from '../../../components/ui/DropdownField'
 import { learningProfilePage } from '../../../data/learningProfile'
 import { componentColors, practiceFilters, practiceOverviewIcons, practiceStatIcons } from './icons'
 import { ProfileSectionHeading } from './shared'
@@ -166,14 +167,18 @@ function TeacherFeedbackPanel({
     <div className="hl-profile-teacher-panel">
       <div className="hl-profile-teacher-filter">
         <span>Lọc theo ngày</span>
-        <select value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)}>
-          <option value="all">Tất cả nhận xét</option>
-          {feedbackDates.map((date) => (
-            <option key={date} value={date}>
-              {formatFeedbackDate(date)}
-            </option>
-          ))}
-        </select>
+        <DropdownField
+          ariaLabel="Lọc nhận xét theo ngày"
+          className="w-auto"
+          options={[
+            { id: 'all', label: 'Tất cả nhận xét' },
+            ...feedbackDates.map((date) => ({ id: date, label: formatFeedbackDate(date) })),
+          ]}
+          value={selectedDate}
+          onChange={(value) => {
+            if (value !== null) setSelectedDate(value)
+          }}
+        />
       </div>
 
       <div className="hl-profile-teacher-comment-list">

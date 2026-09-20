@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowLeft,
   BookOpen,
   Check,
-  ChevronDown,
   GraduationCap,
-  Search,
   Target,
   TrendingUp,
 } from 'lucide-react'
 import Logo from '../common/Logo'
+import DropdownField from '../ui/DropdownField'
 
 const subjectGroups = [
   {
@@ -50,60 +49,32 @@ const majors = [
 ]
 
 function SearchSelect({ label, placeholder, options, value, onChange, icon: Icon, error }) {
-  const [query, setQuery] = useState(value)
-  const [open, setOpen] = useState(false)
-  const containerRef = useRef(null)
-  const filtered = options.filter((option) => option.toLowerCase().includes(query.toLowerCase()))
-
-  useEffect(() => {
-    const closeOnOutsideClick = (event) => {
-      if (!containerRef.current?.contains(event.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', closeOnOutsideClick)
-    return () => document.removeEventListener('mousedown', closeOnOutsideClick)
-  }, [])
-
-  const choose = (option) => {
-    setQuery(option)
-    onChange(option)
-    setOpen(false)
-  }
-
   return (
-    <label className="hl-onboard-field" ref={containerRef}>
+    <div className="hl-onboard-field">
       <span className="hl-onboard-label">
         <Icon size={16} />
         {label}
       </span>
-      <span className={`hl-onboard-search ${error ? 'has-error' : ''}`}>
-        <Search size={17} />
-        <input
-          value={query}
-          placeholder={placeholder}
-          onFocus={() => setOpen(true)}
-          onChange={(event) => {
-            setQuery(event.target.value)
-            onChange('')
-            setOpen(true)
-          }}
-        />
-        <ChevronDown size={17} className={open ? 'is-open' : ''} />
-      </span>
-      {open && (
-        <span className="hl-onboard-options">
-          {filtered.length ? (
-            filtered.map((option) => (
-              <button type="button" key={option} onMouseDown={() => choose(option)}>
-                {option}
-              </button>
-            ))
-          ) : (
-            <small>Không tìm thấy kết quả phù hợp</small>
-          )}
-        </span>
-      )}
+      <DropdownField
+        ariaLabel={label}
+        contentClassName="hl-onboard-dropdown-content"
+        emptyMessage="Không tìm thấy kết quả phù hợp"
+        isInvalid={Boolean(error)}
+        isSearchable
+        options={options.map((option) => ({ id: option, label: option }))}
+        placeholder={placeholder}
+        renderValue={(option) => (
+          <span className="hl-onboard-dropdown-value">
+            <Icon size={17} aria-hidden="true" />
+            <span>{option?.label || placeholder}</span>
+          </span>
+        )}
+        triggerClassName="hl-onboard-search"
+        value={value || null}
+        onChange={(nextValue) => onChange(nextValue ?? '')}
+      />
       {error && <small className="hl-onboard-error">{error}</small>}
-    </label>
+    </div>
   )
 }
 

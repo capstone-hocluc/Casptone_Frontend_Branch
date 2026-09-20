@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AlertCircle, Plus, Users, X } from 'lucide-react'
+import DropdownField from '../ui/DropdownField'
 
 const mentors = [
   {
@@ -176,22 +177,27 @@ function StudyGroupManagement({ batch, members, onNotify }) {
             </label>
             <label>
               Batch
-              <select value={batch.id} disabled>
-                <option value={batch.id}>{batch.name}</option>
-              </select>
+              <DropdownField
+                ariaLabel="Batch"
+                isDisabled
+                options={[{ id: batch.id, label: batch.name }]}
+                value={batch.id}
+                onChange={() => {}}
+              />
             </label>
             <label>
               Mentor phụ trách
-              <select
+              <DropdownField
+                ariaLabel="Mentor phụ trách"
+                options={mentors.map((mentor) => ({
+                  id: mentor.id,
+                  label: `${mentor.name} · ${mentor.subject}`,
+                }))}
                 value={form.mentorId}
-                onChange={(event) => setForm({ ...form, mentorId: event.target.value })}
-              >
-                {mentors.map((mentor) => (
-                  <option key={mentor.id} value={mentor.id}>
-                    {mentor.name} · {mentor.subject}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => {
+                  if (value !== null) setForm({ ...form, mentorId: value })
+                }}
+              />
             </label>
             <fieldset className="hl-study-group-select">
               <legend>Phân công học viên</legend>

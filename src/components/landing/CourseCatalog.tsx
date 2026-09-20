@@ -3,6 +3,7 @@ import { Search } from 'lucide-react'
 import { getMainCourses, type Course } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
 import CourseCard from './CourseCard'
+import DropdownField from '../ui/DropdownField'
 
 function prettifyEnum(value?: string) {
   if (!value) return ''
@@ -29,6 +30,7 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
   const [errorMessage, setErrorMessage] = useState('')
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState<CatalogTab>('main')
+  const [examFilter, setExamFilter] = useState('all')
   const [trackFilter, setTrackFilter] = useState('all')
   const [reloadKey, setReloadKey] = useState(0)
 
@@ -55,6 +57,7 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
     setReloadKey((current) => current + 1)
   }
 
+  const examOptions = useMemo(() => uniqueSorted(courses.map((c) => c.targetExam)), [courses])
   const trackOptions = useMemo(() => uniqueSorted(courses.map((c) => c.track)), [courses])
 
   const filteredCourses = useMemo(() => {
@@ -64,10 +67,11 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
         !normalizedQuery ||
         course.title.toLowerCase().includes(normalizedQuery) ||
         (course.description || '').toLowerCase().includes(normalizedQuery)
+      const matchesExam = examFilter === 'all' || course.targetExam === examFilter
       const matchesTrack = trackFilter === 'all' || course.track === trackFilter
-      return matchesQuery && matchesTrack
+      return matchesQuery && matchesExam && matchesTrack
     })
-  }, [courses, query, trackFilter])
+  }, [courses, query, examFilter, trackFilter])
 
   const isMain = tab === 'main'
 
@@ -102,19 +106,34 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
           </div>
 
           <div className="hl-catalog-filters">
+            {examOptions.length > 0 && (
+              <DropdownField
+                ariaLabel="Kỳ thi"
+                className="hl-catalog-dropdown w-auto"
+                options={[
+                  { id: 'all', label: 'Tất cả kỳ thi' },
+                  ...examOptions.map((option) => ({ id: option, label: prettifyEnum(option) })),
+                ]}
+                value={examFilter}
+                onChange={(value) => {
+                  if (value !== null) setExamFilter(value)
+                }}
+              />
+            )}
+
             {trackOptions.length > 0 && (
-              <select
+              <DropdownField
+                ariaLabel="Lộ trình"
+                className="hl-catalog-dropdown w-auto"
+                options={[
+                  { id: 'all', label: 'Tất cả lộ trình' },
+                  ...trackOptions.map((option) => ({ id: option, label: prettifyEnum(option) })),
+                ]}
                 value={trackFilter}
-                onChange={(event) => setTrackFilter(event.target.value)}
-                aria-label="Lọc theo lộ trình"
-              >
-                <option value="all">Tất cả lộ trình</option>
-                {trackOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {prettifyEnum(option)}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => {
+                  if (value !== null) setTrackFilter(value)
+                }}
+              />
             )}
           </div>
 

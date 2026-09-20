@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useFilteredList } from '../../hooks/useFilteredList'
 import PageHeading from '../ui/PageHeading'
+import DropdownField from '../ui/DropdownField'
 
 const teachers = ['ThS. Nguyễn Hoài Nam', 'ThS. Trần Thu Hà', 'ThS. Võ Minh Anh']
 const mentors = ['Nguyễn Hoài Nam', 'Trần Thu Hà', 'Lê Minh Quân']
@@ -166,12 +167,18 @@ function ScheduleManagement({ batches }) {
                   placeholder="Tìm khóa học, nhóm, giáo viên..."
                 />
               </label>
-              <select value={filter} onChange={(event) => setFilter(event.target.value)}>
-                <option>Tất cả</option>
-                {batches.map((batch) => (
-                  <option key={batch.id}>{batch.name}</option>
-                ))}
-              </select>
+              <DropdownField
+                ariaLabel="Batch lịch học"
+                className="w-auto"
+                options={[
+                  { id: 'Tất cả', label: 'Tất cả' },
+                  ...batches.map((batch) => ({ id: batch.name, label: batch.name })),
+                ]}
+                value={filter}
+                onChange={(value) => {
+                  if (value !== null) setFilter(value)
+                }}
+              />
               <span>{filtered.length} buổi học</span>
             </div>
             <div className="hl-schedule-list">
@@ -220,25 +227,29 @@ function ScheduleManagement({ batches }) {
             <div className="hl-schedule-form-grid">
               <label>
                 Batch
-                <select
+                <DropdownField
+                  ariaLabel="Batch"
+                  options={batches.map((batch) => ({ id: batch.name, label: batch.name }))}
                   value={form.batch}
-                  onChange={(event) => update('batch', event.target.value)}
-                >
-                  {batches.map((batch) => (
-                    <option key={batch.id}>{batch.name}</option>
-                  ))}
-                </select>
+                  onChange={(value) => {
+                    if (value !== null) update('batch', value)
+                  }}
+                />
               </label>
               <label>
                 Nhóm học
-                <select
+                <DropdownField
+                  ariaLabel="Nhóm học"
+                  options={[
+                    { id: 'Nhóm Nền tảng', label: 'Nhóm Nền tảng' },
+                    { id: 'Nhóm Tăng tốc', label: 'Nhóm Tăng tốc' },
+                    { id: 'Nhóm Bứt phá', label: 'Nhóm Bứt phá' },
+                  ]}
                   value={form.group}
-                  onChange={(event) => update('group', event.target.value)}
-                >
-                  <option>Nhóm Nền tảng</option>
-                  <option>Nhóm Tăng tốc</option>
-                  <option>Nhóm Bứt phá</option>
-                </select>
+                  onChange={(value) => {
+                    if (value !== null) update('group', value)
+                  }}
+                />
               </label>
               <label>
                 Khóa học
@@ -250,33 +261,36 @@ function ScheduleManagement({ batches }) {
               </label>
               <label>
                 Giáo viên
-                <select
+                <DropdownField
+                  ariaLabel="Giáo viên"
+                  options={teachers.map((teacher) => ({ id: teacher, label: teacher }))}
                   value={form.teacher}
-                  onChange={(event) => update('teacher', event.target.value)}
-                >
-                  {teachers.map((teacher) => (
-                    <option key={teacher}>{teacher}</option>
-                  ))}
-                </select>
+                  onChange={(value) => {
+                    if (value !== null) update('teacher', value)
+                  }}
+                />
               </label>
               <label>
                 Mentor
-                <select
+                <DropdownField
+                  ariaLabel="Mentor"
+                  options={mentors.map((mentor) => ({ id: mentor, label: mentor }))}
                   value={form.mentor}
-                  onChange={(event) => update('mentor', event.target.value)}
-                >
-                  {mentors.map((mentor) => (
-                    <option key={mentor}>{mentor}</option>
-                  ))}
-                </select>
+                  onChange={(value) => {
+                    if (value !== null) update('mentor', value)
+                  }}
+                />
               </label>
               <label>
                 Phòng học
-                <select value={form.room} onChange={(event) => update('room', event.target.value)}>
-                  {rooms.map((room) => (
-                    <option key={room}>{room}</option>
-                  ))}
-                </select>
+                <DropdownField
+                  ariaLabel="Phòng học"
+                  options={rooms.map((room) => ({ id: room, label: room }))}
+                  value={form.room}
+                  onChange={(value) => {
+                    if (value !== null) update('room', value)
+                  }}
+                />
               </label>
               <label>
                 Ngày học
