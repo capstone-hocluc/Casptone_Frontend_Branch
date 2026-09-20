@@ -1,5 +1,5 @@
 import type { RefObject } from 'react'
-import { Lock } from 'lucide-react'
+import MascotState from '../common/MascotState'
 import type { LessonDetail } from '../../services/lessonService'
 
 interface LessonContentProps {
@@ -14,9 +14,11 @@ function LessonContent({ lesson, videoRef, onTimeUpdate, onPause }: LessonConten
 
   if (!hasAccess) {
     return (
-      <div className="hl-lesson-content hl-lesson-content-locked">
-        <Lock size={28} />
-        <p>Bạn chưa có quyền truy cập bài học này.</p>
+      <div className="hl-lesson-content hl-lesson-content-empty">
+        <MascotState
+          title="Chưa thể xem bài học"
+          message="Bạn chưa có quyền truy cập bài học này."
+        />
       </div>
     )
   }
@@ -25,7 +27,10 @@ function LessonContent({ lesson, videoRef, onTimeUpdate, onPause }: LessonConten
     if (!lesson.videoUrl) {
       return (
         <div className="hl-lesson-content hl-lesson-content-empty">
-          <p>Video của bài học này hiện chưa sẵn sàng.</p>
+          <MascotState
+            title="Video chưa sẵn sàng"
+            message="Video của bài học này hiện chưa sẵn sàng."
+          />
         </div>
       )
     }
@@ -46,22 +51,28 @@ function LessonContent({ lesson, videoRef, onTimeUpdate, onPause }: LessonConten
     if (!lesson.content) {
       return (
         <div className="hl-lesson-content hl-lesson-content-empty">
-          <p>Nội dung của bài học này hiện chưa sẵn sàng.</p>
+          <MascotState
+            title="Nội dung chưa sẵn sàng"
+            message="Nội dung của bài học này hiện chưa sẵn sàng."
+          />
         </div>
       )
     }
     return (
       <div className="hl-lesson-content hl-lesson-content-text">
-        {lesson.content.split('\n').map((paragraph, index) =>
-          paragraph.trim() ? <p key={index}>{paragraph}</p> : null
-        )}
+        {lesson.content
+          .split('\n')
+          .map((paragraph, index) => (paragraph.trim() ? <p key={index}>{paragraph}</p> : null))}
       </div>
     )
   }
 
   return (
     <div className="hl-lesson-content hl-lesson-content-empty">
-      <p>Nội dung bài học này chưa được hỗ trợ.</p>
+      <MascotState
+        title="Chưa hỗ trợ loại nội dung này"
+        message="Nội dung bài học này chưa được hỗ trợ."
+      />
     </div>
   )
 }

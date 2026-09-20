@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import MascotState from '../common/MascotState'
 import NextLiveClassCard from './NextLiveClassCard'
 import LiveClassRow from './LiveClassRow'
 import { getCourseLiveClasses, type CourseLiveClasses } from '../../services/courseService'
@@ -44,19 +44,15 @@ function StudyLiveClassesTab({ courseId }: StudyLiveClassesTabProps) {
 
   if (status === 'error') {
     return (
-      <div className="hl-study-state">
-        <AlertTriangle size={30} />
-        <p>{errorMessage || 'Không thể tải lịch học trực tuyến.'}</p>
-        <button
-          type="button"
-          onClick={() => {
-            setStatus('loading')
-            setReloadKey((current) => current + 1)
-          }}
-        >
-          Thử lại
-        </button>
-      </div>
+      <MascotState
+        title="Không thể tải lịch học trực tuyến"
+        message={errorMessage}
+        actionLabel="Thử lại"
+        onAction={() => {
+          setStatus('loading')
+          setReloadKey((current) => current + 1)
+        }}
+      />
     )
   }
 
@@ -66,9 +62,10 @@ function StudyLiveClassesTab({ courseId }: StudyLiveClassesTabProps) {
 
   if (!hasAny) {
     return (
-      <div className="hl-study-state">
-        <p>Khóa học này hiện chưa có lịch học trực tuyến.</p>
-      </div>
+      <MascotState
+        title="Chưa có lịch học trực tuyến"
+        message="Khóa học này hiện chưa có buổi học trực tuyến nào."
+      />
     )
   }
 

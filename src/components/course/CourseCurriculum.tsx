@@ -1,17 +1,7 @@
 import { useState } from 'react'
-import {
-  ChevronDown,
-  FileText,
-  HelpCircle,
-  Lock,
-  PlayCircle,
-  Sparkles,
-} from 'lucide-react'
-import type {
-  CourseChapter,
-  CoursePhase,
-  CourseLesson,
-} from '../../services/courseService'
+import { ChevronDown, FileText, HelpCircle, Lock, PlayCircle, Sparkles } from 'lucide-react'
+import MascotState from '../common/MascotState'
+import type { CourseChapter, CoursePhase, CourseLesson } from '../../services/courseService'
 import { formatDuration, prettifyEnum } from '../../lib/courseFormat'
 
 function bySequence<T extends { sequence?: number }>(items: T[]) {
@@ -117,7 +107,10 @@ function CourseCurriculum({ phases, purchased }: CourseCurriculumProps) {
     return (
       <section className="hl-cd-section">
         <h2>Nội dung khóa học</h2>
-        <p className="hl-cd-empty-curriculum">Nội dung khóa học đang được cập nhật.</p>
+        <MascotState
+          title="Nội dung khóa học đang được cập nhật"
+          message="Nội dung học sẽ sớm xuất hiện tại đây."
+        />
       </section>
     )
   }

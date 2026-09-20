@@ -8,15 +8,16 @@ const navLinkStyle = {
   textDecoration: 'none',
   color: '#2A3354',
   fontWeight: 600,
-  fontSize: 14,
-  letterSpacing: '.4px',
-  textTransform: 'uppercase' as const,
+  fontSize: 14.5,
   whiteSpace: 'nowrap' as const,
   background: 'none',
   border: 'none',
   cursor: 'pointer',
   fontFamily: 'inherit',
-  padding: 0,
+  padding: '9px 16px',
+  borderRadius: 999,
+  display: 'inline-flex',
+  alignItems: 'center',
 }
 
 function navigateTo(path: string) {
@@ -62,44 +63,60 @@ function Navbar() {
         left: 0,
         right: 0,
         zIndex: 60,
-        transition: 'background .35s, box-shadow .35s, padding .35s',
-        padding: scrolled ? '12px 0' : '20px 0',
-        background: scrolled ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.6)',
-        boxShadow: scrolled ? '0 8px 30px -12px rgba(17,24,58,.18)' : 'none',
-        backdropFilter: 'saturate(180%) blur(10px)',
+        display: 'flex',
+        justifyContent: 'center',
+        transition: 'padding .35s',
+        padding: scrolled ? '10px 20px' : '16px 20px',
       }}
     >
       <div
         style={{
+          width: '100%',
           maxWidth: 1240,
           margin: '0 auto',
-          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
-          gap: 28,
+          justifyContent: 'space-between',
+          gap: 16,
         }}
       >
-        <a href="/#top" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <Logo />
-        </a>
+        <div
+          style={{
+            height: 52,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 28,
+            padding: '0 24px',
+            borderRadius: 999,
+            background: '#fff',
+            boxShadow: scrolled
+              ? '0 10px 30px -12px rgba(17,24,58,.22)'
+              : '0 8px 24px -14px rgba(17,24,58,.16)',
+            transition: 'box-shadow .35s',
+          }}
+        >
+          <a href="/#top" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <Logo size={34} />
+          </a>
 
-        <nav style={{ display: 'flex', gap: 34, marginLeft: 'auto' }} className="hl-desktop-nav">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="hl-nav" style={navLinkStyle}>
-              {link.label}
-            </a>
-          ))}
-          <button
-            type="button"
-            className="hl-nav"
-            style={navLinkStyle}
-            onClick={() => navigateTo('/courses')}
-          >
-            Khóa học
-          </button>
-        </nav>
+          <nav style={{ display: 'flex', gap: 4 }} className="hl-desktop-nav">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="hl-nav" style={navLinkStyle}>
+                {link.label}
+              </a>
+            ))}
+            <button
+              type="button"
+              className="hl-nav"
+              style={navLinkStyle}
+              onClick={() => navigateTo('/courses')}
+            >
+              Khóa học
+            </button>
+          </nav>
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           {profile ? (
             <>
               <button
@@ -234,70 +251,26 @@ function Navbar() {
               </div>
             </>
           ) : (
-            <>
-              <button
-                type="button"
-                className="hl-nav-ghost"
-                onClick={() => openAuth('signup')}
-                style={{
-                  border: '1.5px solid rgba(27,77,228,.3)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  background: 'transparent',
-                  color: '#1B4DE4',
-                  fontWeight: 800,
-                  fontSize: 13.5,
-                  letterSpacing: '.5px',
-                  textTransform: 'uppercase',
-                  padding: '12px 20px',
-                  borderRadius: 40,
-                }}
-              >
-                Đăng ký
-              </button>
-              <button
-                type="button"
-                className="hl-by"
-                onClick={() => openAuth('login')}
-                style={{
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                  color: '#3a2a05',
-                  fontWeight: 800,
-                  fontSize: 13.5,
-                  letterSpacing: '.5px',
-                  textTransform: 'uppercase',
-                  padding: '13px 24px',
-                  borderRadius: 40,
-                  boxShadow: '0 8px 20px rgba(244,169,60,.4)',
-                }}
-              >
-                Đăng nhập
-              </button>
-              <button
-                type="button"
-                aria-label="Mở menu"
-                className="hl-rot"
-                style={{
-                  width: 46,
-                  height: 46,
-                  flexShrink: 0,
-                  border: 'none',
-                  cursor: 'pointer',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                  color: '#3a2a05',
-                  fontSize: 18,
-                  display: 'grid',
-                  placeItems: 'center',
-                  boxShadow: '0 8px 20px rgba(244,169,60,.4)',
-                }}
-              >
-                ↗
-              </button>
-            </>
+            <button
+              type="button"
+              className="hl-by"
+              onClick={() => openAuth('login')}
+              style={{
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 14.5,
+                height: 52,
+                padding: '0 24px',
+                borderRadius: 40,
+                boxShadow: '0 8px 20px rgba(244,169,60,.4)',
+              }}
+            >
+              Đăng nhập
+            </button>
           )}
         </div>
       </div>

@@ -18,3 +18,23 @@ export function findFirstLesson(phases: CourseStudyPhase[]): CourseStudyLesson |
   }
   return null
 }
+
+// Quiz `type` is a backend enum whose full value set isn't confirmed, so this
+// only separates the two kinds the UI presents differently: anything that
+// reads as a mini/mock/final test is an assessment, the rest is practice.
+export type QuizKind = 'practice' | 'assessment'
+
+export function getQuizKind(type?: string | null): QuizKind {
+  return /MINI|MOCK|TEST|EXAM|FINAL|ASSESS/i.test(type || '') ? 'assessment' : 'practice'
+}
+
+export function quizKindLabel(kind: QuizKind) {
+  return kind === 'assessment' ? 'Mini Test' : 'Bài tập'
+}
+
+export function lessonContainsId(
+  chapter: { lessons: { id: string }[] },
+  lessonId: string | null | undefined
+) {
+  return Boolean(lessonId) && chapter.lessons.some((lesson) => lesson.id === lessonId)
+}

@@ -8,6 +8,7 @@ export interface Course {
   startDate?: string
   endDate?: string
   examSessionDate?: string
+  imageUrl?: string
   price?: number
   targetExam?: string
   // Percentage of the course's own schedule that has elapsed - NOT the
@@ -31,12 +32,13 @@ export async function getMyCourses() {
   return request<MyCourseEnrollment[]>('/api/v1/courses/my', { auth: true })
 }
 
-// Public course catalog. `auth: true` only attaches a token when one already
-// exists (see createHeaders) so guests can still browse - it just lets a
-// logged-in student's request also come back with their purchased/recommended
-// flags filled in.
+// Public course catalog. `optionalAuth` attaches a token when one already
+// exists (see createHeaders) so a logged-in student's request also comes
+// back with their purchased/recommended flags filled in - but unlike
+// `auth`, a 401 here (guest, or the backend not yet treating this route as
+// public) must never clear tokens or force-redirect to /login.
 export async function getMainCourses() {
-  return request<Course[]>('/api/v1/courses/main', { auth: true })
+  return request<Course[]>('/api/v1/courses/main', { optionalAuth: true })
 }
 
 // Same Course shape as /courses/main - backend decides what's suggested
@@ -115,7 +117,9 @@ export interface CourseDetail {
 // guests can view it, a logged-in student's request also resolves
 // purchased/inCart for them.
 export async function getCourseDetail(courseId: string) {
-  return request<CourseDetail>(`/api/v1/courses/${encodeURIComponent(courseId)}`, { auth: true })
+  return request<CourseDetail>(`/api/v1/courses/${encodeURIComponent(courseId)}`, {
+    optionalAuth: true,
+  })
 }
 
 export interface CourseStudyQuiz {

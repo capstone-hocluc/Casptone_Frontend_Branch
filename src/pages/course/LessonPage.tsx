@@ -1,23 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Lock,
-  SearchX,
-} from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import Chatbot from '../../components/landing/Chatbot'
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight } from 'lucide-react'
+import MascotState from '../../components/common/MascotState'
 import LessonContent from '../../components/lesson/LessonContent'
 import LessonQuizzes from '../../components/lesson/LessonQuizzes'
-import {
-  getLesson,
-  updateLessonProgress,
-  type LessonDetail,
-} from '../../services/lessonService'
+import { getLesson, updateLessonProgress, type LessonDetail } from '../../services/lessonService'
 import { getErrorMessage } from '../../lib/errors'
 import { ApiError } from '../../lib/api'
 import { showErrorToast, showSuccessToast } from '../../lib/toastBus'
@@ -32,12 +18,7 @@ interface LessonPageProps {
   onOpenQuiz: (quizId: string) => void
 }
 
-function LessonPage({
-  lessonId,
-  onBackToStudy,
-  onNavigateLesson,
-  onOpenQuiz,
-}: LessonPageProps) {
+function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: LessonPageProps) {
   const [lesson, setLesson] = useState<LessonDetail | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
     'loading'
@@ -136,169 +117,163 @@ function LessonPage({
   const canMarkComplete = Boolean(lesson?.owned) && !isCompleted
 
   return (
-    <div className="hl-lesson-page">
-      <Navbar />
-      <main className="hl-lesson-main-wrap">
-        <div className="hl-lesson-container">
-          {status === 'loading' && (
-            <div className="hl-lesson-grid">
-              <div className="hl-lesson-skeleton" style={{ height: 24, width: 260 }} />
-              <div className="hl-lesson-skeleton" style={{ height: 360 }} />
-              <div className="hl-lesson-skeleton" style={{ height: 120 }} />
-            </div>
-          )}
+    <section className="hl-student-page hl-lesson-page">
+      <div className="hl-lesson-container">
+        {status === 'loading' && (
+          <div className="hl-lesson-grid">
+            <div className="hl-lesson-skeleton" style={{ height: 24, width: 260 }} />
+            <div className="hl-lesson-skeleton" style={{ height: 360 }} />
+            <div className="hl-lesson-skeleton" style={{ height: 120 }} />
+          </div>
+        )}
 
-          {status === 'forbidden' && (
-            <div className="hl-lesson-state">
-              <Lock size={30} />
-              <p>Bạn chưa có quyền truy cập bài học này.</p>
-              <button type="button" onClick={onBackToStudy}>
-                Quay lại khóa học
+        {status === 'forbidden' && (
+          <MascotState
+            title="Chưa thể truy cập bài học"
+            message="Bạn chưa có quyền truy cập bài học này."
+            actionLabel="Quay lại khóa học"
+            onAction={onBackToStudy}
+          />
+        )}
+
+        {status === 'not-found' && (
+          <MascotState
+            title="Không tìm thấy bài học"
+            message="Bài học này không tồn tại hoặc đã bị gỡ."
+            actionLabel="Quay lại khóa học"
+            onAction={onBackToStudy}
+          />
+        )}
+
+        {status === 'error' && (
+          <MascotState
+            title="Không thể tải bài học"
+            message={errorMessage}
+            actionLabel="Thử lại"
+            onAction={() => {
+              setStatus('loading')
+              setReloadKey((current) => current + 1)
+            }}
+          />
+        )}
+
+        {status === 'ready' && lesson && (
+          <div className="hl-lesson-grid">
+            <nav className="hl-lesson-breadcrumb" aria-label="Breadcrumb">
+              <button type="button" onClick={goBackToStudy}>
+                <ArrowLeft size={15} />
+                Khóa học
               </button>
-            </div>
-          )}
+              {lesson.sectionCourseTitle && (
+                <>
+                  <ChevronRight size={13} />
+                  <span>{lesson.sectionCourseTitle}</span>
+                </>
+              )}
+              {lesson.chapterTitle && (
+                <>
+                  <ChevronRight size={13} />
+                  <span>{lesson.chapterTitle}</span>
+                </>
+              )}
+              <ChevronRight size={13} />
+              <span className="is-current">{lesson.title}</span>
+            </nav>
 
-          {status === 'not-found' && (
-            <div className="hl-lesson-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy bài học.</p>
-              <button type="button" onClick={onBackToStudy}>
-                Quay lại khóa học
-              </button>
-            </div>
-          )}
+            <LessonContent
+              lesson={lesson}
+              videoRef={videoRef}
+              onTimeUpdate={handleTimeUpdate}
+              onPause={handlePause}
+            />
 
-          {status === 'error' && (
-            <div className="hl-lesson-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải bài học.'}</p>
+            <section className="hl-lesson-card">
+              <div className="hl-lesson-info-head">
+                <div>
+                  <h1>{lesson.title}</h1>
+                  <span className="hl-lesson-meta-line">
+                    {prettifyEnum(lesson.contentType)}
+                    {Boolean(lesson.durationSeconds) &&
+                      ` · ${formatDuration(lesson.durationSeconds)}`}
+                  </span>
+                </div>
+                <span
+                  className={`hl-lesson-status is-${getLessonStatusTone(lesson.progress?.status || 'NOT_STARTED')}`}
+                >
+                  {getLessonStatusLabel(lesson.progress?.status || 'NOT_STARTED')}
+                </span>
+              </div>
+
+              {lesson.description && <p className="hl-lesson-description">{lesson.description}</p>}
+
+              <div className="hl-lesson-progress-row">
+                <div className="hl-lesson-progress-bar" aria-hidden="true">
+                  <span
+                    style={{
+                      width: `${Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%`,
+                    }}
+                  />
+                </div>
+                <span>
+                  Tiến độ bài học:{' '}
+                  {Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%
+                </span>
+              </div>
+
+              {lesson.progress?.chapterCompleted && (
+                <span className="hl-lesson-chapter-done">
+                  <CheckCircle2 size={14} />
+                  Chương đã hoàn thành
+                </span>
+              )}
+
+              <div className="hl-lesson-actions">
+                {isCompleted ? (
+                  <span className="hl-lesson-completed-tag">
+                    <CheckCircle2 size={15} />
+                    Đã hoàn thành
+                  </span>
+                ) : (
+                  canMarkComplete && (
+                    <button
+                      type="button"
+                      className="hl-lesson-complete-cta"
+                      onClick={handleMarkComplete}
+                      disabled={completing}
+                    >
+                      {completing ? 'Đang lưu...' : 'Đánh dấu hoàn thành'}
+                    </button>
+                  )
+                )}
+              </div>
+            </section>
+
+            <LessonQuizzes quizzes={lesson.quizzes} onOpenQuiz={onOpenQuiz} />
+
+            <div className="hl-lesson-nav-footer">
               <button
                 type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
+                className="hl-lesson-nav-btn"
+                disabled={!lesson.previousLessonId}
+                onClick={() => lesson.previousLessonId && goToLesson(lesson.previousLessonId)}
               >
-                Thử lại
+                <ArrowLeft size={16} />
+                Bài trước
+              </button>
+              <button
+                type="button"
+                className="hl-lesson-nav-btn is-primary"
+                disabled={!lesson.nextLessonId}
+                onClick={() => lesson.nextLessonId && goToLesson(lesson.nextLessonId)}
+              >
+                Bài tiếp theo
+                <ArrowRight size={16} />
               </button>
             </div>
-          )}
-
-          {status === 'ready' && lesson && (
-            <div className="hl-lesson-grid">
-              <nav className="hl-lesson-breadcrumb" aria-label="Breadcrumb">
-                <button type="button" onClick={goBackToStudy}>
-                  <ArrowLeft size={15} />
-                  Khóa học
-                </button>
-                {lesson.sectionCourseTitle && (
-                  <>
-                    <ChevronRight size={13} />
-                    <span>{lesson.sectionCourseTitle}</span>
-                  </>
-                )}
-                {lesson.chapterTitle && (
-                  <>
-                    <ChevronRight size={13} />
-                    <span>{lesson.chapterTitle}</span>
-                  </>
-                )}
-                <ChevronRight size={13} />
-                <span className="is-current">{lesson.title}</span>
-              </nav>
-
-              <LessonContent
-                lesson={lesson}
-                videoRef={videoRef}
-                onTimeUpdate={handleTimeUpdate}
-                onPause={handlePause}
-              />
-
-              <section className="hl-lesson-card">
-                <div className="hl-lesson-info-head">
-                  <div>
-                    <h1>{lesson.title}</h1>
-                    <span className="hl-lesson-meta-line">
-                      {prettifyEnum(lesson.contentType)}
-                      {Boolean(lesson.durationSeconds) &&
-                        ` · ${formatDuration(lesson.durationSeconds)}`}
-                    </span>
-                  </div>
-                  <span className={`hl-lesson-status is-${getLessonStatusTone(lesson.progress?.status || 'NOT_STARTED')}`}>
-                    {getLessonStatusLabel(lesson.progress?.status || 'NOT_STARTED')}
-                  </span>
-                </div>
-
-                {lesson.description && <p className="hl-lesson-description">{lesson.description}</p>}
-
-                <div className="hl-lesson-progress-row">
-                  <div className="hl-lesson-progress-bar" aria-hidden="true">
-                    <span
-                      style={{
-                        width: `${Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%`,
-                      }}
-                    />
-                  </div>
-                  <span>Tiến độ bài học: {Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%</span>
-                </div>
-
-                {lesson.progress?.chapterCompleted && (
-                  <span className="hl-lesson-chapter-done">
-                    <CheckCircle2 size={14} />
-                    Chương đã hoàn thành
-                  </span>
-                )}
-
-                <div className="hl-lesson-actions">
-                  {isCompleted ? (
-                    <span className="hl-lesson-completed-tag">
-                      <CheckCircle2 size={15} />
-                      Đã hoàn thành
-                    </span>
-                  ) : (
-                    canMarkComplete && (
-                      <button
-                        type="button"
-                        className="hl-lesson-complete-cta"
-                        onClick={handleMarkComplete}
-                        disabled={completing}
-                      >
-                        {completing ? 'Đang lưu...' : 'Đánh dấu hoàn thành'}
-                      </button>
-                    )
-                  )}
-                </div>
-              </section>
-
-              <LessonQuizzes quizzes={lesson.quizzes} onOpenQuiz={onOpenQuiz} />
-
-              <div className="hl-lesson-nav-footer">
-                <button
-                  type="button"
-                  className="hl-lesson-nav-btn"
-                  disabled={!lesson.previousLessonId}
-                  onClick={() => lesson.previousLessonId && goToLesson(lesson.previousLessonId)}
-                >
-                  <ArrowLeft size={16} />
-                  Bài trước
-                </button>
-                <button
-                  type="button"
-                  className="hl-lesson-nav-btn is-primary"
-                  disabled={!lesson.nextLessonId}
-                  onClick={() => lesson.nextLessonId && goToLesson(lesson.nextLessonId)}
-                >
-                  Bài tiếp theo
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Chatbot />
-    </div>
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
 

@@ -1,9 +1,12 @@
 /* ===== hover utilities (inline styles can't do :hover) ===== */
 .hl-nav {
-  transition: color 0.25s;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
 }
 .hl-nav:hover {
   color: var(--color-primary) !important;
+  background-color: rgba(27, 77, 228, 0.08);
 }
 
 .hl-by {

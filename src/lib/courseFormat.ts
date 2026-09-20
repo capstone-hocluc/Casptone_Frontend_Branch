@@ -19,6 +19,38 @@ export function formatExamLabel(value?: string) {
   return EXAM_LABELS[value] || prettifyEnum(value)
 }
 
+// Backend enum -> Vietnamese label. Only values seen from the API are listed;
+// anything else falls back to the prettified raw value.
+const ENROLLMENT_BRANCH_LABELS: Record<string, string> = {
+  NEW_COURSE_FULL_ROADMAP: 'Lộ trình đầy đủ',
+  WAIT_FOR_LATER_COURSE: 'Nên chờ khóa học sau',
+}
+
+// The backend sends this text in English; known branches get a Vietnamese
+// message, others keep whatever the backend returned.
+const ENROLLMENT_BRANCH_MESSAGES: Record<string, string> = {
+  WAIT_FOR_LATER_COURSE:
+    'Khóa học này sắp kết thúc - chúng tôi khuyến nghị bạn nên chờ khóa học kế tiếp.',
+}
+
+const ENROLLMENT_TYPE_LABELS: Record<string, string> = {
+  PURCHASED: 'Đã mua',
+}
+
+export function formatEnrollmentBranch(value?: string | null) {
+  if (!value) return ''
+  return ENROLLMENT_BRANCH_LABELS[value] || prettifyEnum(value)
+}
+
+export function formatEnrollmentBranchMessage(branch?: string | null, message?: string | null) {
+  return (branch && ENROLLMENT_BRANCH_MESSAGES[branch]) || message || ''
+}
+
+export function formatEnrollmentType(value?: string | null) {
+  if (!value) return ''
+  return ENROLLMENT_TYPE_LABELS[value] || prettifyEnum(value)
+}
+
 export function formatDate(value?: string) {
   if (!value) return ''
   const date = new Date(value)
