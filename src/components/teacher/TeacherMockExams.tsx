@@ -1,13 +1,57 @@
 import { useState } from 'react'
-import { ArrowDown, ArrowLeft, ArrowUp, CheckCircle2, ClipboardCheck, GripVertical, Pencil, Plus, Save, Send, Trash2, Users } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  CheckCircle2,
+  ClipboardCheck,
+  GripVertical,
+  Pencil,
+  Plus,
+  Save,
+  Send,
+  Trash2,
+  Users,
+} from 'lucide-react'
+import DropdownField from '../ui/DropdownField'
 
 const initialExams = [
-  { id: 1, title: 'Thi thử ĐGNL đợt 01', sections: 3, questions: 120, duration: 150, deadline: '2026-10-05T23:59', passScore: 600, status: 'Đã xuất bản', submissions: 82 },
-  { id: 2, title: 'Đề thi thử Tư duy định lượng', sections: 2, questions: 50, duration: 60, deadline: '2026-10-12T20:00', passScore: 35, status: 'Bản nháp', submissions: 0 },
+  {
+    id: 1,
+    title: 'Thi thử ĐGNL đợt 01',
+    sections: 3,
+    questions: 120,
+    duration: 150,
+    deadline: '2026-10-05T23:59',
+    passScore: 600,
+    status: 'Đã xuất bản',
+    submissions: 82,
+  },
+  {
+    id: 2,
+    title: 'Đề thi thử Tư duy định lượng',
+    sections: 2,
+    questions: 50,
+    duration: 60,
+    deadline: '2026-10-12T20:00',
+    passScore: 35,
+    status: 'Bản nháp',
+    submissions: 0,
+  },
 ]
-const newQuestion = () => ({ id: Date.now() + Math.random(), text: '', type: 'multiple-choice', options: ['', '', '', ''], correct: 0, answerGuide: '' })
+const newQuestion = () => ({
+  id: Date.now() + Math.random(),
+  text: '',
+  type: 'multiple-choice',
+  options: ['', '', '', ''],
+  correct: 0,
+  answerGuide: '',
+})
 const newSection = () => ({ id: Date.now() + Math.random(), title: '', questions: [newQuestion()] })
-const showDate = (value) => new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
+const showDate = (value) =>
+  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(
+    new Date(value)
+  )
 
 const questionLibrary = [
   'Tìm giá trị lớn nhất của hàm số đã cho.',
@@ -16,49 +60,505 @@ const questionLibrary = [
 ]
 
 function SectionQuestionEditor({ section, onBack, onSave }) {
-  const [questions, setQuestions] = useState(section.questions.map((question) => ({ ...newQuestion(), ...question })))
+  const [questions, setQuestions] = useState(
+    section.questions.map((question) => ({ ...newQuestion(), ...question }))
+  )
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState(null)
   const moveQuestion = (index, direction) => {
     const nextIndex = index + direction
     if (nextIndex < 0 || nextIndex >= questions.length) return
-    setQuestions((items) => { const next = [...items]; [next[index], next[nextIndex]] = [next[nextIndex], next[index]]; return next })
+    setQuestions((items) => {
+      const next = [...items]
+      ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
+      return next
+    })
   }
-  const addQuestion = (text = '') => { setQuestions((items) => [...items, { ...newQuestion(), text }]); setLibraryOpen(false) }
-  const updateQuestion = (id, text) => setQuestions((items) => items.map((item) => item.id === id ? { ...item, text } : item))
-  const updateQuestionData = (id, update) => setQuestions((items) => items.map((item) => item.id === id ? { ...item, ...update } : item))
-  const updateOption = (questionId, optionIndex, value) => setQuestions((items) => items.map((item) => item.id === questionId ? { ...item, options: item.options.map((option, index) => index === optionIndex ? value : option) } : item))
+  const addQuestion = (text = '') => {
+    setQuestions((items) => [...items, { ...newQuestion(), text }])
+    setLibraryOpen(false)
+  }
+  const updateQuestion = (id, text) =>
+    setQuestions((items) => items.map((item) => (item.id === id ? { ...item, text } : item)))
+  const updateQuestionData = (id, update) =>
+    setQuestions((items) => items.map((item) => (item.id === id ? { ...item, ...update } : item)))
+  const updateOption = (questionId, optionIndex, value) =>
+    setQuestions((items) =>
+      items.map((item) =>
+        item.id === questionId
+          ? {
+              ...item,
+              options: item.options.map((option, index) =>
+                index === optionIndex ? value : option
+              ),
+            }
+          : item
+      )
+    )
   const moveToIndex = (fromIndex, toIndex) => {
     if (fromIndex === null || fromIndex === toIndex) return
-    setQuestions((items) => { const next = [...items]; const [moved] = next.splice(fromIndex, 1); next.splice(toIndex, 0, moved); return next })
+    setQuestions((items) => {
+      const next = [...items]
+      const [moved] = next.splice(fromIndex, 1)
+      next.splice(toIndex, 0, moved)
+      return next
+    })
   }
-  return <section className="hl-teacher-section-question-editor"><button type="button" className="hl-teacher-text-back" onClick={onBack}><ArrowLeft size={16} />Quay lại cấu hình phần thi</button><div className="hl-teacher-title"><div><h1>Chỉnh sửa câu hỏi</h1><p>{section.title || 'Phần thi chưa đặt tên'} · Kéo biểu tượng ⋮⋮ để đổi thứ tự câu hỏi.</p></div></div><section className="hl-teacher-panel"><div className="hl-teacher-panel-heading"><div><h2>Danh sách câu hỏi ({questions.length})</h2></div><div className="hl-teacher-section-editor-actions"><button type="button" onClick={() => addQuestion()}><Plus size={15} />Tạo câu hỏi</button><button type="button" onClick={() => setLibraryOpen((open) => !open)}><ClipboardCheck size={15} />Chọn từ thư viện</button></div></div>{libraryOpen && <div className="hl-teacher-question-library">{questionLibrary.map((question) => <button type="button" key={question} onClick={() => addQuestion(question)}><Plus size={14} />{question}</button>)}</div>}<div className="hl-teacher-order-list">{questions.map((question, index) => <article key={question.id} draggable className={draggedIndex === index ? 'is-dragging' : ''} onDragStart={(event) => { setDraggedIndex(index); event.dataTransfer.effectAllowed = 'move' }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = 'move' }} onDrop={(event) => { event.preventDefault(); moveToIndex(draggedIndex, index); setDraggedIndex(null) }} onDragEnd={() => setDraggedIndex(null)}><span className="hl-teacher-order-grip" title="Kéo để đổi thứ tự"><GripVertical size={17} /></span><strong>{index + 1}</strong><div className="hl-teacher-question-content"><label>Loại câu hỏi<select value={question.type} onChange={(event) => updateQuestionData(question.id, { type: event.target.value })}><option value="multiple-choice">Trắc nghiệm</option><option value="essay">Tự luận</option></select></label><label>Nội dung câu hỏi<input value={question.text} onChange={(event) => updateQuestion(question.id, event.target.value)} placeholder="Nhập nội dung câu hỏi" /></label>{question.type === 'multiple-choice' ? <div className="hl-teacher-option-list">{question.options.map((option, optionIndex) => <label key={`${question.id}-${optionIndex}`} className={question.correct === optionIndex ? 'is-correct' : ''}><input type="radio" name={`correct-${question.id}`} checked={question.correct === optionIndex} onChange={() => updateQuestionData(question.id, { correct: optionIndex })} /><span>{String.fromCharCode(65 + optionIndex)}</span><input value={option} onChange={(event) => updateOption(question.id, optionIndex, event.target.value)} placeholder={`Lựa chọn ${String.fromCharCode(65 + optionIndex)}`} /></label>)}</div> : <label>Đáp án / hướng dẫn chấm<textarea value={question.answerGuide} onChange={(event) => updateQuestionData(question.id, { answerGuide: event.target.value })} placeholder="Nhập đáp án gợi ý hoặc tiêu chí chấm điểm" /></label>}</div><div><button type="button" disabled={index === 0} onClick={() => moveQuestion(index, -1)} aria-label="Đưa lên"><ArrowUp size={15} /></button><button type="button" disabled={index === questions.length - 1} onClick={() => moveQuestion(index, 1)} aria-label="Đưa xuống"><ArrowDown size={15} /></button><button type="button" className="is-delete" disabled={questions.length === 1} onClick={() => setQuestions((items) => items.filter((item) => item.id !== question.id))} aria-label="Xóa câu hỏi"><Trash2 size={15} /></button></div></article>)}</div><div className="hl-teacher-quiz-editor-actions"><button type="button" onClick={onBack}>Hủy</button><button type="button" className="hl-teacher-primary" onClick={() => onSave(questions)}><Save size={15} />Lưu cấu hình câu hỏi</button></div></section></section>
+  return (
+    <section className="hl-teacher-section-question-editor">
+      <button type="button" className="hl-teacher-text-back" onClick={onBack}>
+        <ArrowLeft size={16} />
+        Quay lại cấu hình phần thi
+      </button>
+      <div className="hl-teacher-title">
+        <div>
+          <h1>Chỉnh sửa câu hỏi</h1>
+          <p>
+            {section.title || 'Phần thi chưa đặt tên'} · Kéo biểu tượng ⋮⋮ để đổi thứ tự câu hỏi.
+          </p>
+        </div>
+      </div>
+      <section className="hl-teacher-panel">
+        <div className="hl-teacher-panel-heading">
+          <div>
+            <h2>Danh sách câu hỏi ({questions.length})</h2>
+          </div>
+          <div className="hl-teacher-section-editor-actions">
+            <button type="button" onClick={() => addQuestion()}>
+              <Plus size={15} />
+              Tạo câu hỏi
+            </button>
+            <button type="button" onClick={() => setLibraryOpen((open) => !open)}>
+              <ClipboardCheck size={15} />
+              Chọn từ thư viện
+            </button>
+          </div>
+        </div>
+        {libraryOpen && (
+          <div className="hl-teacher-question-library">
+            {questionLibrary.map((question) => (
+              <button type="button" key={question} onClick={() => addQuestion(question)}>
+                <Plus size={14} />
+                {question}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="hl-teacher-order-list">
+          {questions.map((question, index) => (
+            <article
+              key={question.id}
+              draggable
+              className={draggedIndex === index ? 'is-dragging' : ''}
+              onDragStart={(event) => {
+                setDraggedIndex(index)
+                event.dataTransfer.effectAllowed = 'move'
+              }}
+              onDragOver={(event) => {
+                event.preventDefault()
+                event.dataTransfer.dropEffect = 'move'
+              }}
+              onDrop={(event) => {
+                event.preventDefault()
+                moveToIndex(draggedIndex, index)
+                setDraggedIndex(null)
+              }}
+              onDragEnd={() => setDraggedIndex(null)}
+            >
+              <span className="hl-teacher-order-grip" title="Kéo để đổi thứ tự">
+                <GripVertical size={17} />
+              </span>
+              <strong>{index + 1}</strong>
+              <div className="hl-teacher-question-content">
+                <label>
+                  Loại câu hỏi
+                  <DropdownField
+                    ariaLabel="Loại câu hỏi"
+                    options={[
+                      { id: 'multiple-choice', label: 'Trắc nghiệm' },
+                      { id: 'essay', label: 'Tự luận' },
+                    ]}
+                    value={question.type}
+                    onChange={(value) => {
+                      if (value !== null) updateQuestionData(question.id, { type: value })
+                    }}
+                  />
+                </label>
+                <label>
+                  Nội dung câu hỏi
+                  <input
+                    value={question.text}
+                    onChange={(event) => updateQuestion(question.id, event.target.value)}
+                    placeholder="Nhập nội dung câu hỏi"
+                  />
+                </label>
+                {question.type === 'multiple-choice' ? (
+                  <div className="hl-teacher-option-list">
+                    {question.options.map((option, optionIndex) => (
+                      <label
+                        key={`${question.id}-${optionIndex}`}
+                        className={question.correct === optionIndex ? 'is-correct' : ''}
+                      >
+                        <input
+                          type="radio"
+                          name={`correct-${question.id}`}
+                          checked={question.correct === optionIndex}
+                          onChange={() => updateQuestionData(question.id, { correct: optionIndex })}
+                        />
+                        <span>{String.fromCharCode(65 + optionIndex)}</span>
+                        <input
+                          value={option}
+                          onChange={(event) =>
+                            updateOption(question.id, optionIndex, event.target.value)
+                          }
+                          placeholder={`Lựa chọn ${String.fromCharCode(65 + optionIndex)}`}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <label>
+                    Đáp án / hướng dẫn chấm
+                    <textarea
+                      value={question.answerGuide}
+                      onChange={(event) =>
+                        updateQuestionData(question.id, { answerGuide: event.target.value })
+                      }
+                      placeholder="Nhập đáp án gợi ý hoặc tiêu chí chấm điểm"
+                    />
+                  </label>
+                )}
+              </div>
+              <div>
+                <button
+                  type="button"
+                  disabled={index === 0}
+                  onClick={() => moveQuestion(index, -1)}
+                  aria-label="Đưa lên"
+                >
+                  <ArrowUp size={15} />
+                </button>
+                <button
+                  type="button"
+                  disabled={index === questions.length - 1}
+                  onClick={() => moveQuestion(index, 1)}
+                  aria-label="Đưa xuống"
+                >
+                  <ArrowDown size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="is-delete"
+                  disabled={questions.length === 1}
+                  onClick={() =>
+                    setQuestions((items) => items.filter((item) => item.id !== question.id))
+                  }
+                  aria-label="Xóa câu hỏi"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="hl-teacher-quiz-editor-actions">
+          <button type="button" onClick={onBack}>
+            Hủy
+          </button>
+          <button type="button" className="hl-teacher-primary" onClick={() => onSave(questions)}>
+            <Save size={15} />
+            Lưu cấu hình câu hỏi
+          </button>
+        </div>
+      </section>
+    </section>
+  )
 }
 
 function ExamEditor({ exam, onCancel, onSave }) {
-  const [form, setForm] = useState({ title: exam?.title || '', duration: exam?.duration || 120, deadline: exam?.deadline || '2026-10-05T23:59', passScore: exam?.passScore || 600 })
+  const [form, setForm] = useState({
+    title: exam?.title || '',
+    duration: exam?.duration || 120,
+    deadline: exam?.deadline || '2026-10-05T23:59',
+    passScore: exam?.passScore || 600,
+  })
   const [sections, setSections] = useState(exam?.sectionItems || [newSection()])
   const [error, setError] = useState('')
   const [editingSectionId, setEditingSectionId] = useState(null)
-  const updateSection = (id, update) => setSections((items) => items.map((item) => item.id === id ? { ...item, ...update } : item))
+  const updateSection = (id, update) =>
+    setSections((items) => items.map((item) => (item.id === id ? { ...item, ...update } : item)))
   const publish = () => {
-    if (!form.title.trim() || !form.deadline || !Number(form.duration) || !Number(form.passScore)) { setError('Vui lòng nhập đủ tên bài thi, thời gian, hạn nộp và điểm đạt.'); return }
-    if (sections.some((section) => !section.title.trim() || section.questions.some((question) => !question.text.trim()))) { setError('Vui lòng nhập tên phần thi và nội dung tất cả câu hỏi.'); return }
+    if (!form.title.trim() || !form.deadline || !Number(form.duration) || !Number(form.passScore)) {
+      setError('Vui lòng nhập đủ tên bài thi, thời gian, hạn nộp và điểm đạt.')
+      return
+    }
+    if (
+      sections.some(
+        (section) =>
+          !section.title.trim() || section.questions.some((question) => !question.text.trim())
+      )
+    ) {
+      setError('Vui lòng nhập tên phần thi và nội dung tất cả câu hỏi.')
+      return
+    }
     setError('')
-    onSave({ ...exam, ...form, id: exam?.id || Date.now(), duration: Number(form.duration), passScore: Number(form.passScore), sectionItems: sections, sections: sections.length, questions: sections.reduce((total, section) => total + section.questions.length, 0), status: 'Đã xuất bản', submissions: exam?.submissions || 0 })
+    onSave({
+      ...exam,
+      ...form,
+      id: exam?.id || Date.now(),
+      duration: Number(form.duration),
+      passScore: Number(form.passScore),
+      sectionItems: sections,
+      sections: sections.length,
+      questions: sections.reduce((total, section) => total + section.questions.length, 0),
+      status: 'Đã xuất bản',
+      submissions: exam?.submissions || 0,
+    })
   }
   const editingSection = sections.find((section) => section.id === editingSectionId)
-  if (editingSection) return <SectionQuestionEditor section={editingSection} onBack={() => setEditingSectionId(null)} onSave={(questions) => { updateSection(editingSection.id, { questions }); setEditingSectionId(null) }} />
-  return <section className="hl-teacher-mock-editor"><button type="button" className="hl-teacher-text-back" onClick={onCancel}><ArrowLeft size={16} />Quay lại danh sách bài thi thử</button><div className="hl-teacher-title"><div><h1>{exam ? 'Chỉnh sửa bài thi thử' : 'Tạo bài thi thử'}</h1><p>Thiết lập các phần thi, câu hỏi và quy định làm bài cho học viên.</p></div></div><section className="hl-teacher-panel"><div className="hl-teacher-panel-heading"><div><h2>Thông tin bài thi</h2></div></div><div className="hl-teacher-assignment-form"><label className="is-full">Tên bài thi thử<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ví dụ: Thi thử ĐGNL đợt 02" /></label><label>Thời gian làm bài (phút)<input type="number" min="1" value={form.duration} onChange={(event) => setForm({ ...form, duration: event.target.value })} /></label><label>Hạn nộp<input type="datetime-local" value={form.deadline} onChange={(event) => setForm({ ...form, deadline: event.target.value })} /></label><label>Điểm đạt<input type="number" min="1" value={form.passScore} onChange={(event) => setForm({ ...form, passScore: event.target.value })} /></label></div></section><section className="hl-teacher-panel hl-teacher-mock-sections"><div className="hl-teacher-panel-heading"><div><h2>Cấu hình các phần thi ({sections.length})</h2></div><button type="button" onClick={() => setSections((items) => [...items, newSection()])}><Plus size={15} />Thêm phần thi</button></div>{sections.map((section, index) => <article key={section.id}><div className="hl-teacher-mock-section-head"><strong>Phần {index + 1}</strong>{sections.length > 1 && <button type="button" onClick={() => setSections((items) => items.filter((item) => item.id !== section.id))} aria-label={`Xóa phần ${index + 1}`}><Trash2 size={15} /></button>}</div><label>Tên phần thi<input value={section.title} onChange={(event) => updateSection(section.id, { title: event.target.value })} placeholder="Ví dụ: Tư duy định lượng" /></label><p>{section.questions.length} câu hỏi đã được chọn</p><button type="button" className="hl-teacher-add-question" onClick={() => setEditingSectionId(section.id)}><Pencil size={14} />Chỉnh sửa câu hỏi</button></article>)}{error && <p className="hl-teacher-quiz-form-error" role="alert">{error}</p>}<div className="hl-teacher-quiz-editor-actions"><button type="button" onClick={onCancel}>Hủy</button><button type="button" className="hl-teacher-primary" onClick={publish}><Send size={15} />Xuất bản bài thi thử</button></div></section></section>
+  if (editingSection)
+    return (
+      <SectionQuestionEditor
+        section={editingSection}
+        onBack={() => setEditingSectionId(null)}
+        onSave={(questions) => {
+          updateSection(editingSection.id, { questions })
+          setEditingSectionId(null)
+        }}
+      />
+    )
+  return (
+    <section className="hl-teacher-mock-editor">
+      <button type="button" className="hl-teacher-text-back" onClick={onCancel}>
+        <ArrowLeft size={16} />
+        Quay lại danh sách bài thi thử
+      </button>
+      <div className="hl-teacher-title">
+        <div>
+          <h1>{exam ? 'Chỉnh sửa bài thi thử' : 'Tạo bài thi thử'}</h1>
+          <p>Thiết lập các phần thi, câu hỏi và quy định làm bài cho học viên.</p>
+        </div>
+      </div>
+      <section className="hl-teacher-panel">
+        <div className="hl-teacher-panel-heading">
+          <div>
+            <h2>Thông tin bài thi</h2>
+          </div>
+        </div>
+        <div className="hl-teacher-assignment-form">
+          <label className="is-full">
+            Tên bài thi thử
+            <input
+              value={form.title}
+              onChange={(event) => setForm({ ...form, title: event.target.value })}
+              placeholder="Ví dụ: Thi thử ĐGNL đợt 02"
+            />
+          </label>
+          <label>
+            Thời gian làm bài (phút)
+            <input
+              type="number"
+              min="1"
+              value={form.duration}
+              onChange={(event) => setForm({ ...form, duration: event.target.value })}
+            />
+          </label>
+          <label>
+            Hạn nộp
+            <input
+              type="datetime-local"
+              value={form.deadline}
+              onChange={(event) => setForm({ ...form, deadline: event.target.value })}
+            />
+          </label>
+          <label>
+            Điểm đạt
+            <input
+              type="number"
+              min="1"
+              value={form.passScore}
+              onChange={(event) => setForm({ ...form, passScore: event.target.value })}
+            />
+          </label>
+        </div>
+      </section>
+      <section className="hl-teacher-panel hl-teacher-mock-sections">
+        <div className="hl-teacher-panel-heading">
+          <div>
+            <h2>Cấu hình các phần thi ({sections.length})</h2>
+          </div>
+          <button type="button" onClick={() => setSections((items) => [...items, newSection()])}>
+            <Plus size={15} />
+            Thêm phần thi
+          </button>
+        </div>
+        {sections.map((section, index) => (
+          <article key={section.id}>
+            <div className="hl-teacher-mock-section-head">
+              <strong>Phần {index + 1}</strong>
+              {sections.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSections((items) => items.filter((item) => item.id !== section.id))
+                  }
+                  aria-label={`Xóa phần ${index + 1}`}
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
+            </div>
+            <label>
+              Tên phần thi
+              <input
+                value={section.title}
+                onChange={(event) => updateSection(section.id, { title: event.target.value })}
+                placeholder="Ví dụ: Tư duy định lượng"
+              />
+            </label>
+            <p>{section.questions.length} câu hỏi đã được chọn</p>
+            <button
+              type="button"
+              className="hl-teacher-add-question"
+              onClick={() => setEditingSectionId(section.id)}
+            >
+              <Pencil size={14} />
+              Chỉnh sửa câu hỏi
+            </button>
+          </article>
+        ))}
+        {error && (
+          <p className="hl-teacher-quiz-form-error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="hl-teacher-quiz-editor-actions">
+          <button type="button" onClick={onCancel}>
+            Hủy
+          </button>
+          <button type="button" className="hl-teacher-primary" onClick={publish}>
+            <Send size={15} />
+            Xuất bản bài thi thử
+          </button>
+        </div>
+      </section>
+    </section>
+  )
 }
 
 function TeacherMockExams({ onBack, onAction }) {
   const [exams, setExams] = useState(initialExams)
   const [editingExam, setEditingExam] = useState(null)
-  const saveExam = (exam) => { setExams((items) => items.some((item) => item.id === exam.id) ? items.map((item) => item.id === exam.id ? exam : item) : [exam, ...items]); setEditingExam(null); onAction('Đã xuất bản bài thi thử.') }
-  const removeExam = (id) => { setExams((items) => items.filter((item) => item.id !== id)); onAction('Đã xóa bài thi thử.') }
-  if (editingExam !== null) return <ExamEditor exam={editingExam || null} onCancel={() => setEditingExam(null)} onSave={saveExam} />
-  return <section className="hl-teacher-mock-page"><button type="button" className="hl-teacher-text-back" onClick={onBack}><ArrowLeft size={16} />Quay lại tổng quan</button><div className="hl-teacher-title"><div><h1>Quản lý bài thi thử</h1><p>Tạo đề thi thử, cấu hình các phần thi và theo dõi lượt làm bài.</p></div><button type="button" className="hl-teacher-primary" onClick={() => setEditingExam({})}><Plus size={16} />Tạo bài thi thử</button></div><section className="hl-teacher-quiz-summary"><span><ClipboardCheck size={20} /><div><strong>{exams.length}</strong><small>Bài thi thử</small></div></span><span><CheckCircle2 size={20} /><div><strong>{exams.filter((exam) => exam.status === 'Đã xuất bản').length}</strong><small>Đã xuất bản</small></div></span><span><Users size={20} /><div><strong>{exams.reduce((total, exam) => total + exam.submissions, 0)}</strong><small>Lượt làm bài</small></div></span></section><section className="hl-teacher-panel hl-teacher-quiz-list-panel"><div className="hl-teacher-panel-heading"><div><h2>Danh sách bài thi thử</h2></div></div><div className="hl-teacher-quiz-table"><div className="hl-teacher-quiz-row is-head"><span>Tên bài thi</span><span>Cấu trúc đề</span><span>Quy định</span><span>Trạng thái</span><span /></div>{exams.map((exam) => <article className="hl-teacher-quiz-row" key={exam.id}><span><strong>{exam.title}</strong><small>Hạn nộp {showDate(exam.deadline)}</small></span><span>{exam.sections} phần · {exam.questions} câu</span><span>{exam.duration} phút · Điểm đạt {exam.passScore}</span><span><em className={exam.status === 'Đã xuất bản' ? 'is-published' : ''}>{exam.status}</em><small>{exam.submissions} lượt làm</small></span><button type="button" onClick={() => setEditingExam(exam)}><Pencil size={15} />Chỉnh sửa</button><button type="button" className="hl-teacher-mock-delete" onClick={() => removeExam(exam.id)} aria-label={`Xóa ${exam.title}`}><Trash2 size={15} /></button></article>)}</div></section></section>
+  const saveExam = (exam) => {
+    setExams((items) =>
+      items.some((item) => item.id === exam.id)
+        ? items.map((item) => (item.id === exam.id ? exam : item))
+        : [exam, ...items]
+    )
+    setEditingExam(null)
+    onAction('Đã xuất bản bài thi thử.')
+  }
+  const removeExam = (id) => {
+    setExams((items) => items.filter((item) => item.id !== id))
+    onAction('Đã xóa bài thi thử.')
+  }
+  if (editingExam !== null)
+    return (
+      <ExamEditor
+        exam={editingExam || null}
+        onCancel={() => setEditingExam(null)}
+        onSave={saveExam}
+      />
+    )
+  return (
+    <section className="hl-teacher-mock-page">
+      <button type="button" className="hl-teacher-text-back" onClick={onBack}>
+        <ArrowLeft size={16} />
+        Quay lại tổng quan
+      </button>
+      <div className="hl-teacher-title">
+        <div>
+          <h1>Quản lý bài thi thử</h1>
+          <p>Tạo đề thi thử, cấu hình các phần thi và theo dõi lượt làm bài.</p>
+        </div>
+        <button type="button" className="hl-teacher-primary" onClick={() => setEditingExam({})}>
+          <Plus size={16} />
+          Tạo bài thi thử
+        </button>
+      </div>
+      <section className="hl-teacher-quiz-summary">
+        <span>
+          <ClipboardCheck size={20} />
+          <div>
+            <strong>{exams.length}</strong>
+            <small>Bài thi thử</small>
+          </div>
+        </span>
+        <span>
+          <CheckCircle2 size={20} />
+          <div>
+            <strong>{exams.filter((exam) => exam.status === 'Đã xuất bản').length}</strong>
+            <small>Đã xuất bản</small>
+          </div>
+        </span>
+        <span>
+          <Users size={20} />
+          <div>
+            <strong>{exams.reduce((total, exam) => total + exam.submissions, 0)}</strong>
+            <small>Lượt làm bài</small>
+          </div>
+        </span>
+      </section>
+      <section className="hl-teacher-panel hl-teacher-quiz-list-panel">
+        <div className="hl-teacher-panel-heading">
+          <div>
+            <h2>Danh sách bài thi thử</h2>
+          </div>
+        </div>
+        <div className="hl-teacher-quiz-table">
+          <div className="hl-teacher-quiz-row is-head">
+            <span>Tên bài thi</span>
+            <span>Cấu trúc đề</span>
+            <span>Quy định</span>
+            <span>Trạng thái</span>
+            <span />
+          </div>
+          {exams.map((exam) => (
+            <article className="hl-teacher-quiz-row" key={exam.id}>
+              <span>
+                <strong>{exam.title}</strong>
+                <small>Hạn nộp {showDate(exam.deadline)}</small>
+              </span>
+              <span>
+                {exam.sections} phần · {exam.questions} câu
+              </span>
+              <span>
+                {exam.duration} phút · Điểm đạt {exam.passScore}
+              </span>
+              <span>
+                <em className={exam.status === 'Đã xuất bản' ? 'is-published' : ''}>
+                  {exam.status}
+                </em>
+                <small>{exam.submissions} lượt làm</small>
+              </span>
+              <button type="button" onClick={() => setEditingExam(exam)}>
+                <Pencil size={15} />
+                Chỉnh sửa
+              </button>
+              <button
+                type="button"
+                className="hl-teacher-mock-delete"
+                onClick={() => removeExam(exam.id)}
+                aria-label={`Xóa ${exam.title}`}
+              >
+                <Trash2 size={15} />
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+    </section>
+  )
 }
 
 export default TeacherMockExams

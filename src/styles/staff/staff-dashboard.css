@@ -672,7 +672,7 @@
   gap: 6px;
   color: #71809f;
 }
-.hl-staff-student-tools select {
+.hl-staff-student-tools [data-dropdown-trigger] {
   height: 36px;
   border: 1px solid var(--color-border-primary);
   border-radius: 9px;
@@ -804,7 +804,7 @@
   font-weight: 600;
 }
 .hl-staff-modal input,
-.hl-staff-modal select {
+.hl-staff-modal [data-dropdown-trigger] {
   height: 42px;
   border: 1px solid var(--color-border-primary);
   border-radius: 9px;
@@ -816,7 +816,7 @@
   font-size: 14px;
 }
 .hl-staff-modal input:focus,
-.hl-staff-modal select:focus {
+.hl-staff-modal [data-dropdown-trigger]:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(27, 77, 228, 0.1);
 }
@@ -1055,7 +1055,7 @@
   font: inherit;
   font-size: 13px;
 }
-.hl-staff-enrollment-filters select {
+.hl-staff-enrollment-filters [data-dropdown-trigger] {
   height: 37px;
   border: 1px solid var(--color-border-primary);
   border-radius: 9px;

@@ -3466,7 +3466,7 @@
   font-size: 12px;
   font-weight: 850;
 }
-.hl-profile-teacher-filter select {
+.hl-profile-teacher-filter [data-dropdown-trigger] {
   min-height: 34px;
   border: 1px solid #dce7f7;
   border-radius: 10px;
@@ -3902,7 +3902,7 @@
 .hl-my-course-card:focus-visible,
 .hl-profile-tabs button:focus-visible,
 .hl-profile-feedback-tabs button:focus-visible,
-.hl-profile-teacher-filter select:focus-visible,
+.hl-profile-teacher-filter [data-dropdown-trigger]:focus-visible,
 .hl-profile-teacher-comment-card:focus-visible,
 .hl-profile-filter-row button:focus-visible,
 .hl-profile-toggle-row input:focus-visible,
@@ -6813,7 +6813,7 @@
   font-weight: 800;
 }
 .hl-student-catalog-controls input,
-.hl-student-catalog-controls select {
+.hl-student-catalog-controls [data-dropdown-trigger] {
   height: 50px;
   width: 100%;
   border: 1.5px solid #dce5f7;
@@ -6826,7 +6826,7 @@
   padding: 0 14px;
 }
 .hl-student-catalog-controls input:focus,
-.hl-student-catalog-controls select:focus {
+.hl-student-catalog-controls [data-dropdown-trigger]:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px rgba(27, 77, 228, 0.1);
 }

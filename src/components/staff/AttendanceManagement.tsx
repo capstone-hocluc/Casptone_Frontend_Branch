@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { CheckCircle2, Clock3 } from 'lucide-react'
 import PageHeading from '../ui/PageHeading'
+import DropdownField from '../ui/DropdownField'
 
 const sessions = [
   {
@@ -114,49 +115,47 @@ function AttendanceManagement({ batches, students }) {
             <div className="hl-attendance-filters">
               <label>
                 Batch
-                <select
+                <DropdownField
+                  ariaLabel="Batch"
+                  options={batches.map((item) => ({ id: item.name, label: item.name }))}
                   value={batch}
-                  onChange={(event) => {
-                    setBatch(event.target.value)
+                  onChange={(value) => {
+                    if (value === null) return
+                    setBatch(value)
                     setGroup('Tất cả')
-                    changeFilter(event.target.value, 'Tất cả')
+                    changeFilter(value, 'Tất cả')
                   }}
-                >
-                  {batches.map((item) => (
-                    <option key={item.id}>{item.name}</option>
-                  ))}
-                </select>
+                />
               </label>
               <label>
                 Nhóm học
-                <select
+                <DropdownField
+                  ariaLabel="Nhóm học"
+                  options={[
+                    { id: 'Tất cả', label: 'Tất cả' },
+                    { id: 'Nhóm Nền tảng', label: 'Nhóm Nền tảng' },
+                    { id: 'Nhóm Tăng tốc', label: 'Nhóm Tăng tốc' },
+                  ]}
                   value={group}
-                  onChange={(event) => {
-                    setGroup(event.target.value)
-                    changeFilter(batch, event.target.value)
+                  onChange={(value) => {
+                    if (value === null) return
+                    setGroup(value)
+                    changeFilter(batch, value)
                   }}
-                >
-                  <option>Tất cả</option>
-                  <option>Nhóm Nền tảng</option>
-                  <option>Nhóm Tăng tốc</option>
-                </select>
+                />
               </label>
               <label>
                 Buổi học
-                <select
+                <DropdownField
+                  ariaLabel="Buổi học"
+                  options={
+                    availableSessions.length
+                      ? availableSessions.map((item) => ({ id: item.id, label: item.label }))
+                      : [{ id: '', label: 'Chưa có buổi học' }]
+                  }
                   value={activeSession?.id || ''}
-                  onChange={(event) => setSessionId(event.target.value)}
-                >
-                  {availableSessions.length ? (
-                    availableSessions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.label}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">Chưa có buổi học</option>
-                  )}
-                </select>
+                  onChange={(value) => setSessionId(value ?? '')}
+                />
               </label>
             </div>
             {activeSession ? (
@@ -211,15 +210,15 @@ function AttendanceManagement({ batches, students }) {
                           </small>
                         </b>
                       </span>
-                      <select
+                      <DropdownField
+                        ariaLabel={`Trạng thái điểm danh của ${student.name}`}
                         className={`hl-attendance-status ${status === 'Có mặt' ? 'present' : status === 'Muộn' ? 'late' : status === 'Có phép' ? 'excused' : 'absent'}`}
+                        options={statusOptions.map((option) => ({ id: option, label: option }))}
                         value={status}
-                        onChange={(event) => updateRecord(id, 'status', event.target.value)}
-                      >
-                        {statusOptions.map((option) => (
-                          <option key={option}>{option}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => {
+                          if (value !== null) updateRecord(id, 'status', value)
+                        }}
+                      />
                       <input
                         value={note}
                         onChange={(event) => updateRecord(id, 'note', event.target.value)}

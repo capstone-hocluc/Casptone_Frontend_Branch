@@ -24,6 +24,7 @@ import {
   X,
 } from 'lucide-react'
 import Logo from '../common/Logo'
+import DropdownField from '../ui/DropdownField'
 import TeacherCourses from './TeacherCourses'
 import TeacherInformation from './TeacherInformation'
 import TeacherQuiz from './TeacherQuiz'
@@ -252,14 +253,18 @@ function CreateSessionModal({ onClose, onCreate }) {
         </label>
         <label>
           Lớp học
-          <select
+          <DropdownField
+            ariaLabel="Lớp học"
+            options={[
+              { id: 'ĐGNL 12A · K24', label: 'ĐGNL 12A · K24' },
+              { id: 'ĐGNL 12B · K24', label: 'ĐGNL 12B · K24' },
+              { id: 'ĐGNL 11A · K25', label: 'ĐGNL 11A · K25' },
+            ]}
             value={form.group}
-            onChange={(event) => setForm({ ...form, group: event.target.value })}
-          >
-            <option>ĐGNL 12A · K24</option>
-            <option>ĐGNL 12B · K24</option>
-            <option>ĐGNL 11A · K25</option>
-          </select>
+            onChange={(value) => {
+              if (value !== null) setForm({ ...form, group: value })
+            }}
+          />
         </label>
         <div className="hl-teacher-modal-row">
           <label>

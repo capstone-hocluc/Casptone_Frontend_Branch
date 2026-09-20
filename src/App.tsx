@@ -27,6 +27,7 @@ import MyCourses from './pages/student/MyCourses'
 import CourseDetail from './pages/student/CourseDetail'
 import LearningActivity from './pages/student/LearningActivity'
 import VideoLearningPage from './pages/student/VideoLearningPage'
+import AdminLoginPage from './pages/AdminLoginPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
 import { useCurrentUser } from './hooks/useCurrentUser'
@@ -37,6 +38,8 @@ function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
+    if (path === '/admin/login') return 'admin-login'
+    if (path === '/admin/dashboard') return 'admin-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
     if (path === '/teacher/mock-exams') return 'teacher-mock-exams'
@@ -369,6 +372,21 @@ function App() {
         page={authMode.replace('staff-', '')}
         onNavigate={navigateStaff}
         onBack={backToLanding}
+      />
+    )
+  if (authMode === 'admin-dashboard')
+    return (
+      <StaffDashboard
+        page="dashboard"
+        onNavigate={navigateStaff}
+        onBack={backToLanding}
+      />
+    )
+  if (authMode === 'admin-login')
+    return (
+      <AdminLoginPage
+        onBack={backToLanding}
+        onSuccess={() => navigateTo('/admin/dashboard')}
       />
     )
   if (authMode?.startsWith('teacher-'))

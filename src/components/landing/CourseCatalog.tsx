@@ -3,6 +3,7 @@ import { AlertTriangle, Search } from 'lucide-react'
 import { getMainCourses, type Course } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
 import CourseCard from './CourseCard'
+import DropdownField from '../ui/DropdownField'
 
 function prettifyEnum(value?: string) {
   if (!value) return ''
@@ -90,25 +91,33 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
           </div>
 
           {examOptions.length > 0 && (
-            <select value={examFilter} onChange={(event) => setExamFilter(event.target.value)}>
-              <option value="all">Tất cả kỳ thi</option>
-              {examOptions.map((option) => (
-                <option key={option} value={option}>
-                  {prettifyEnum(option)}
-                </option>
-              ))}
-            </select>
+            <DropdownField
+              ariaLabel="Kỳ thi"
+              className="hl-catalog-dropdown w-auto"
+              options={[
+                { id: 'all', label: 'Tất cả kỳ thi' },
+                ...examOptions.map((option) => ({ id: option, label: prettifyEnum(option) })),
+              ]}
+              value={examFilter}
+              onChange={(value) => {
+                if (value !== null) setExamFilter(value)
+              }}
+            />
           )}
 
           {trackOptions.length > 0 && (
-            <select value={trackFilter} onChange={(event) => setTrackFilter(event.target.value)}>
-              <option value="all">Tất cả lộ trình</option>
-              {trackOptions.map((option) => (
-                <option key={option} value={option}>
-                  {prettifyEnum(option)}
-                </option>
-              ))}
-            </select>
+            <DropdownField
+              ariaLabel="Lộ trình"
+              className="hl-catalog-dropdown w-auto"
+              options={[
+                { id: 'all', label: 'Tất cả lộ trình' },
+                ...trackOptions.map((option) => ({ id: option, label: prettifyEnum(option) })),
+              ]}
+              value={trackFilter}
+              onChange={(value) => {
+                if (value !== null) setTrackFilter(value)
+              }}
+            />
           )}
         </div>
 

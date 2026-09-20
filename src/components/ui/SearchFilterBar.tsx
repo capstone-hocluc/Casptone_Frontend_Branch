@@ -1,5 +1,5 @@
-import * as Select from '@radix-ui/react-select'
-import { Check, ChevronDown, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
+import DropdownField from './DropdownField'
 
 // The "search box + status dropdown + result count" row repeated at the top
 // of every staff list screen. Pair with the useFilteredList hook: pass its
@@ -28,36 +28,16 @@ function SearchFilterBar({
       </label>
 
       {filterOptions && (
-        <Select.Root value={filter} onValueChange={onFilterChange}>
-          <Select.Trigger className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[9px] border border-border-primary bg-surface px-3 text-sm font-semibold text-text-label outline-none">
-            <Select.Value />
-            <Select.Icon>
-              <ChevronDown size={15} />
-            </Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Content
-              className="z-90 overflow-hidden rounded-[10px] border border-border-primary bg-surface shadow-[0_14px_34px_rgba(17,24,58,0.14)]"
-              position="popper"
-              sideOffset={6}
-            >
-              <Select.Viewport>
-                {filterOptions.map((option) => (
-                  <Select.Item
-                    key={option}
-                    value={option}
-                    className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold text-text-heading-soft outline-none data-[highlighted]:bg-[#f3f6ff] data-[highlighted]:text-primary"
-                  >
-                    <Select.ItemText>{option}</Select.ItemText>
-                    <Select.ItemIndicator>
-                      <Check size={14} />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-              </Select.Viewport>
-            </Select.Content>
-          </Select.Portal>
-        </Select.Root>
+        <DropdownField
+          ariaLabel="Bộ lọc"
+          className="w-auto"
+          options={filterOptions.map((option) => ({ id: option, label: option }))}
+          triggerClassName="inline-flex h-10 w-auto cursor-pointer items-center gap-2 rounded-[9px] border border-border-primary bg-surface px-3 text-sm font-semibold text-text-label outline-none"
+          value={filter}
+          onChange={(value) => {
+            if (value !== null) onFilterChange(value)
+          }}
+        />
       )}
 
       {resultCount !== undefined && (

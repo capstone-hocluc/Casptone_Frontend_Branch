@@ -320,6 +320,21 @@
     box-shadow 0.2s,
     transform 0.2s;
 }
+.hl-onboard-dropdown-value {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  color: #8994b0;
+}
+.hl-onboard-dropdown-value > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-heading);
+  font-size: 13px;
+}
 .hl-onboard-search:focus-within {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 4px rgba(27, 77, 228, 0.1);
@@ -345,6 +360,9 @@
   transform: rotate(180deg);
 }
 .hl-onboard-search.has-error {
+  border-color: var(--color-danger);
+}
+.hl-onboard-search[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
 .hl-onboard-options {
