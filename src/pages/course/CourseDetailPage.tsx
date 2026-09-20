@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, SearchX } from 'lucide-react'
+import MascotState from '../../components/common/MascotState'
 import Navbar from '../../components/common/Navbar'
 import Footer from '../../components/common/Footer'
 import Chatbot from '../../components/landing/Chatbot'
@@ -93,29 +93,24 @@ function CourseDetailPage({
         )}
 
         {status === 'error' && (
-          <div className="hl-cd-state">
-            <AlertTriangle size={30} />
-            <p>{errorMessage}</p>
-            <button
-              type="button"
-              onClick={() => {
-                setStatus('loading')
-                setReloadKey((current) => current + 1)
-              }}
-            >
-              Thử lại
-            </button>
-          </div>
+          <MascotState
+            title="Không thể tải khóa học"
+            message={errorMessage}
+            actionLabel="Thử lại"
+            onAction={() => {
+              setStatus('loading')
+              setReloadKey((current) => current + 1)
+            }}
+          />
         )}
 
         {status === 'not-found' && (
-          <div className="hl-cd-state">
-            <SearchX size={30} />
-            <p>Không tìm thấy khóa học này.</p>
-            <button type="button" onClick={onBackToCatalog}>
-              Quay lại danh sách khóa học
-            </button>
-          </div>
+          <MascotState
+            title="Không tìm thấy khóa học"
+            message="Khóa học này không tồn tại hoặc đã bị gỡ."
+            actionLabel="Quay lại danh sách khóa học"
+            onAction={onBackToCatalog}
+          />
         )}
 
         {status === 'ready' && course && (
@@ -135,9 +130,11 @@ function CourseDetailPage({
                   <section className="hl-cd-section">
                     <h2>Giới thiệu khóa học</h2>
                     <div className="hl-cd-description">
-                      {course.description.split('\n').map((paragraph, index) =>
-                        paragraph.trim() ? <p key={index}>{paragraph}</p> : null
-                      )}
+                      {course.description
+                        .split('\n')
+                        .map((paragraph, index) =>
+                          paragraph.trim() ? <p key={index}>{paragraph}</p> : null
+                        )}
                     </div>
                   </section>
                 )}

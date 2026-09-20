@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { getMainCourses, type Course } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
 import CourseCard from './CourseCard'
@@ -17,6 +17,8 @@ function uniqueSorted(values: (string | undefined)[]) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value)))).sort()
 }
 
+type CatalogTab = 'main' | 'support'
+
 interface CourseCatalogProps {
   onOpenCourse: (course: Course) => void
 }
@@ -26,7 +28,7 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [query, setQuery] = useState('')
-  const [examFilter, setExamFilter] = useState('all')
+  const [tab, setTab] = useState<CatalogTab>('main')
   const [trackFilter, setTrackFilter] = useState('all')
   const [reloadKey, setReloadKey] = useState(0)
 
@@ -53,7 +55,6 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
     setReloadKey((current) => current + 1)
   }
 
-  const examOptions = useMemo(() => uniqueSorted(courses.map((c) => c.targetExam)), [courses])
   const trackOptions = useMemo(() => uniqueSorted(courses.map((c) => c.track)), [courses])
 
   const filteredCourses = useMemo(() => {
@@ -63,86 +64,120 @@ function CourseCatalog({ onOpenCourse }: CourseCatalogProps) {
         !normalizedQuery ||
         course.title.toLowerCase().includes(normalizedQuery) ||
         (course.description || '').toLowerCase().includes(normalizedQuery)
-      const matchesExam = examFilter === 'all' || course.targetExam === examFilter
       const matchesTrack = trackFilter === 'all' || course.track === trackFilter
-      return matchesQuery && matchesExam && matchesTrack
+      return matchesQuery && matchesTrack
     })
-  }, [courses, query, examFilter, trackFilter])
+  }, [courses, query, trackFilter])
+
+  const isMain = tab === 'main'
 
   return (
     <section className="hl-catalog-section">
       <div className="hl-catalog-container">
-        <div className="hl-catalog-intro">
-          <span className="hl-catalog-eyebrow">Khóa học</span>
-          <h1>Khám phá khóa học ôn luyện phù hợp với bạn</h1>
+        <header className="hl-catalog-header">
+          <h1>Khám phá khóa học</h1>
           <p>Chọn khóa học theo kỳ thi mục tiêu và bắt đầu lộ trình ôn luyện ngay hôm nay.</p>
-        </div>
+        </header>
 
-        <div className="hl-catalog-toolbar">
-          <div className="hl-catalog-search">
-            <Search size={17} />
-            <input
-              type="text"
-              placeholder="Tìm khóa học theo tên..."
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </div>
-
-          {examOptions.length > 0 && (
-            <select value={examFilter} onChange={(event) => setExamFilter(event.target.value)}>
-              <option value="all">Tất cả kỳ thi</option>
-              {examOptions.map((option) => (
-                <option key={option} value={option}>
-                  {prettifyEnum(option)}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {trackOptions.length > 0 && (
-            <select value={trackFilter} onChange={(event) => setTrackFilter(event.target.value)}>
-              <option value="all">Tất cả lộ trình</option>
-              {trackOptions.map((option) => (
-                <option key={option} value={option}>
-                  {prettifyEnum(option)}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-
-        {status === 'loading' && (
-          <div className="hl-catalog-grid">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div className="hl-catalog-skeleton" key={index} aria-hidden="true" />
-            ))}
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div className="hl-catalog-state">
-            <AlertTriangle size={28} />
-            <p>{errorMessage}</p>
-            <button type="button" onClick={retry}>
-              Thử lại
+        <div className="hl-catalog-topbar">
+          <div className="hl-catalog-tabs" role="tablist" aria-label="Loại khóa học">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'main'}
+              className={tab === 'main' ? 'is-active' : ''}
+              onClick={() => setTab('main')}
+            >
+              Khóa học chính
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'support'}
+              className={tab === 'support' ? 'is-active' : ''}
+              onClick={() => setTab('support')}
+            >
+              Khóa học bổ trợ
             </button>
           </div>
-        )}
 
-        {status === 'ready' && filteredCourses.length === 0 && (
-          <div className="hl-catalog-state">
-            <p>Hiện chưa có khóa học phù hợp.</p>
+          <div className="hl-catalog-filters">
+            {trackOptions.length > 0 && (
+              <select
+                value={trackFilter}
+                onChange={(event) => setTrackFilter(event.target.value)}
+                aria-label="Lọc theo lộ trình"
+              >
+                <option value="all">Tất cả lộ trình</option>
+                {trackOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {prettifyEnum(option)}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
-        )}
 
-        {status === 'ready' && filteredCourses.length > 0 && (
-          <div className="hl-catalog-grid">
-            {filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} onOpen={onOpenCourse} />
-            ))}
+          <label className="hl-catalog-search">
+            <Search size={17} />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Tìm kiếm khóa học"
+            />
+          </label>
+        </div>
+
+        <article className="hl-catalog-panel">
+          <div className="hl-catalog-group-head">
+            <h2>{isMain ? 'Khóa học chính' : 'Khóa học bổ trợ'}</h2>
+            {isMain && status === 'ready' && <span>{filteredCourses.length} khóa học</span>}
           </div>
-        )}
+
+          {!isMain && (
+            <div className="hl-catalog-state">
+              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+              <strong>Khóa học bổ trợ sắp ra mắt</strong>
+              <p>Các khóa học bổ trợ sẽ sớm có mặt tại đây.</p>
+            </div>
+          )}
+
+          {isMain && status === 'loading' && (
+            <div className="hl-catalog-grid">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div className="hl-catalog-skeleton" key={index} aria-hidden="true" />
+              ))}
+            </div>
+          )}
+
+          {isMain && status === 'error' && (
+            <div className="hl-catalog-state">
+              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+              <strong>Không thể tải danh sách khóa học</strong>
+              <p>{errorMessage}</p>
+              <button type="button" onClick={retry}>
+                Thử lại
+              </button>
+            </div>
+          )}
+
+          {isMain && status === 'ready' && filteredCourses.length === 0 && (
+            <div className="hl-catalog-state">
+              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+              <strong>Không tìm thấy khóa học</strong>
+              <p>Thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+            </div>
+          )}
+
+          {isMain && status === 'ready' && filteredCourses.length > 0 && (
+            <div className="hl-catalog-grid">
+              {filteredCourses.map((course) => (
+                <CourseCard key={course.id} course={course} onOpen={onOpenCourse} />
+              ))}
+            </div>
+          )}
+        </article>
       </div>
     </section>
   )

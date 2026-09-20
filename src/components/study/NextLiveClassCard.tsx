@@ -23,7 +23,7 @@ function NextLiveClassCard({ liveClass }: NextLiveClassCardProps) {
   const showRecording = !canJoin && Boolean(liveClass.recordingUrl)
 
   return (
-    <div className="hl-study-card">
+    <div className="hl-study-card hl-study-live-card">
       <span className="hl-study-card-eyebrow">Buổi học trực tuyến tiếp theo</span>
       <h3>{liveClass.title}</h3>
       {liveClass.description && <p className="hl-study-live-desc">{liveClass.description}</p>}

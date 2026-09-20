@@ -1,6 +1,5 @@
 .hl-lesson-page {
-  min-height: 100vh;
-  background: var(--color-surface-soft);
+  padding-bottom: 32px;
 }
 
 .hl-lesson-main-wrap {
@@ -8,7 +7,7 @@
 }
 
 .hl-lesson-container {
-  max-width: 860px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
@@ -345,4 +344,101 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* Lesson inside the Student layout: lighter surfaces, semibold-not-black type,
+   brand blue only for the primary action. */
+.hl-lesson-grid {
+  gap: 16px;
+}
+
+.hl-lesson-breadcrumb button {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.hl-lesson-breadcrumb button:hover {
+  color: var(--color-primary);
+}
+
+.hl-lesson-content {
+  border-radius: 14px;
+}
+
+.hl-lesson-content-text,
+.hl-lesson-content-empty,
+.hl-lesson-content-locked,
+.hl-lesson-card {
+  border-color: var(--study-line);
+}
+
+.hl-lesson-card {
+  padding: 18px 20px;
+  border-radius: 14px;
+}
+
+.hl-lesson-card h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hl-lesson-info-head h1 {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.hl-lesson-meta-line {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.hl-lesson-status {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.hl-lesson-description {
+  font-weight: 400;
+  color: var(--color-text-body);
+}
+
+.hl-lesson-progress-row {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.hl-lesson-complete-cta,
+.hl-lesson-nav-btn.is-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.hl-lesson-nav-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #d5dff2;
+  border-radius: 10px;
+  color: var(--color-text-heading);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.hl-lesson-nav-btn.is-primary {
+  color: #fff;
+}
+
+.hl-lesson-skeleton {
+  border-radius: 14px;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, Star } from 'lucide-react'
+import { Star } from 'lucide-react'
+import MascotState from '../common/MascotState'
 import CourseCard from '../landing/CourseCard'
 import {
   getCourseEnrollmentPlan,
@@ -7,7 +8,7 @@ import {
   type EnrollmentPlan,
 } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
-import { prettifyEnum } from '../../lib/courseFormat'
+import { formatEnrollmentBranch, formatEnrollmentBranchMessage } from '../../lib/courseFormat'
 
 interface StudyEnrollmentPlanTabProps {
   courseId: string
@@ -55,34 +56,33 @@ function StudyEnrollmentPlanTab({ courseId, onOpenCourse }: StudyEnrollmentPlanT
 
   if (status === 'error') {
     return (
-      <div className="hl-study-state">
-        <AlertTriangle size={30} />
-        <p>{errorMessage || 'Không thể tải lộ trình học.'}</p>
-        <button
-          type="button"
-          onClick={() => {
-            setStatus('loading')
-            setReloadKey((current) => current + 1)
-          }}
-        >
-          Thử lại
-        </button>
-      </div>
+      <MascotState
+        title="Không thể tải lộ trình học"
+        message={errorMessage}
+        actionLabel="Thử lại"
+        onAction={() => {
+          setStatus('loading')
+          setReloadKey((current) => current + 1)
+        }}
+      />
     )
   }
 
   if (!plan) return null
 
   const elapsed = Math.max(0, Math.min(100, plan.elapsedPercentage ?? 0))
+  const planMessage = formatEnrollmentBranchMessage(plan.branch, plan.message)
   const sortedSections = [...plan.sectionOrder].sort((a, b) => a.sequence - b.sequence)
   const hasExtras =
-    Boolean(plan.recommendedCourse) || plan.catchUpRecordings.length > 0 || sortedSections.length > 0
+    Boolean(plan.recommendedCourse) ||
+    plan.catchUpRecordings.length > 0 ||
+    sortedSections.length > 0
 
   return (
     <div className="hl-study-grid">
       <section className="hl-study-card">
-        <span className="hl-study-card-eyebrow">{prettifyEnum(plan.branch)}</span>
-        {plan.message && <p className="hl-study-live-desc">{plan.message}</p>}
+        <span className="hl-study-card-eyebrow">{formatEnrollmentBranch(plan.branch)}</span>
+        {planMessage && <p className="hl-study-live-desc">{planMessage}</p>}
         <div className="hl-plan-elapsed-row">
           {/* Course-timeline-elapsed, NOT lesson/learning progress - see StudyProgressCard for that. */}
           <span>Tiến trình thời gian khóa học</span>
@@ -158,7 +158,10 @@ function StudyEnrollmentPlanTab({ courseId, onOpenCourse }: StudyEnrollmentPlanT
       )}
 
       {!hasExtras && (
-        <p className="hl-study-empty-curriculum">Chưa có đề xuất bổ sung cho khóa học này.</p>
+        <MascotState
+          title="Chưa có đề xuất bổ sung"
+          message="Chưa có đề xuất bổ sung cho khóa học này."
+        />
       )}
     </div>
   )

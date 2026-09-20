@@ -10,8 +10,11 @@ interface MyCoursesProps {
   onBrowseCourses: () => void
 }
 
+type CourseTab = 'main' | 'support'
+
 function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const [query, setQuery] = useState('')
+  const [tab, setTab] = useState<CourseTab>('main')
   const [enrollments, setEnrollments] = useState<MyCourseEnrollment[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
@@ -47,6 +50,8 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
     )
   }, [enrollments, query])
 
+  const isMain = tab === 'main'
+
   return (
     <section className="hl-student-page hl-my-courses-page">
       <header className="hl-my-courses-header">
@@ -56,42 +61,68 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
         </div>
       </header>
 
-      <article className="hl-my-courses-panel">
-        <div className="hl-my-courses-toolbar">
-          <label className="hl-my-courses-search">
-            <Search size={17} />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Tìm kiếm khóa học"
-            />
-          </label>
+      <div className="hl-catalog-topbar">
+        <div className="hl-catalog-tabs" role="tablist" aria-label="Loại khóa học">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isMain}
+            className={isMain ? 'is-active' : ''}
+            onClick={() => setTab('main')}
+          >
+            Khóa học chính
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isMain}
+            className={!isMain ? 'is-active' : ''}
+            onClick={() => setTab('support')}
+          >
+            Khóa học bổ trợ
+          </button>
         </div>
 
-        <div className="hl-my-courses-group-head">
-          <div>
-            <h2>Khóa học của tôi</h2>
-            <span>{enrollments.length} khóa học</span>
+        <label className="hl-catalog-search">
+          <Search size={17} />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Tìm kiếm khóa học"
+          />
+        </label>
+      </div>
+
+      <article className="hl-catalog-panel">
+        <div className="hl-catalog-group-head">
+          <h2>{isMain ? 'Khóa học chính' : 'Khóa học bổ trợ'}</h2>
+          {isMain && status === 'ready' && <span>{visibleEnrollments.length} khóa học</span>}
+        </div>
+
+        {!isMain && (
+          <div className="hl-catalog-state">
+            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+            <strong>Khóa học bổ trợ sắp ra mắt</strong>
+            <p>Các khóa học bổ trợ sẽ sớm có mặt tại đây.</p>
           </div>
-        </div>
+        )}
 
-        {status === 'loading' && (
-          <div className="hl-my-courses-grid">
+        {isMain && status === 'loading' && (
+          <div className="hl-catalog-grid">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div className="hl-my-course-skeleton" key={index} aria-hidden="true" />
+              <div className="hl-catalog-skeleton" key={index} aria-hidden="true" />
             ))}
           </div>
         )}
 
-        {status === 'error' && (
-          <div className="hl-my-courses-empty">
+        {isMain && status === 'error' && (
+          <div className="hl-catalog-state">
             <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
             <strong>Không thể tải khóa học của bạn</strong>
             <p>{errorMessage}</p>
             <button
               type="button"
-              className="hl-my-courses-empty-cta"
               onClick={() => {
                 setStatus('loading')
                 setReloadKey((current) => current + 1)
@@ -102,34 +133,39 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
           </div>
         )}
 
-        {status === 'ready' &&
-          (enrollments.length ? (
-            <div className="hl-my-courses-grid">
-              {visibleEnrollments.map((enrollment) => (
-                <MyCourseCard
-                  key={enrollment.course.id}
-                  enrollment={enrollment}
-                  onOpen={onOpenCourse}
-                />
-              ))}
-              {!visibleEnrollments.length && (
-                <div className="hl-my-courses-empty">
-                  <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-                  <strong>Không tìm thấy khóa học</strong>
-                  <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="hl-my-courses-empty">
+        {isMain && status === 'ready' && enrollments.length === 0 && (
+          <div className="hl-catalog-state">
+            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+            <strong>Bạn chưa có khóa học nào</strong>
+            <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
+            <button type="button" onClick={onBrowseCourses}>
+              Khám phá khóa học
+            </button>
+          </div>
+        )}
+
+        {isMain &&
+          status === 'ready' &&
+          enrollments.length > 0 &&
+          visibleEnrollments.length === 0 && (
+            <div className="hl-catalog-state">
               <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-              <strong>Bạn chưa có khóa học nào</strong>
-              <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
-              <button type="button" className="hl-my-courses-empty-cta" onClick={onBrowseCourses}>
-                Khám phá khóa học
-              </button>
+              <strong>Không tìm thấy khóa học</strong>
+              <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
             </div>
-          ))}
+          )}
+
+        {isMain && status === 'ready' && visibleEnrollments.length > 0 && (
+          <div className="hl-catalog-grid">
+            {visibleEnrollments.map((enrollment) => (
+              <MyCourseCard
+                key={enrollment.course.id}
+                enrollment={enrollment}
+                onOpen={onOpenCourse}
+              />
+            ))}
+          </div>
+        )}
       </article>
     </section>
   )

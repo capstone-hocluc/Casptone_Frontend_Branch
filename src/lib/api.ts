@@ -34,6 +34,12 @@ export interface RequestOptions {
   body?: unknown
   auth?: boolean
   retryOnUnauthorized?: boolean
+  // For endpoints that must stay browsable by guests (e.g. public course
+  // catalog/detail) but return richer data for a logged-in caller: attaches
+  // a token the same way `auth` does, but a 401 here means "no personalized
+  // data available" - it must never clear tokens or force-redirect to
+  // /login the way an actual expired-session 401 does.
+  optionalAuth?: boolean
 }
 
 function createHeaders(auth: boolean, isFormData: boolean) {
@@ -50,14 +56,21 @@ function createHeaders(auth: boolean, isFormData: boolean) {
 
 export async function request<T = unknown>(
   path: string,
-  { method = 'GET', body, auth = false, retryOnUnauthorized = true }: RequestOptions = {}
+  {
+    method = 'GET',
+    body,
+    auth = false,
+    retryOnUnauthorized = true,
+    optionalAuth = false,
+  }: RequestOptions = {}
 ): Promise<ApiResponse<T>> {
+  const attachesToken = auth || optionalAuth
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
-      headers: createHeaders(auth, isFormData),
+      headers: createHeaders(attachesToken, isFormData),
       body: isFormData ? (body as FormData) : body ? JSON.stringify(body) : undefined,
     })
   } catch {
@@ -66,10 +79,12 @@ export async function request<T = unknown>(
   }
 
   const data = await response.json().catch(() => null)
-  if (auth && response.status === 401 && retryOnUnauthorized && path !== REFRESH_PATH) {
+  if (attachesToken && response.status === 401 && retryOnUnauthorized && path !== REFRESH_PATH) {
     const refreshed = await refreshStoredTokens()
-    if (refreshed) return request<T>(path, { method, body, auth, retryOnUnauthorized: false })
-    handleSessionExpired()
+    if (refreshed) {
+      return request<T>(path, { method, body, auth, retryOnUnauthorized: false, optionalAuth })
+    }
+    if (!optionalAuth) handleSessionExpired()
   }
 
   if (!response.ok || data?.success === false) {
