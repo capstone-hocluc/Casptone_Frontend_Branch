@@ -51,7 +51,8 @@ function App() {
     if (path === '/admin/users') return 'admin-users'
     if (path === '/admin/dashboard') return 'admin-dashboard'
     if (path === '/manager/dashboard') return 'manager-dashboard'
-    if (path === '/manager/users') return 'manager-users'
+    if (path === '/manager/courses') return 'manager-courses'
+    if (path === '/manager/users') return 'manager-courses'
     if (path === '/manager/students') return 'manager-students'
     if (path === '/manager/enrollments') return 'manager-enrollments'
     if (path === '/manager/schedules') return 'manager-schedules'
@@ -162,7 +163,7 @@ function App() {
       },
       manager: {
         dashboard: '/manager/dashboard',
-        users: '/manager/users',
+        courses: '/manager/courses',
         students: '/manager/students',
         enrollments: '/manager/enrollments',
         schedules: '/manager/schedules',

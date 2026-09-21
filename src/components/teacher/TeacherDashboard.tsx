@@ -570,7 +570,7 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
                   <div className="hl-teacher-mascot-message">
                     Chúc Thầy một ngày giảng dạy hiệu quả nhé!
                   </div>
-                  <img src="/owl-mascot2.png" alt="Mascot HocLuc" />
+                  <img src="/owl-teacher-teaching.png" alt="Mascot HocLuc" />
                   <button
                     type="button"
                     className="hl-teacher-primary"

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { ChevronRight, LayoutDashboard, LogOut, Menu, Users } from 'lucide-react'
+import { BookOpen, ChevronRight, LayoutDashboard, LogOut, Menu, Users } from 'lucide-react'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import Logo from '../common/Logo'
 import AdminOverview from '../admin/AdminOverview'
 import UserManagement from '../admin/UserManagement'
+import ManagementCourseList from './ManagementCourseList'
+import ManagerOverview from './ManagerOverview'
 import Button from '../ui/Button'
 import NavItem, { SidebarGroupLabel } from '../ui/NavItem'
 import PageHeading from '../ui/PageHeading'
@@ -34,6 +36,10 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   users: {
     title: 'Người dùng',
     subtitle: 'Tài khoản và quyền truy cập.',
+  },
+  courses: {
+    title: 'Khóa học',
+    subtitle: 'Danh sách khóa học đang mở.',
   },
   students: {
     title: 'Học viên',
@@ -78,6 +84,11 @@ const NAV_ITEMS = [
   { page: 'users', label: 'Người dùng', icon: Users },
 ]
 
+const MANAGER_NAV_ITEMS = [
+  { page: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+  { page: 'courses', label: 'Khóa học', icon: BookOpen },
+]
+
 function getInitials(profile: { firstName?: string; lastName?: string; email: string }) {
   const initials = `${profile.firstName?.[0] ?? ''}${profile.lastName?.[0] ?? ''}`.trim()
   return initials || profile.email.slice(0, 2).toUpperCase()
@@ -117,7 +128,12 @@ function ManagementDashboard({
   const roleLabel = ROLE_LABELS[role]
   const areaLabel =
     role === 'ADMINISTRATOR' ? 'Quản trị' : role === 'MENTOR' ? 'Mentor' : 'Vận hành'
-  const navigationItems = role === 'MENTOR' ? NAV_ITEMS.filter((item) => item.page === 'dashboard') : NAV_ITEMS
+  const navigationItems =
+    role === 'MENTOR'
+      ? NAV_ITEMS.filter((item) => item.page === 'dashboard')
+      : role === 'MANAGER'
+        ? MANAGER_NAV_ITEMS
+        : NAV_ITEMS
   const displayName = profile?.displayName || [profile?.firstName, profile?.lastName].filter(Boolean).join(' ')
 
   return (
@@ -200,10 +216,20 @@ function ManagementDashboard({
         </header>
 
         <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-5 p-4 sm:p-6 lg:p-8">
-          {effectivePage === 'users' && role !== 'MENTOR' ? (
+          {effectivePage === 'courses' && role === 'MANAGER' ? (
             <>
               <PageHeading title={meta.title} subtitle={meta.subtitle} />
-              <UserManagement readOnly={role !== 'ADMINISTRATOR'} />
+              <ManagementCourseList />
+            </>
+          ) : effectivePage === 'users' && role === 'STAFF' ? (
+            <>
+              <PageHeading title={meta.title} subtitle={meta.subtitle} />
+              <UserManagement readOnly />
+            </>
+          ) : effectivePage === 'dashboard' && role === 'MANAGER' ? (
+            <>
+              <PageHeading title={meta.title} subtitle={meta.subtitle} />
+              <ManagerOverview onNavigate={onNavigate} />
             </>
           ) : effectivePage === 'dashboard' && role !== 'MENTOR' ? (
             <>

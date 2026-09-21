@@ -71,7 +71,7 @@ function Chatbot() {
             }}
           >
             <img
-              src="/owl-mascot.png"
+              src="/owl-support-headset.png"
               alt="Trợ lý"
               style={{
                 width: 40,
@@ -231,7 +231,7 @@ function Chatbot() {
           }}
         >
           <img
-            src="/owl-mascot.png"
+              src="/owl-support-headset.png"
             alt="Trợ lý AI"
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
