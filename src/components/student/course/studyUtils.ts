@@ -1,4 +1,4 @@
-import type { CourseStudyLesson, CourseStudyPhase } from '../../services/courseService'
+import type { CourseStudyLesson, CourseStudyPhase } from '../../../services/courseService'
 
 export function bySequence<T extends { sequence?: number }>(items: T[]) {
   return [...items].sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))

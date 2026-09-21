@@ -6,10 +6,12 @@ import { tabs } from './learning-profile/icons'
 import OverviewTab from './learning-profile/OverviewTab'
 import LearningTab from './learning-profile/LearningTab'
 import PracticeTab from './learning-profile/PracticeTab'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
 
 function LearningProfile() {
   const [activeTab, setActiveTab] = useState('overview')
-  const [message, setMessage] = useState('')
+  const { message, show } = useTransientMessage(2600)
   const [analysis, setAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const profile = learningProfilePage
@@ -24,10 +26,8 @@ function LearningProfile() {
     { label: 'Mục tiêu', value: profile.targetScore },
   ]
 
-  const showMessage = (text = 'Tính năng này đang được phát triển.') => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2600)
-  }
+  const showMessage = (text = 'Tính năng này đang được phát triển.') => show(text)
+
   const runAnalysis = () => {
     if (isAnalyzing) return
 
@@ -45,7 +45,7 @@ function LearningProfile() {
 
   return (
     <section className="hl-student-page hl-profile-page">
-      {message && <div className="hl-student-toast">{message}</div>}
+      <StudentToast message={message} />
 
       <header className="hl-profile-header">
         <div>

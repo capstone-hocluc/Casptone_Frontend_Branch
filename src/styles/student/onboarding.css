@@ -365,44 +365,6 @@
 .hl-onboard-search[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
-.hl-onboard-options {
-  position: absolute;
-  z-index: 10;
-  top: 78px;
-  left: 0;
-  right: 0;
-  max-height: 245px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  border: 1px solid #dde5f7;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 22px 42px rgba(17, 24, 58, 0.14);
-  backdrop-filter: blur(10px);
-}
-.hl-onboard-options button {
-  padding: 11px 12px;
-  border: 0;
-  border-radius: 10px;
-  text-align: left;
-  background: transparent;
-  color: var(--color-text-emphasis);
-  font: inherit;
-  font-size: 12.5px;
-  line-height: 1.35;
-  cursor: pointer;
-}
-.hl-onboard-options button:hover {
-  background: #eef3ff;
-  color: var(--color-primary);
-}
-.hl-onboard-options small {
-  padding: 10px 12px;
-  color: #8791ae;
-  font-size: 12px;
-}
 .hl-onboard-major-wrap {
   min-width: 0;
 }
@@ -892,61 +854,5 @@
     width: 58%;
     max-height: 52%;
   }
-}
-.hl-auth-doodle {
-  position: absolute;
-  z-index: 2;
-  color: var(--color-accent);
-  filter: drop-shadow(0 13px 14px rgba(8, 19, 83, 0.18));
-}
-.hl-doodle-book {
-  right: 7%;
-  bottom: 13%;
-  transform: rotate(-12deg);
-  color: var(--color-surface);
-}
-.hl-doodle-pencil {
-  right: 34%;
-  bottom: 9%;
-  transform: rotate(38deg);
-  color: var(--color-accent);
-}
-.hl-doodle-calc {
-  right: 42%;
-  bottom: 29%;
-  transform: rotate(-10deg);
-  color: #9fb9ff;
-}
-.hl-doodle-notebook {
-  right: 5%;
-  bottom: 41%;
-  transform: rotate(12deg);
-  color: var(--color-surface);
-}
-.hl-auth-spark {
-  position: absolute;
-  z-index: 2;
-  color: var(--color-accent);
-  font-size: 30px;
-  font-weight: 300;
-}
-.spark-one {
-  top: 19%;
-  right: 10%;
-}
-.spark-two {
-  top: 46%;
-  right: 45%;
-  color: var(--color-surface);
-}
-.hl-auth-orbit {
-  position: absolute;
-  width: 430px;
-  height: 230px;
-  right: -80px;
-  bottom: -30px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  transform: rotate(-20deg);
 }
 

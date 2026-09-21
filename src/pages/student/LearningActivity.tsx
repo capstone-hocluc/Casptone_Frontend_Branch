@@ -9,6 +9,11 @@ import {
   RotateCcw,
 } from 'lucide-react'
 import { findCourseActivity, getActivityRouteType } from '../../data/courseLookup'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
+import MascotState from '../../components/common/MascotState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card from '../../components/ui/Card'
 
 const pageSize = 10
 
@@ -766,29 +771,25 @@ function LearningActions({ primaryLabel, onAction }) {
 }
 
 function LearningActivity({ courseId, routeType, activityId, onBack }) {
-  const [message, setMessage] = useState('')
+  const { message, show: showMessage } = useTransientMessage(2400)
   const context = findCourseActivity(courseId, activityId)
   const activity = context?.activity
   const expectedRouteType = activity ? getActivityRouteType(activity) : ''
   const invalid = !context || expectedRouteType !== routeType
 
-  const showMessage = (text) => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2400)
-  }
 
   if (invalid) {
     return (
-      <section className="hl-student-page hl-activity-page">
-        <article className="hl-activity-card hl-activity-not-found">
-          <h1>Không tìm thấy nội dung học</h1>
-          <p>Nội dung này không tồn tại hoặc chưa được thêm vào.</p>
-          <button type="button" onClick={onBack}>
-            <ArrowLeft size={16} />
-            Quay lại khóa học
-          </button>
-        </article>
-      </section>
+      <StudentPageContainer>
+        <Card padding="lg" radius="xl">
+          <MascotState
+            title="Không tìm thấy nội dung học"
+            message="Nội dung này không tồn tại hoặc chưa được thêm vào."
+            actionLabel="Quay lại khóa học"
+            onAction={onBack}
+          />
+        </Card>
+      </StudentPageContainer>
     )
   }
 
@@ -804,7 +805,7 @@ function LearningActivity({ courseId, routeType, activityId, onBack }) {
       {routeType === 'mock-tests' && (
         <QuestionTakingScreen activity={activity} mode="mock-test" onBack={onBack} />
       )}
-      {message && <div className="hl-student-toast">{message}</div>}
+      <StudentToast message={message} />
     </LearningShell>
   )
 }

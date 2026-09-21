@@ -1,15 +1,42 @@
 import { useEffect, useState } from 'react'
-import MascotState from '../common/MascotState'
+import MascotState from '../../common/MascotState'
+import Card, { CardTitle } from '../../ui/Card'
+import Skeleton from '../../ui/Skeleton'
 import NextLiveClassCard from './NextLiveClassCard'
 import LiveClassRow from './LiveClassRow'
-import { getCourseLiveClasses, type CourseLiveClasses } from '../../services/courseService'
-import { getErrorMessage } from '../../lib/errors'
+import { getCourseLiveClasses, type CourseLiveClasses } from '../../../services/courseService'
+import { getErrorMessage } from '../../../lib/errors'
 
-interface StudyLiveClassesTabProps {
+interface CourseLiveClassesTabProps {
   courseId: string
 }
 
-function StudyLiveClassesTab({ courseId }: StudyLiveClassesTabProps) {
+function LiveClassSection({
+  title,
+  items,
+  emptyText,
+}: {
+  title: string
+  items: CourseLiveClasses['upcoming']
+  emptyText: string
+}) {
+  return (
+    <Card as="section">
+      <CardTitle>{title}</CardTitle>
+      {items.length > 0 ? (
+        <div className="flex flex-col">
+          {items.map((item) => (
+            <LiveClassRow key={item.id} liveClass={item} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-text-secondary">{emptyText}</p>
+      )}
+    </Card>
+  )
+}
+
+function CourseLiveClassesTab({ courseId }: CourseLiveClassesTabProps) {
   const [data, setData] = useState<CourseLiveClasses | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState('')
@@ -35,9 +62,9 @@ function StudyLiveClassesTab({ courseId }: StudyLiveClassesTabProps) {
 
   if (status === 'loading') {
     return (
-      <div className="hl-study-grid">
-        <div className="hl-study-skeleton" style={{ height: 160 }} />
-        <div className="hl-study-skeleton" style={{ height: 220 }} />
+      <div className="flex flex-col gap-5">
+        <Skeleton className="h-40" />
+        <Skeleton className="h-[220px]" />
       </div>
     )
   }
@@ -70,36 +97,20 @@ function StudyLiveClassesTab({ courseId }: StudyLiveClassesTabProps) {
   }
 
   return (
-    <div className="hl-study-grid">
+    <div className="flex flex-col gap-5">
       {data.next && <NextLiveClassCard liveClass={data.next} />}
-
-      <section className="hl-study-card">
-        <h2>Lịch sắp tới</h2>
-        {data.upcoming.length > 0 ? (
-          <div className="hl-live-class-list">
-            {data.upcoming.map((item) => (
-              <LiveClassRow key={item.id} liveClass={item} />
-            ))}
-          </div>
-        ) : (
-          <p className="hl-study-empty-curriculum">Chưa có buổi học nào sắp diễn ra.</p>
-        )}
-      </section>
-
-      <section className="hl-study-card">
-        <h2>Buổi học đã qua</h2>
-        {data.past.length > 0 ? (
-          <div className="hl-live-class-list">
-            {data.past.map((item) => (
-              <LiveClassRow key={item.id} liveClass={item} />
-            ))}
-          </div>
-        ) : (
-          <p className="hl-study-empty-curriculum">Chưa có buổi học nào đã diễn ra.</p>
-        )}
-      </section>
+      <LiveClassSection
+        title="Lịch sắp tới"
+        items={data.upcoming}
+        emptyText="Chưa có buổi học nào sắp diễn ra."
+      />
+      <LiveClassSection
+        title="Buổi học đã qua"
+        items={data.past}
+        emptyText="Chưa có buổi học nào đã diễn ra."
+      />
     </div>
   )
 }
 
-export default StudyLiveClassesTab
+export default CourseLiveClassesTab

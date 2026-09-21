@@ -15,6 +15,11 @@ import {
   Target,
 } from 'lucide-react'
 import { getActivityRouteType, getStudentCourseDetail } from '../../data/courseLookup'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
+import MascotState from '../../components/common/MascotState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card from '../../components/ui/Card'
 
 const activityIcons = {
   Video: Play,
@@ -320,14 +325,10 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
     fullMock: false,
     finalTest: false,
   }))
-  const [message, setMessage] = useState('')
+  const { message, show: showMessage } = useTransientMessage(2400)
   const course = courseEntry?.data || null
   const isSupplementary = courseEntry?.kind === 'supplementary'
 
-  const showMessage = (text) => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2400)
-  }
 
   const openActivity = (activity) => {
     const routeType = getActivityRouteType(activity)
@@ -355,16 +356,16 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
 
   if (!course) {
     return (
-      <section className="hl-student-page hl-course-detail-page">
-        <article className="hl-course-detail-card hl-course-detail-not-found">
-          <h1>Không tìm thấy khóa học</h1>
-          <p>Khóa học này không tồn tại hoặc chưa được thêm vào.</p>
-          <button type="button" onClick={onBack}>
-            <ArrowLeft size={16} />
-            Quay lại Khóa học của tôi
-          </button>
-        </article>
-      </section>
+      <StudentPageContainer>
+        <Card padding="lg" radius="xl">
+          <MascotState
+            title="Không tìm thấy khóa học"
+            message="Khóa học này không tồn tại hoặc chưa được thêm vào."
+            actionLabel="Quay lại Khóa học của tôi"
+            onAction={onBack}
+          />
+        </Card>
+      </StudentPageContainer>
     )
   }
 
@@ -456,7 +457,7 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
         </div>
       </main>
 
-      {message && <div className="hl-student-toast">{message}</div>}
+      <StudentToast message={message} />
     </section>
   )
 }

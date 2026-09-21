@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import MascotState from '../../components/common/MascotState'
-import StudyHeader from '../../components/study/StudyHeader'
-import NextLiveClassCard from '../../components/study/NextLiveClassCard'
-import StudyGroupCard from '../../components/study/StudyGroupCard'
-import StudyCurriculum from '../../components/study/StudyCurriculum'
-import StudyLiveClassesTab from '../../components/study/StudyLiveClassesTab'
-import StudyEnrollmentPlanTab from '../../components/study/StudyEnrollmentPlanTab'
+import CourseOverview from '../../components/student/course/CourseOverview'
+import NextLiveClassCard from '../../components/student/course/NextLiveClassCard'
+import StudyGroupCard from '../../components/student/course/StudyGroupCard'
+import StudyCurriculum from '../../components/student/course/StudyCurriculum'
+import CourseLiveClassesTab from '../../components/student/course/CourseLiveClassesTab'
+import CourseEnrollmentPlanTab from '../../components/student/course/CourseEnrollmentPlanTab'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Skeleton from '../../components/ui/Skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/Tabs'
 import { getCourseStudy, type Course, type CourseStudy } from '../../services/courseService'
 import { getErrorMessage } from '../../lib/errors'
 import { ApiError } from '../../lib/api'
@@ -71,12 +74,12 @@ function CourseStudyPage({
   }, [courseId, reloadKey])
 
   return (
-    <section className="hl-student-page hl-study-page">
+    <StudentPageContainer className="pb-8">
       {status === 'loading' && (
-        <div className="hl-study-grid">
-          <div className="hl-study-skeleton" style={{ height: 150 }} />
-          <div className="hl-study-skeleton" style={{ height: 40, width: 420 }} />
-          <div className="hl-study-skeleton" style={{ height: 320 }} />
+        <div className="flex flex-col gap-5">
+          <Skeleton className="h-[150px]" />
+          <Skeleton className="h-10 w-[420px] max-w-full" />
+          <Skeleton className="h-80" />
         </div>
       )}
 
@@ -111,51 +114,46 @@ function CourseStudyPage({
       )}
 
       {status === 'ready' && study && (
-        <div className="hl-study-grid">
-          <StudyHeader study={study} onBack={onBackToMyCourses} onOpenLesson={onOpenLesson} />
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as StudyTab)}
+          className="flex flex-col gap-5"
+        >
+          <CourseOverview study={study} onBack={onBackToMyCourses} onOpenLesson={onOpenLesson} />
 
-          <div className="hl-study-tabs" role="tablist">
+          <TabsList>
             {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab.key}
-                className={`hl-study-tab-btn${activeTab === tab.key ? ' is-active' : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
+              <TabsTrigger key={tab.key} value={tab.key}>
                 {tab.label}
-              </button>
+              </TabsTrigger>
             ))}
-          </div>
+          </TabsList>
 
-          {activeTab === 'content' && (
-            <>
-              {(study.nextLiveClass || study.activeStudyGroupName) && (
-                <div className="hl-study-info-row">
-                  {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
-                  {study.activeStudyGroupName && (
-                    <StudyGroupCard name={study.activeStudyGroupName} />
-                  )}
-                </div>
-              )}
-              <StudyCurriculum
-                phases={study.phases}
-                currentLessonId={study.continueLessonId}
-                onOpenLesson={onOpenLesson}
-                onOpenQuiz={onOpenQuiz}
-              />
-            </>
-          )}
+          <TabsContent value="content" className="flex flex-col gap-5">
+            {(study.nextLiveClass || study.activeStudyGroupName) && (
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
+                {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
+                {study.activeStudyGroupName && <StudyGroupCard name={study.activeStudyGroupName} />}
+              </div>
+            )}
+            <StudyCurriculum
+              phases={study.phases}
+              currentLessonId={study.continueLessonId}
+              onOpenLesson={onOpenLesson}
+              onOpenQuiz={onOpenQuiz}
+            />
+          </TabsContent>
 
-          {activeTab === 'live' && <StudyLiveClassesTab courseId={courseId} />}
+          <TabsContent value="live">
+            <CourseLiveClassesTab courseId={courseId} />
+          </TabsContent>
 
-          {activeTab === 'plan' && (
-            <StudyEnrollmentPlanTab courseId={courseId} onOpenCourse={onOpenCourse} />
-          )}
-        </div>
+          <TabsContent value="plan">
+            <CourseEnrollmentPlanTab courseId={courseId} onOpenCourse={onOpenCourse} />
+          </TabsContent>
+        </Tabs>
       )}
-    </section>
+    </StudentPageContainer>
   )
 }
 

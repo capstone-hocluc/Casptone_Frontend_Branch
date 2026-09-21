@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
-import MyCourseCard from '../../components/student/MyCourseCard'
+import MascotState from '../../components/common/MascotState'
+import MyCourseCard from '../../components/student/course/MyCourseCard'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import StudentPageHeader from '../../components/student/layout/StudentPageHeader'
+import Card from '../../components/ui/Card'
+import SearchInput from '../../components/ui/SearchInput'
+import Skeleton from '../../components/ui/Skeleton'
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/Tabs'
 import { getErrorMessage } from '../../lib/errors'
 import { getMyCourses } from '../../services/courseService'
 import type { MyCourseEnrollment } from '../../services/courseService'
@@ -11,6 +17,9 @@ interface MyCoursesProps {
 }
 
 type CourseTab = 'main' | 'support'
+
+const courseGrid =
+  'grid grid-cols-3 items-stretch gap-4 max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1'
 
 function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const [query, setQuery] = useState('')
@@ -53,110 +62,88 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const isMain = tab === 'main'
 
   return (
-    <section className="hl-student-page hl-my-courses-page">
-      <header className="hl-my-courses-header">
-        <div>
-          <h1>Khóa học của tôi</h1>
-          <p>Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.</p>
-        </div>
-      </header>
+    <StudentPageContainer>
+      <StudentPageHeader
+        title="Khóa học của tôi"
+        description="Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký."
+      />
 
-      <div className="hl-catalog-topbar">
-        <div className="hl-catalog-tabs" role="tablist" aria-label="Loại khóa học">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isMain}
-            className={isMain ? 'is-active' : ''}
-            onClick={() => setTab('main')}
-          >
-            Khóa học chính
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!isMain}
-            className={!isMain ? 'is-active' : ''}
-            onClick={() => setTab('support')}
-          >
-            Khóa học bổ trợ
-          </button>
-        </div>
+      <div className="mb-3.5 flex flex-wrap items-center gap-3">
+        <Tabs value={tab} onValueChange={(value) => setTab(value as CourseTab)}>
+          <TabsList aria-label="Loại khóa học">
+            <TabsTrigger value="main">Khóa học chính</TabsTrigger>
+            <TabsTrigger value="support">Khóa học bổ trợ</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-        <label className="hl-catalog-search">
-          <Search size={17} />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm kiếm khóa học"
-          />
-        </label>
+        <SearchInput
+          className="ml-auto max-[640px]:ml-0"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Tìm kiếm khóa học"
+        />
       </div>
 
-      <article className="hl-catalog-panel">
-        <div className="hl-catalog-group-head">
-          <h2>{isMain ? 'Khóa học chính' : 'Khóa học bổ trợ'}</h2>
-          {isMain && status === 'ready' && <span>{visibleEnrollments.length} khóa học</span>}
+      <Card variant="panel" radius="xl">
+        <div className="mb-3.5">
+          <h2 className="text-xl font-black text-text-heading">
+            {isMain ? 'Khóa học chính' : 'Khóa học bổ trợ'}
+          </h2>
+          {isMain && status === 'ready' && (
+            <span className="text-[13px] font-extrabold text-text-secondary">
+              {visibleEnrollments.length} khóa học
+            </span>
+          )}
         </div>
 
         {!isMain && (
-          <div className="hl-catalog-state">
-            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Khóa học bổ trợ sắp ra mắt</strong>
-            <p>Các khóa học bổ trợ sẽ sớm có mặt tại đây.</p>
-          </div>
+          <MascotState
+            title="Khóa học bổ trợ sắp ra mắt"
+            message="Các khóa học bổ trợ sẽ sớm có mặt tại đây."
+          />
         )}
 
         {isMain && status === 'loading' && (
-          <div className="hl-catalog-grid">
+          <div className={courseGrid}>
             {Array.from({ length: 3 }).map((_, index) => (
-              <div className="hl-catalog-skeleton" key={index} aria-hidden="true" />
+              <Skeleton key={index} className="h-80 rounded-[18px]" />
             ))}
           </div>
         )}
 
         {isMain && status === 'error' && (
-          <div className="hl-catalog-state">
-            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Không thể tải khóa học của bạn</strong>
-            <p>{errorMessage}</p>
-            <button
-              type="button"
-              onClick={() => {
-                setStatus('loading')
-                setReloadKey((current) => current + 1)
-              }}
-            >
-              Thử lại
-            </button>
-          </div>
+          <MascotState
+            title="Không thể tải khóa học của bạn"
+            message={errorMessage}
+            actionLabel="Thử lại"
+            onAction={() => {
+              setStatus('loading')
+              setReloadKey((current) => current + 1)
+            }}
+          />
         )}
 
         {isMain && status === 'ready' && enrollments.length === 0 && (
-          <div className="hl-catalog-state">
-            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-            <strong>Bạn chưa có khóa học nào</strong>
-            <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
-            <button type="button" onClick={onBrowseCourses}>
-              Khám phá khóa học
-            </button>
-          </div>
+          <MascotState
+            title="Bạn chưa có khóa học nào"
+            message="Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn."
+            actionLabel="Khám phá khóa học"
+            onAction={onBrowseCourses}
+          />
         )}
 
         {isMain &&
           status === 'ready' &&
           enrollments.length > 0 &&
           visibleEnrollments.length === 0 && (
-            <div className="hl-catalog-state">
-              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
-              <strong>Không tìm thấy khóa học</strong>
-              <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
-            </div>
+            <MascotState
+              title="Không tìm thấy khóa học"
+              message="Thử thay đổi từ khóa tìm kiếm của bạn."
+            />
           )}
 
         {isMain && status === 'ready' && visibleEnrollments.length > 0 && (
-          <div className="hl-catalog-grid">
+          <div className={courseGrid}>
             {visibleEnrollments.map((enrollment) => (
               <MyCourseCard
                 key={enrollment.course.id}
@@ -166,8 +153,8 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
             ))}
           </div>
         )}
-      </article>
-    </section>
+      </Card>
+    </StudentPageContainer>
   )
 }
 

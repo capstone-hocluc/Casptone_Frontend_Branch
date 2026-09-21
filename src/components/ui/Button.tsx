@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react'
+import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '../../lib/cn'
 
@@ -22,6 +23,11 @@ const button = cva(
       size: {
         sm: 'h-8.5 gap-1.5 px-3 text-sm [&>svg]:size-4',
         md: 'h-10 px-4 text-sm [&>svg]:size-[17px]',
+        lg: 'h-11 px-4 text-[13px] font-black rounded-xl [&>svg]:size-[15px]',
+      },
+      shape: {
+        default: '',
+        pill: 'rounded-full',
       },
     },
     compoundVariants: [
@@ -75,21 +81,37 @@ const button = cva(
       variant: 'primary',
       appearance: 'fill',
       size: 'md',
+      shape: 'default',
     },
   }
 )
 
-type ButtonProps = ComponentProps<'button'> & VariantProps<typeof button>
+type ButtonProps = ComponentProps<'button'> &
+  VariantProps<typeof button> & {
+    /** Render the child element (e.g. an <a>) with the button styles instead of a <button>. */
+    asChild?: boolean
+  }
 
-function Button({ variant, appearance, size, className, type = 'button', children, ...props }: ButtonProps) {
+function Button({
+  variant,
+  appearance,
+  size,
+  shape,
+  className,
+  type = 'button',
+  asChild = false,
+  children,
+  ...props
+}: ButtonProps) {
+  const Comp = asChild ? Slot : 'button'
   return (
-    <button
-      type={type}
-      className={cn(button({ variant, appearance, size }), className)}
+    <Comp
+      {...(asChild ? {} : { type })}
+      className={cn(button({ variant, appearance, size, shape }), className)}
       {...props}
     >
       {children}
-    </button>
+    </Comp>
   )
 }
 

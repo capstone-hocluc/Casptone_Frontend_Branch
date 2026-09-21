@@ -22,6 +22,8 @@ import {
   getAdjacentUnlockedActivities,
   getCourseActivityContexts,
 } from '../../data/courseLookup'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
 
 const quickActions = ['Tóm tắt bài học', 'Giải thích dễ hiểu', 'Cho ví dụ', 'Gợi ý làm bài']
 
@@ -319,17 +321,13 @@ function TeacherAIPanel({
 function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNavigateActivity }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [teacherAIState, setTeacherAIState] = useState('closed')
-  const [message, setMessage] = useState('')
+  const { message, show: showMessage } = useTransientMessage(2400)
   const [input, setInput] = useState('')
   const context = findCourseActivity(courseId, activityId)
   const lessons = getCourseActivityContexts(courseId)
   const adjacent = getAdjacentUnlockedActivities(courseId, activityId)
   const [messages, setMessages] = useState([])
 
-  const showMessage = (text) => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2400)
-  }
 
   useEffect(() => {
     const closeFloating = (event) => {
@@ -425,7 +423,7 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
         onAction={showMessage}
         onNavigateActivity={navigateActivity}
       />
-      {message && <div className="hl-student-toast">{message}</div>}
+      <StudentToast message={message} />
     </section>
   )
 }

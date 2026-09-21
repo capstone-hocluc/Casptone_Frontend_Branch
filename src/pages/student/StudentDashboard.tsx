@@ -22,6 +22,8 @@ import {
   todaysGoal,
 } from '../../data/studentDashboard'
 import { type CSSProperties, useEffect, useState } from 'react'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
 
 const getVisibleCounts = () => {
   if (typeof window === 'undefined') {
@@ -104,7 +106,7 @@ function StudentDashboard({ onOpenLearningProfile }) {
   const [visibleCounts, setVisibleCounts] = useState(getVisibleCounts)
   const [courseStartIndex, setCourseStartIndex] = useState(0)
   const [practiceStartIndex, setPracticeStartIndex] = useState(0)
-  const [message, setMessage] = useState('')
+  const { message, show: showMessage } = useTransientMessage(2600)
 
   const courseVisibleCount = visibleCounts.courses
   const practiceVisibleCount = visibleCounts.practice
@@ -132,11 +134,6 @@ function StudentDashboard({ onOpenLearningProfile }) {
     setPracticeStartIndex((current) => Math.min(current, maxPracticeStartIndex))
   }, [maxPracticeStartIndex])
 
-  const showMessage = (text) => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2600)
-  }
-
   const showComingSoon = () => showMessage('Tính năng đang được phát triển.')
   const openLearningProfile = () => {
     if (onOpenLearningProfile) {
@@ -149,7 +146,7 @@ function StudentDashboard({ onOpenLearningProfile }) {
 
   return (
     <section className="hl-student-page hl-dashboard-page">
-      {message && <div className="hl-student-toast hl-dashboard-toast">{message}</div>}
+      <StudentToast message={message} />
 
       <div className="hl-dashboard-home-grid">
         <div className="hl-dashboard-left">

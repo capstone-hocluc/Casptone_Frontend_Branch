@@ -49,6 +49,50 @@
   --color-link: #086bff;
   --color-violet: #6d54d4;
   --color-sky: #31a8ff;
+
+  /* Student learning semantics. Blue (primary) = action / current / video,
+     green = completed / practice, purple = quiz / assessment,
+     amber = live class / upcoming, gray = locked / secondary.
+     Each pair is a soft tile background + its foreground. */
+  --color-primary-soft: #eaf1ff;
+  --color-practice-soft: #e5f5ec;
+  --color-practice: #23845a;
+  --color-assess-soft: #efeafd;
+  --color-assess: #6a52d0;
+  --color-live-soft: #fff2df;
+  --color-live: #b86a0c;
+  --color-live-tint: #fffaf2;
+  --color-live-line: #f6dfbb;
+  --color-lock-soft: #f1f3f8;
+  --color-lock: #8a93a8;
+
+  /* Student surfaces & borders */
+  --color-app-bg: #f7f9ff;
+  --color-surface-tint: #fbfcff;
+  --color-surface-brand: #f4f8ff;
+  --color-surface-sky: #f8fbff;
+  --color-line: #e8edf6;
+  --color-line-soft: #f0f3f9;
+  --color-line-card: #e0e7f3;
+  --color-line-brand: #bfd4ff;
+  --color-line-blue: #dce7f7;
+  --color-line-shell: #e2e9f9;
+  --color-streak: #ff8a00;
+  --color-streak-soft: #fff8ec;
+
+  --shadow-card: 0 12px 26px rgba(17, 24, 58, 0.045);
+  --shadow-card-soft: 0 10px 24px rgba(17, 24, 58, 0.035);
+  --shadow-card-hover: 0 18px 34px rgba(27, 77, 228, 0.1);
+
+  --animate-shimmer: hl-shimmer 1.4s ease-in-out infinite;
+  @keyframes hl-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 * {
