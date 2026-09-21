@@ -27,6 +27,7 @@ import DropdownField, { type DropdownOption } from '../ui/DropdownField'
 import Modal from '../ui/Modal'
 import SearchFilterBar from '../ui/SearchFilterBar'
 import StatusBadge from '../ui/StatusBadge'
+import StatusDropdown, { type StatusDropdownOption } from '../ui/StatusDropdown'
 import Button from '../ui/Button'
 
 const PAGE_SIZE = 10
@@ -51,6 +52,12 @@ const STATUS_FILTER_OPTIONS: DropdownOption[] = [
   { id: 'ALL', label: 'Tất cả trạng thái' },
   ...USER_STATUSES.map((status) => ({ id: status, label: STATUS_LABELS[status] })),
 ]
+
+const STATUS_DROPDOWN_OPTIONS: StatusDropdownOption[] = USER_STATUSES.map((status) => ({
+  id: status,
+  label: STATUS_LABELS[status],
+  tone: getStatusTone(status),
+}))
 
 const ROLE_OPTIONS: DropdownOption[] = USER_ROLES.map((role) => ({
   id: role,
@@ -302,16 +309,13 @@ function UserManagement() {
         id: 'status',
         header: 'Trạng thái',
         cell: ({ row }) => (
-          <div className="flex min-w-52 items-center gap-2" onClick={(event) => event.stopPropagation()}>
-            <StatusBadge tone={getStatusTone(row.original.status)}>
-              {STATUS_LABELS[row.original.status]}
-            </StatusBadge>
-            <DropdownField
+          <div className="min-w-44" onClick={(event) => event.stopPropagation()}>
+            <StatusDropdown
               ariaLabel={`Trạng thái của ${row.original.email}`}
-              options={STATUS_FILTER_OPTIONS.slice(1)}
+              options={STATUS_DROPDOWN_OPTIONS}
               value={row.original.status}
               isDisabled={updatingUserId === row.original.id}
-              triggerClassName="h-9 min-w-32 px-2 text-xs"
+              triggerClassName="h-9 min-w-44 px-3 text-xs"
               onChange={(value) => {
                 if (value && value !== row.original.status) {
                   void handleStatusChange(row.original.id, value as UserStatus)
