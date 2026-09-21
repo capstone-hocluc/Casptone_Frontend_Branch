@@ -25,7 +25,7 @@ const bullet = (t) => (
         width: 24,
         height: 24,
         borderRadius: 7,
-        background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)',
+        background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand))',
         color: '#fff',
         display: 'grid',
         placeItems: 'center',
@@ -83,10 +83,10 @@ function LearningCenter() {
                   padding: '13px 24px',
                   borderRadius: 40,
                   transition: 'all .25s',
-                  border: `1.5px solid ${on ? '#1B4DE4' : '#E4E9F5'}`,
-                  background: on ? 'linear-gradient(180deg,#1B4DE4,#2C63F0)' : '#fff',
+                  border: `1.5px solid ${on ? 'var(--color-primary)' : '#E4E9F5'}`,
+                  background: on ? 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))' : '#fff',
                   color: on ? '#fff' : '#2A3354',
-                  boxShadow: on ? '0 12px 26px rgba(27,77,228,.35)' : 'none',
+                  boxShadow: on ? '0 12px 26px rgba(29,120,155,.35)' : 'none',
                 }}
               >
                 {m.label}
@@ -101,7 +101,7 @@ function LearningCenter() {
             borderRadius: 24,
             background: 'linear-gradient(180deg,#F8FAFF,#fff)',
             padding: 24,
-            boxShadow: '0 30px 60px -34px rgba(27,77,228,.5)',
+            boxShadow: '0 30px 60px -34px rgba(29,120,155,.5)',
           }}
         >
           {/* LIVE */}
@@ -202,7 +202,7 @@ function LearningCenter() {
                       height: 0,
                       borderStyle: 'solid',
                       borderWidth: '12px 0 12px 19px',
-                      borderColor: 'transparent transparent transparent #1B4DE4',
+                      borderColor: 'transparent transparent transparent var(--color-primary)',
                       marginLeft: 5,
                     }}
                   />
@@ -235,7 +235,7 @@ function LearningCenter() {
                     borderBottom: '1px solid #EEF1F8',
                     fontWeight: 800,
                     fontSize: 14,
-                    color: '#11183A',
+                    color: 'var(--color-heading)',
                   }}
                 >
                   Trò chuyện trực tiếp
@@ -257,11 +257,11 @@ function LearningCenter() {
                           width: 28,
                           height: 28,
                           borderRadius: '50%',
-                          background: 'linear-gradient(135deg,#1B4DE4,#5B8CFF)',
+                          background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand-soft))',
                         }}
                       />
                       <div>
-                        <span style={{ fontWeight: 700, fontSize: 12.5, color: '#1B4DE4' }}>
+                        <span style={{ fontWeight: 700, fontSize: 12.5, color: 'var(--color-primary)' }}>
                           {c.u}
                         </span>
                         <div style={{ fontSize: 13, color: '#2A3354', lineHeight: 1.4 }}>{c.m}</div>
@@ -297,7 +297,7 @@ function LearningCenter() {
                       width: 38,
                       height: 38,
                       borderRadius: '50%',
-                      background: '#1B4DE4',
+                      background: 'var(--color-primary)',
                       color: '#fff',
                       fontSize: 14,
                       flexShrink: 0,
@@ -323,11 +323,11 @@ function LearningCenter() {
               }}
             >
               <div>
-                <h3 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 900, color: '#11183A' }}>
+                <h3 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 900, color: 'var(--color-heading)' }}>
                   Kho video tự học theo lộ trình
                 </h3>
                 <p
-                  style={{ margin: '0 0 22px', fontSize: 14.5, color: '#5B647F', lineHeight: 1.6 }}
+                  style={{ margin: '0 0 22px', fontSize: 14.5, color: 'var(--color-body)', lineHeight: 1.6 }}
                 >
                   Hơn 500 video bài giảng được sắp xếp theo từng chủ đề và mức độ. Học mọi lúc, tự
                   điều chỉnh tốc độ và theo dõi tiến độ hoàn thành của riêng bạn.
@@ -350,11 +350,11 @@ function LearningCenter() {
                     letterSpacing: '.4px',
                     textTransform: 'uppercase',
                     color: '#fff',
-                    background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                    background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                     border: 'none',
                     borderRadius: 40,
                     padding: '13px 28px',
-                    boxShadow: '0 12px 26px rgba(27,77,228,.4)',
+                    boxShadow: '0 12px 26px rgba(29,120,155,.4)',
                   }}
                 >
                   Khám phá kho video
@@ -419,7 +419,7 @@ function LearningCenter() {
                       height: 0,
                       borderStyle: 'solid',
                       borderWidth: '11px 0 11px 18px',
-                      borderColor: 'transparent transparent transparent #1B4DE4',
+                      borderColor: 'transparent transparent transparent var(--color-primary)',
                       marginLeft: 5,
                     }}
                   />
@@ -442,7 +442,7 @@ function LearningCenter() {
                       style={{
                         height: '100%',
                         width: '72%',
-                        background: '#FBC34F',
+                        background: 'var(--color-accent)',
                         borderRadius: 6,
                       }}
                     />
@@ -487,18 +487,18 @@ function LearningCenter() {
                       left: 0,
                       right: 0,
                       height: 3,
-                      background: 'linear-gradient(90deg,transparent,#1B4DE4,transparent)',
-                      boxShadow: '0 0 16px 2px #1B4DE4',
+                      background: 'linear-gradient(90deg,transparent,var(--color-primary),transparent)',
+                      boxShadow: '0 0 16px 2px var(--color-primary)',
                       animation: 'hl-scan 1.6s ease-in-out infinite',
                     }}
                   />
                 )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 900, color: '#11183A' }}>
+                <h3 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 900, color: 'var(--color-heading)' }}>
                   Chấm bài tự động bằng OCR
                 </h3>
-                <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5B647F', lineHeight: 1.55 }}>
+                <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--color-body)', lineHeight: 1.55 }}>
                   Chụp hoặc tải ảnh bài làm — AI nhận dạng chữ viết tay, đối chiếu đáp án và chấm
                   điểm tức thì.
                 </p>
@@ -512,11 +512,11 @@ function LearningCenter() {
                     fontWeight: 800,
                     fontSize: 14,
                     color: '#fff',
-                    background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                    background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                     border: 'none',
                     padding: '13px 26px',
                     borderRadius: 40,
-                    boxShadow: '0 12px 26px rgba(27,77,228,.4)',
+                    boxShadow: '0 12px 26px rgba(29,120,155,.4)',
                     marginBottom: 18,
                   }}
                 >
@@ -533,7 +533,7 @@ function LearningCenter() {
                       borderBottom: '1px solid #EEF1F8',
                     }}
                   >
-                    <span style={{ fontWeight: 800, fontSize: 14, color: '#11183A' }}>
+                    <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--color-heading)' }}>
                       Kết quả chấm
                     </span>
                     <span
@@ -588,11 +588,11 @@ function LearningCenter() {
               }}
             >
               <div>
-                <h3 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 900, color: '#11183A' }}>
+                <h3 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 900, color: 'var(--color-heading)' }}>
                   Kèm cặp 1·1 cùng mentor
                 </h3>
                 <p
-                  style={{ margin: '0 0 22px', fontSize: 14.5, color: '#5B647F', lineHeight: 1.6 }}
+                  style={{ margin: '0 0 22px', fontSize: 14.5, color: 'var(--color-body)', lineHeight: 1.6 }}
                 >
                   Đội ngũ mentor là giáo viên và thủ khoa đồng hành cùng bạn: chấm bài tự luận, giải
                   đáp kiến thức và xây dựng lộ trình ôn luyện riêng theo điểm yếu của từng học sinh.
@@ -615,11 +615,11 @@ function LearningCenter() {
                     letterSpacing: '.4px',
                     textTransform: 'uppercase',
                     color: '#fff',
-                    background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                    background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                     border: 'none',
                     borderRadius: 40,
                     padding: '13px 28px',
-                    boxShadow: '0 12px 26px rgba(27,77,228,.4)',
+                    boxShadow: '0 12px 26px rgba(29,120,155,.4)',
                   }}
                 >
                   Đặt lịch với mentor
@@ -651,7 +651,7 @@ function LearningCenter() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    boxShadow: '0 16px 34px -16px rgba(17,24,58,.4)',
+                    boxShadow: '0 16px 34px -16px rgba(24,48,68,.4)',
                   }}
                 >
                   <span
@@ -666,11 +666,11 @@ function LearningCenter() {
                     <ImageSlot src={media.mentorCard} alt="Mentor" circle />
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: 14.5, color: '#11183A' }}>
+                    <div style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--color-heading)' }}>
                       Thầy Lê Minh
                     </div>
-                    <div style={{ fontSize: 12.5, color: '#5B647F' }}>
-                      Tư duy định lượng · <span style={{ color: '#F4A93C' }}>★</span> 4.9
+                    <div style={{ fontSize: 12.5, color: 'var(--color-body)' }}>
+                      Tư duy định lượng · <span style={{ color: 'var(--color-accent-dark)' }}>★</span> 4.9
                     </div>
                   </div>
                   <span
@@ -679,7 +679,7 @@ function LearningCenter() {
                       fontSize: 12,
                       fontWeight: 800,
                       color: '#fff',
-                      background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                      background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                       padding: '8px 14px',
                       borderRadius: 30,
                       cursor: 'pointer',

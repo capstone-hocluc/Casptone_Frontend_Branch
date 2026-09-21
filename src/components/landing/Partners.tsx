@@ -56,7 +56,7 @@ function Partners() {
                   width: 26,
                   height: 26,
                   borderRadius: '50%',
-                  background: '#1B4DE4',
+                  background: 'var(--color-primary)',
                   position: 'relative',
                   flexShrink: 0,
                 }}

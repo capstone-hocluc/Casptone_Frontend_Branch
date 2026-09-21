@@ -26,9 +26,11 @@ import {
   Settings,
   Trash2,
   UserPlus,
+  UserCog,
   Users,
   X,
 } from 'lucide-react'
+import UserManagement from '../admin/UserManagement'
 import Logo from '../common/Logo'
 import Sidebar from '../ui/Sidebar'
 import NavItem, { SidebarGroupLabel } from '../ui/NavItem'
@@ -373,9 +375,17 @@ interface StaffSidebarProps {
   action: (message: string) => void
   sidebarOpen: boolean
   onCloseSidebar: () => void
+  adminArea?: boolean
 }
 
-function StaffSidebar({ page, onNavigate, action, sidebarOpen, onCloseSidebar }: StaffSidebarProps) {
+function StaffSidebar({
+  page,
+  onNavigate,
+  action,
+  sidebarOpen,
+  onCloseSidebar,
+  adminArea = false,
+}: StaffSidebarProps) {
   return (
     <Sidebar open={sidebarOpen} onClose={onCloseSidebar} brand={<Logo monochrome />}>
       <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>
@@ -385,65 +395,80 @@ function StaffSidebar({ page, onNavigate, action, sidebarOpen, onCloseSidebar }:
         active={page === 'dashboard'}
         onClick={() => onNavigate('dashboard')}
       />
-      <SidebarGroupLabel>Vận hành</SidebarGroupLabel>
-      <NavItem
-        icon={Users}
-        label="Học viên"
-        active={page === 'students' || page === 'detail'}
-        onClick={() => onNavigate('students')}
-      />
-      <NavItem
-        icon={ClipboardList}
-        label="Ghi danh"
-        active={page === 'enrollments'}
-        onClick={() => onNavigate('enrollments')}
-      />
-      <NavItem
-        icon={BookOpen}
-        label="Lớp học"
-        active={page === 'batches' || page === 'batch-detail'}
-        onClick={() => onNavigate('batches')}
-      />
-      <NavItem
-        icon={CalendarDays}
-        label="Lịch học"
-        active={page === 'schedules'}
-        onClick={() => onNavigate('schedules')}
-      />
-      <NavItem
-        icon={CheckCircle2}
-        label="Điểm danh"
-        active={page === 'attendance'}
-        onClick={() => onNavigate('attendance')}
-      />
-      <NavItem
-        icon={CircleDollarSign}
-        label="Học phí"
-        active={page === 'tuition'}
-        onClick={() => onNavigate('tuition')}
-      />
-      <NavItem
-        icon={FileText}
-        label="Hóa đơn"
-        active={page === 'invoices'}
-        onClick={() => onNavigate('invoices')}
-      />
-      <NavItem
-        icon={CreditCard}
-        label="Thanh toán"
-        active={page === 'payments'}
-        onClick={() => onNavigate('payments')}
-      />
-      <NavItem
-        icon={ClipboardList}
-        label="Yêu cầu hỗ trợ"
-        onClick={() => action('Màn hình yêu cầu hỗ trợ đang được chuẩn bị.')}
-      />
-      <NavItem
-        icon={Settings}
-        label="Cài đặt"
-        onClick={() => action('Màn hình cài đặt đang được chuẩn bị.')}
-      />
+      {!adminArea && (
+        <>
+          <SidebarGroupLabel>Vận hành</SidebarGroupLabel>
+          <NavItem
+            icon={Users}
+            label="Học viên"
+            active={page === 'students' || page === 'detail'}
+            onClick={() => onNavigate('students')}
+          />
+          <NavItem
+            icon={ClipboardList}
+            label="Ghi danh"
+            active={page === 'enrollments'}
+            onClick={() => onNavigate('enrollments')}
+          />
+          <NavItem
+            icon={BookOpen}
+            label="Lớp học"
+            active={page === 'batches' || page === 'batch-detail'}
+            onClick={() => onNavigate('batches')}
+          />
+          <NavItem
+            icon={CalendarDays}
+            label="Lịch học"
+            active={page === 'schedules'}
+            onClick={() => onNavigate('schedules')}
+          />
+          <NavItem
+            icon={CheckCircle2}
+            label="Điểm danh"
+            active={page === 'attendance'}
+            onClick={() => onNavigate('attendance')}
+          />
+          <NavItem
+            icon={CircleDollarSign}
+            label="Học phí"
+            active={page === 'tuition'}
+            onClick={() => onNavigate('tuition')}
+          />
+          <NavItem
+            icon={FileText}
+            label="Hóa đơn"
+            active={page === 'invoices'}
+            onClick={() => onNavigate('invoices')}
+          />
+          <NavItem
+            icon={CreditCard}
+            label="Thanh toán"
+            active={page === 'payments'}
+            onClick={() => onNavigate('payments')}
+          />
+          <NavItem
+            icon={ClipboardList}
+            label="Yêu cầu hỗ trợ"
+            onClick={() => action('Màn hình yêu cầu hỗ trợ đang được chuẩn bị.')}
+          />
+          <NavItem
+            icon={Settings}
+            label="Cài đặt"
+            onClick={() => action('Màn hình cài đặt đang được chuẩn bị.')}
+          />
+        </>
+      )}
+      {adminArea && (
+        <>
+          <SidebarGroupLabel>Hệ thống</SidebarGroupLabel>
+          <NavItem
+            icon={UserCog}
+            label="Quản lý người dùng"
+            active={page === 'users'}
+            onClick={() => onNavigate('users')}
+          />
+        </>
+      )}
     </Sidebar>
   )
 }
@@ -486,9 +511,10 @@ interface StaffDashboardProps {
   page?: string
   onNavigate: (path: string) => void
   onBack: () => void
+  adminArea?: boolean
 }
 
-function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboardProps) {
+function StaffDashboard({ page = 'dashboard', onNavigate, onBack, adminArea = false }: StaffDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [students, setStudents] = useState(seedStudents)
@@ -506,20 +532,18 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
   }
   const student = students.find((item) => item.id === selectedId) || students[0]
   const titles = {
-    dashboard: [
-      'Tổng quan vận hành',
-      'Theo dõi nhanh tình hình học tập và các việc cần xử lý hôm nay.',
-    ],
-    students: ['Danh sách học viên', 'Quản lý hồ sơ, ghi danh, học phí và điểm danh của học viên.'],
-    detail: ['Hồ sơ học viên', 'Xem thông tin hành chính và tình trạng học tập chi tiết.'],
-    enrollments: ['Quản lý ghi danh', 'Theo dõi và xử lý các lượt ghi danh của học viên.'],
-    schedules: ['Quản lý lịch học', 'Theo dõi lịch học, phòng và nguồn lực giảng dạy.'],
-    attendance: ['Quản lý điểm danh', 'Theo dõi trạng thái tham gia buổi học.'],
-    tuition: ['Quản lý học phí', 'Theo dõi công nợ và thanh toán của học viên.'],
-    invoices: ['Quản lý hóa đơn', 'Tra cứu hóa đơn và lịch sử thanh toán.'],
-    payments: ['Quản lý thanh toán', 'Theo dõi và đối soát giao dịch tài chính.'],
-    batches: ['Quản lý lớp học', 'Theo dõi các đợt học và lớp vận hành.'],
-    'batch-detail': ['Chi tiết lớp học', 'Quản lý thành viên và chương trình học.'],
+    dashboard: ['Tổng quan', 'Tình hình học tập và việc cần xử lý.'],
+    students: ['Học viên', 'Hồ sơ và tiến độ học tập.'],
+    detail: ['Hồ sơ học viên', 'Thông tin và tiến độ học tập.'],
+    enrollments: ['Ghi danh', 'Đăng ký học và học phí.'],
+    schedules: ['Lịch học', 'Lịch học và phòng học.'],
+    attendance: ['Điểm danh', 'Tình trạng tham gia lớp học.'],
+    tuition: ['Học phí', 'Công nợ và hạn nộp.'],
+    invoices: ['Hóa đơn', 'Hóa đơn và lịch sử thanh toán.'],
+    payments: ['Thanh toán', 'Giao dịch của học viên.'],
+    batches: ['Lớp học', 'Lớp học và sĩ số.'],
+    'batch-detail': ['Chi tiết lớp', 'Thành viên và chương trình học.'],
+    users: ['Người dùng', ''],
   }
   const [title, subtitle] = titles[page]
   return (
@@ -530,6 +554,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
         action={action}
         sidebarOpen={sidebarOpen}
         onCloseSidebar={() => setSidebarOpen(false)}
+        adminArea={adminArea}
       />
       <section className="hl-staff-content">
        <div className="hl-staff-card">
@@ -543,7 +568,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
             onClick={() => action('Tìm kiếm toàn hệ thống đang được chuẩn bị.')}
           >
             <Search size={16} />
-            <span>Tìm trong hệ thống...</span>
+            <span>Tìm kiếm...</span>
             <kbd>⌘K</kbd>
           </button>
           <div className="hl-staff-header-actions">
@@ -581,7 +606,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
         </header>
         <div className="hl-staff-main">
           <div className="hl-staff-breadcrumb">
-            <span>Vận hành</span>
+             <span>{adminArea ? 'Quản trị' : 'Vận hành'}</span>
             <ChevronRight size={14} />
             <strong>{title}</strong>
           </div>
@@ -595,7 +620,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
             'invoices',
             'payments',
           ].includes(page) && (
-            <PageHeading eyebrow="THỨ BA, 09 THÁNG 09" title={title} subtitle={subtitle} />
+            <PageHeading title={title} subtitle={subtitle} />
           )}
           {notice && (
             <div className="hl-staff-toast">
@@ -643,6 +668,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack }: StaffDashboa
               action={action}
             />
           )}
+          {page === 'users' && <UserManagement />}
         </div>
        </div>
       </section>
@@ -1187,8 +1213,8 @@ function StaffEnrollmentPage({ students, enrollments, setEnrollments, action, no
   return (
     <>
       <PageHeading
-        title="Quản lý ghi danh"
-        subtitle="Quản lý yêu cầu đăng ký, trạng thái duyệt và học phí của học viên."
+        title="Ghi danh"
+        subtitle="Đăng ký học và học phí."
         action={
           <>
             <Plus size={16} />
@@ -1372,8 +1398,8 @@ function BatchManagementV2({ page, students, batches, setBatches, onNavigate, ac
       {page === 'batches' ? (
             <>
               <PageHeading
-                title="Quản lý lớp học"
-                subtitle="Tạo đợt học mới, theo dõi sĩ số và trạng thái vận hành."
+                title="Lớp học"
+                subtitle="Lớp học và sĩ số."
                 action={
                   <>
                     <Plus size={16} />

@@ -103,14 +103,20 @@ export function clearTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
+function getSessionLoginPath() {
+  const pathname = window.location.pathname.replace(/\/$/, '') || '/'
+  return pathname === '/admin' || pathname.startsWith('/admin/') ? '/admin/login' : '/login'
+}
+
 function handleSessionExpired() {
   clearTokens()
-  if (window.location.pathname !== '/login') {
+  const loginPath = getSessionLoginPath()
+  if (window.location.pathname !== loginPath) {
     sessionStorage.setItem(
       'hocluc.pendingToast',
       'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.'
     )
-    window.location.href = '/login'
+    window.location.href = loginPath
   }
 }
 

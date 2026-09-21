@@ -12,7 +12,7 @@ function Mentors() {
         padding: '90px 0',
         background: '#F6F8FE',
         backgroundImage:
-          'linear-gradient(rgba(27,77,228,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.05) 1px, transparent 1px)',
+          'linear-gradient(rgba(29,120,155,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(29,120,155,.05) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }}
     >
@@ -49,14 +49,14 @@ function Mentors() {
                     margin: '0 0 4px',
                     fontSize: 14,
                     fontWeight: 800,
-                    color: '#11183A',
+                    color: 'var(--color-heading)',
                     textTransform: 'uppercase',
                     letterSpacing: '-.2px',
                   }}
                 >
                   {ep.name}
                 </h4>
-                <p style={{ margin: 0, fontSize: 12.5, color: '#1B4DE4', fontWeight: 600 }}>
+                <p style={{ margin: 0, fontSize: 12.5, color: 'var(--color-primary)', fontWeight: 600 }}>
                   {ep.role}
                 </p>
               </div>

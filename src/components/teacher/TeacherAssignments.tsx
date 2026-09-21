@@ -312,7 +312,7 @@ function AssignmentEditor({ assignment, onCancel, onSave }) {
       <div className="hl-teacher-title">
         <div>
           <h1>{assignment ? 'Chỉnh sửa bài tập' : 'Tạo bài tập'}</h1>
-          <p>Giao bài tập theo bài học hoặc nhóm học tập và thiết lập hạn nộp.</p>
+          <p>Giao bài và đặt hạn nộp.</p>
         </div>
       </div>
       <section className="hl-teacher-panel">
@@ -431,8 +431,8 @@ function TeacherAssignments({ course, onBack, onAction, assignmentPreset }) {
       </button>
       <div className="hl-teacher-title">
         <div>
-          <h1>Quản lý bài tập</h1>
-          <p>{course.name} · Giao bài, theo dõi hạn nộp và kết quả của học viên.</p>
+          <h1>Bài tập</h1>
+          <p>{course.name} · Giao bài và theo dõi kết quả.</p>
         </div>
         <button
           type="button"

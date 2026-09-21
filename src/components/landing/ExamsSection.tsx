@@ -40,10 +40,10 @@ function ExamsSection() {
                   padding: '11px 22px',
                   borderRadius: 40,
                   transition: 'all .25s',
-                  border: `1.5px solid ${on ? '#1B4DE4' : '#D9E0F2'}`,
-                  background: on ? '#1B4DE4' : '#fff',
+                  border: `1.5px solid ${on ? 'var(--color-primary)' : '#D9E0F2'}`,
+                  background: on ? 'var(--color-primary)' : '#fff',
                   color: on ? '#fff' : '#2A3354',
-                  boxShadow: on ? '0 10px 22px rgba(27,77,228,.35)' : 'none',
+                  boxShadow: on ? '0 10px 22px rgba(29,120,155,.35)' : 'none',
                 }}
               >
                 {c}
@@ -86,15 +86,15 @@ function ExamsSection() {
                     position: 'absolute',
                     top: 14,
                     left: 14,
-                    background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                    color: '#3a2a05',
+                    background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                    color: 'var(--color-primary-dark)',
                     fontWeight: 800,
                     fontSize: 11,
                     letterSpacing: '.6px',
                     textTransform: 'uppercase',
                     padding: '6px 13px',
                     borderRadius: 30,
-                    boxShadow: '0 6px 14px rgba(244,169,60,.4)',
+                    boxShadow: '0 6px 14px rgba(59,175,218,.4)',
                   }}
                 >
                   {ex.cat}
@@ -109,8 +109,8 @@ function ExamsSection() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                  <span style={{ color: '#F4A93C', letterSpacing: 1, fontSize: 13 }}>★★★★★</span>
-                  <span style={{ fontWeight: 800, fontSize: 14, color: '#11183A' }}>
+                  <span style={{ color: 'var(--color-accent-dark)', letterSpacing: 1, fontSize: 13 }}>★★★★★</span>
+                  <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--color-heading)' }}>
                     {ex.rating}
                   </span>
                   <span style={{ fontSize: 13, color: '#9AA2BC' }}>{ex.reviews}</span>
@@ -120,7 +120,7 @@ function ExamsSection() {
                     fontSize: 17,
                     fontWeight: 800,
                     lineHeight: 1.3,
-                    color: '#11183A',
+                    color: 'var(--color-heading)',
                     margin: '0 0 12px',
                     height: 66,
                     textTransform: 'uppercase',
@@ -146,7 +146,7 @@ function ExamsSection() {
                   <span
                     style={{
                       fontSize: 13,
-                      color: '#5B647F',
+                      color: 'var(--color-body)',
                       lineHeight: 1.4,
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
@@ -178,9 +178,9 @@ function ExamsSection() {
                     fontSize: 13.5,
                     letterSpacing: '.6px',
                     textTransform: 'uppercase',
-                    color: '#1B4DE4',
+                    color: 'var(--color-primary)',
                     background: 'transparent',
-                    border: '1.5px solid #1B4DE4',
+                    border: '1.5px solid var(--color-primary)',
                     borderRadius: 40,
                     padding: 13,
                   }}

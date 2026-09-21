@@ -39,6 +39,7 @@ function App() {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
     if (path === '/admin/login') return 'admin-login'
+    if (path === '/admin/users') return 'admin-users'
     if (path === '/admin/dashboard') return 'admin-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
@@ -134,6 +135,16 @@ function App() {
     }
     window.history.pushState({}, '', paths[page])
     setAuthMode(`staff-${page}`)
+  }
+  const navigateAdmin = (page) => {
+    const paths = {
+      dashboard: '/admin/dashboard',
+      users: '/admin/users',
+    }
+    const path = paths[page] || paths.dashboard
+    window.history.pushState({}, '', path)
+    setAuthMode(`admin-${page}`)
+    setCurrentPath(path)
   }
   const navigateTeacher = (page) => {
     const paths = {
@@ -317,12 +328,12 @@ function App() {
           : 'Tổng quan'
   const studentSubtitle =
     currentPath === '/student/learning-profile'
-      ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
+      ? 'Theo dõi năng lực và tiến bộ.'
       : currentPath === '/student/profile'
-        ? 'Quản lý thông tin cá nhân, hồ sơ học tập và bảo mật tài khoản.'
+        ? 'Thông tin cá nhân và bảo mật.'
         : isCoursesPath
-          ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
-          : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
+          ? 'Các khóa học đã đăng ký.'
+          : 'Tiến độ học tập và bài tập.'
 
   const renderStudentDashboard = () => (
     <StudentLayout
@@ -374,12 +385,13 @@ function App() {
         onBack={backToLanding}
       />
     )
-  if (authMode === 'admin-dashboard')
+  if (authMode === 'admin-dashboard' || authMode === 'admin-users')
     return (
       <StaffDashboard
-        page="dashboard"
-        onNavigate={navigateStaff}
+        page={authMode.replace('admin-', '')}
+        onNavigate={navigateAdmin}
         onBack={backToLanding}
+        adminArea
       />
     )
   if (authMode === 'admin-login')

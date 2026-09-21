@@ -135,8 +135,8 @@ function InvoiceManagement() {
   return (
     <>
       <PageHeading
-        title="Quản lý hóa đơn"
-        subtitle="Tra cứu hóa đơn, khoản mục thanh toán và lịch sử xử lý."
+        title="Hóa đơn"
+        subtitle="Hóa đơn và lịch sử thanh toán."
       />
       <section className="hl-staff-panel hl-invoice-panel">
         <SearchFilterBar

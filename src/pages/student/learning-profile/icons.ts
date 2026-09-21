@@ -22,7 +22,7 @@ export const componentIcons = {
 }
 
 export const componentColors = {
-  vietnamese: '#1B4DE4',
+  vietnamese: 'var(--color-primary)',
   english: '#D97706',
   math: '#16A05B',
   science: '#6D54D4',

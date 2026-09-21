@@ -46,8 +46,8 @@ function Pricing() {
                     border: 'none',
                     transition: 'all .25s',
                     background: on ? '#fff' : 'transparent',
-                    color: on ? '#1B4DE4' : '#5B647F',
-                    boxShadow: on ? '0 4px 12px rgba(17,24,58,.12)' : 'none',
+                    color: on ? 'var(--color-primary)' : 'var(--color-body)',
+                    boxShadow: on ? '0 4px 12px rgba(24,48,68,.12)' : 'none',
                   }}
                 >
                   {label}
@@ -74,13 +74,13 @@ function Pricing() {
                 key={p.name}
                 style={{
                   position: 'relative',
-                  border: `1.5px solid ${pop ? '#1B4DE4' : '#E4E9F5'}`,
+                  border: `1.5px solid ${pop ? 'var(--color-primary)' : '#E4E9F5'}`,
                   borderRadius: 22,
                   padding: '30px 26px',
-                  background: pop ? 'linear-gradient(180deg,#1B4DE4,#16329A)' : '#fff',
+                  background: pop ? 'linear-gradient(180deg,var(--color-primary),var(--color-primary-dark))' : '#fff',
                   boxShadow: pop
-                    ? '0 34px 64px -22px rgba(27,77,228,.55)'
-                    : '0 18px 40px -28px rgba(27,77,228,.4)',
+                    ? '0 34px 64px -22px rgba(29,120,155,.55)'
+                    : '0 18px 40px -28px rgba(29,120,155,.4)',
                   transform: pop ? 'translateY(-12px)' : 'none',
                 }}
               >
@@ -91,15 +91,15 @@ function Pricing() {
                       top: -13,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                      color: '#3a2a05',
+                      background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                      color: 'var(--color-primary-dark)',
                       fontWeight: 800,
                       fontSize: 11,
                       letterSpacing: '.6px',
                       textTransform: 'uppercase',
                       padding: '7px 16px',
                       borderRadius: 30,
-                      boxShadow: '0 8px 18px rgba(244,169,60,.5)',
+                      boxShadow: '0 8px 18px rgba(59,175,218,.5)',
                       whiteSpace: 'nowrap',
                     }}
                   >
@@ -111,7 +111,7 @@ function Pricing() {
                     margin: '0 0 6px',
                     fontSize: 20,
                     fontWeight: 900,
-                    color: pop ? '#fff' : '#11183A',
+                    color: pop ? '#fff' : 'var(--color-heading)',
                     textTransform: 'uppercase',
                     letterSpacing: '-.2px',
                   }}
@@ -122,7 +122,7 @@ function Pricing() {
                   style={{
                     margin: '0 0 18px',
                     fontSize: 13.5,
-                    color: pop ? 'rgba(255,255,255,.8)' : '#5B647F',
+                    color: pop ? 'rgba(255,255,255,.8)' : 'var(--color-body)',
                     lineHeight: 1.5,
                     minHeight: 38,
                   }}
@@ -134,7 +134,7 @@ function Pricing() {
                     style={{
                       fontSize: 32,
                       fontWeight: 900,
-                      color: pop ? '#fff' : '#1B4DE4',
+                      color: pop ? '#fff' : 'var(--color-primary)',
                       letterSpacing: '-1px',
                     }}
                   >
@@ -154,7 +154,7 @@ function Pricing() {
                   style={{
                     fontSize: 12,
                     fontWeight: 700,
-                    color: pop ? '#FBC34F' : '#1B8A5B',
+                    color: pop ? 'var(--color-accent)' : '#1B8A5B',
                     minHeight: 18,
                     marginBottom: 18,
                   }}
@@ -182,14 +182,14 @@ function Pricing() {
                           background: on
                             ? pop
                               ? 'rgba(255,255,255,.22)'
-                              : '#EAF0FF'
+                              : 'var(--color-brand-soft-bg)'
                             : pop
                               ? 'rgba(255,255,255,.1)'
                               : '#F0F1F6',
                           color: on
                             ? pop
                               ? '#fff'
-                              : '#1B4DE4'
+                              : 'var(--color-primary)'
                             : pop
                               ? 'rgba(255,255,255,.5)'
                               : '#C2C8DA',
@@ -230,9 +230,9 @@ function Pricing() {
                     textTransform: 'uppercase',
                     padding: 14,
                     borderRadius: 40,
-                    border: `1.5px solid ${pop ? 'transparent' : '#1B4DE4'}`,
-                    background: pop ? 'linear-gradient(180deg,#FBC34F,#F4A93C)' : '#fff',
-                    color: pop ? '#3a2a05' : '#1B4DE4',
+                    border: `1.5px solid ${pop ? 'transparent' : 'var(--color-primary)'}`,
+                    background: pop ? 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))' : '#fff',
+                    color: pop ? 'var(--color-primary-dark)' : 'var(--color-primary)',
                   }}
                 >
                   {p.cta}
