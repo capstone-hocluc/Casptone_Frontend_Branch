@@ -1,9 +1,14 @@
 import { AlertCircle, ArrowRight, Clock3, RefreshCw, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getUsers, USER_STATUSES, type UserStatus, type UserSummary } from '../../services/userService'
+import {
+  getUsers,
+  USER_STATUSES,
+  type UserStatus,
+  type UserSummary,
+} from '../../services/userService'
 import Button from '../ui/Button'
 import StatCard from '../ui/StatCard'
-import StatusBadge from '../ui/StatusBadge'
+import Status from '../ui/Status'
 
 interface AdminOverviewProps {
   onNavigate: (page: string) => void
@@ -95,7 +100,7 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
             ...result,
             [status]: statusPages[index]?.totalElements ?? 0,
           }),
-          { ...EMPTY_DATA.counts },
+          { ...EMPTY_DATA.counts }
         ) as Record<UserStatus, number>
 
         setData({
@@ -106,7 +111,11 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
       })
       .catch((requestError: unknown) => {
         if (!ignore) {
-          setError(requestError instanceof Error ? requestError.message : 'Không thể tải tổng quan quản trị.')
+          setError(
+            requestError instanceof Error
+              ? requestError.message
+              : 'Không thể tải tổng quan quản trị.'
+          )
         }
       })
       .finally(() => {
@@ -150,12 +159,20 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
       </div>
 
       {error && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-badge-danger-bg px-3 py-2 text-sm text-badge-danger-text" role="alert">
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-badge-danger-bg px-3 py-2 text-sm text-badge-danger-text"
+          role="alert"
+        >
           <span className="flex items-center gap-2">
             <AlertCircle size={16} />
             {error}
           </span>
-          <Button variant="danger" appearance="ghost" size="sm" onClick={() => setReloadKey((current) => current + 1)}>
+          <Button
+            variant="danger"
+            appearance="ghost"
+            size="sm"
+            onClick={() => setReloadKey((current) => current + 1)}
+          >
             Thử lại
           </Button>
         </div>
@@ -165,9 +182,16 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-4">
           <div>
             <h2 className="text-lg font-semibold text-text-heading">Tài khoản gần đây</h2>
-            <p className="mt-1 text-sm text-text-muted">Các tài khoản mới cập nhật trong hệ thống.</p>
+            <p className="mt-1 text-sm text-text-muted">
+              Các tài khoản mới cập nhật trong hệ thống.
+            </p>
           </div>
-          <Button variant="primary" appearance="ghost" size="sm" onClick={() => onNavigate('users')}>
+          <Button
+            variant="primary"
+            appearance="ghost"
+            size="sm"
+            onClick={() => onNavigate('users')}
+          >
             Xem tất cả
             <ArrowRight size={15} />
           </Button>
@@ -206,7 +230,7 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
                     <Clock3 size={13} />
                     {formatDate(user.lastLoginAt)}
                   </span>
-                  <StatusBadge tone={getStatusTone(user.status)}>{STATUS_LABELS[user.status]}</StatusBadge>
+                  <Status tone={getStatusTone(user.status)}>{STATUS_LABELS[user.status]}</Status>
                 </span>
               </button>
             ))}

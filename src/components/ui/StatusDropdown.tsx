@@ -1,8 +1,10 @@
 import type { DropdownFieldProps, DropdownOption } from './DropdownField'
 import DropdownField from './DropdownField'
 import { cn } from '../../lib/cn'
+import Status from './Status'
+import { statusToneClasses, type StatusTone } from './statusStyles'
 
-export type StatusDropdownTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+export type StatusDropdownTone = StatusTone
 
 export interface StatusDropdownOption extends DropdownOption {
   tone?: StatusDropdownTone
@@ -15,22 +17,28 @@ export interface StatusDropdownProps extends Omit<
   options: readonly StatusDropdownOption[]
 }
 
-const toneClasses: Record<StatusDropdownTone, { text: string; background: string }> = {
-  success: { text: 'text-badge-success-text', background: 'bg-badge-success-bg' },
-  warning: { text: 'text-badge-warning-text', background: 'bg-badge-warning-bg' },
-  danger: { text: 'text-badge-danger-text', background: 'bg-badge-danger-bg' },
-  info: { text: 'text-badge-info-text', background: 'bg-badge-info-bg' },
-  neutral: { text: 'text-badge-neutral-text', background: 'bg-badge-neutral-bg' },
-}
-
-function StatusValue({ option }: { option?: StatusDropdownOption }) {
+function StatusValue({
+  option,
+  appearance = 'text',
+}: {
+  option?: StatusDropdownOption
+  appearance?: 'text' | 'chip'
+}) {
   if (!option) return null
+
+  if (appearance === 'chip') {
+    return (
+      <Status tone={option.tone ?? 'neutral'} className="px-2 py-1 text-xs">
+        {option.label}
+      </Status>
+    )
+  }
 
   return (
     <span
       className={cn(
         'inline-flex min-w-0 truncate font-medium',
-        toneClasses[option.tone ?? 'neutral'].text
+        statusToneClasses[option.tone ?? 'neutral'].text
       )}
     >
       {option.label}
@@ -45,7 +53,7 @@ function StatusDropdown({
   ...props
 }: StatusDropdownProps) {
   const selectedOption = options.find((option) => option.id === (props.value ?? null))
-  const selectedTone = toneClasses[selectedOption?.tone ?? 'neutral']
+  const selectedTone = statusToneClasses[selectedOption?.tone ?? 'neutral']
 
   return (
     <DropdownField
@@ -59,7 +67,9 @@ function StatusDropdown({
       )}
       optionClassName={cn('rounded-[7px]', optionClassName)}
       renderValue={(option) => <StatusValue option={option as StatusDropdownOption | undefined} />}
-      renderOption={(option) => <StatusValue option={option as StatusDropdownOption} />}
+      renderOption={(option) => (
+        <StatusValue option={option as StatusDropdownOption} appearance="chip" />
+      )}
     />
   )
 }
