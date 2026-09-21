@@ -8,39 +8,54 @@ export interface StatusDropdownOption extends DropdownOption {
   tone?: StatusDropdownTone
 }
 
-export interface StatusDropdownProps
-  extends Omit<DropdownFieldProps, 'options' | 'renderValue' | 'renderOption'> {
+export interface StatusDropdownProps extends Omit<
+  DropdownFieldProps,
+  'options' | 'renderValue' | 'renderOption'
+> {
   options: readonly StatusDropdownOption[]
 }
 
-const toneClasses: Record<StatusDropdownTone, { text: string; dot: string }> = {
-  success: { text: 'text-badge-success-text', dot: 'bg-badge-success-text' },
-  warning: { text: 'text-badge-warning-text', dot: 'bg-badge-warning-text' },
-  danger: { text: 'text-badge-danger-text', dot: 'bg-badge-danger-text' },
-  info: { text: 'text-badge-info-text', dot: 'bg-badge-info-text' },
-  neutral: { text: 'text-badge-neutral-text', dot: 'bg-badge-neutral-text' },
+const toneClasses: Record<StatusDropdownTone, { text: string; background: string }> = {
+  success: { text: 'text-badge-success-text', background: 'bg-badge-success-bg' },
+  warning: { text: 'text-badge-warning-text', background: 'bg-badge-warning-bg' },
+  danger: { text: 'text-badge-danger-text', background: 'bg-badge-danger-bg' },
+  info: { text: 'text-badge-info-text', background: 'bg-badge-info-bg' },
+  neutral: { text: 'text-badge-neutral-text', background: 'bg-badge-neutral-bg' },
 }
 
 function StatusValue({ option }: { option?: StatusDropdownOption }) {
   if (!option) return null
 
-  const tone = toneClasses[option.tone ?? 'neutral']
   return (
-    <span className={cn('inline-flex min-w-0 items-center gap-2 truncate font-medium', tone.text)}>
-      <span className={cn('size-2 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
-      <span className="truncate">{option.label}</span>
+    <span
+      className={cn(
+        'inline-flex min-w-0 truncate font-medium',
+        toneClasses[option.tone ?? 'neutral'].text
+      )}
+    >
+      {option.label}
     </span>
   )
 }
 
-function StatusDropdown({ options, triggerClassName, optionClassName, ...props }: StatusDropdownProps) {
+function StatusDropdown({
+  options,
+  triggerClassName,
+  optionClassName,
+  ...props
+}: StatusDropdownProps) {
+  const selectedOption = options.find((option) => option.id === (props.value ?? null))
+  const selectedTone = toneClasses[selectedOption?.tone ?? 'neutral']
+
   return (
     <DropdownField
       {...props}
       options={options}
       triggerClassName={cn(
-        'rounded-[8px] border-border-subtle bg-surface px-3 text-sm font-medium',
-        triggerClassName,
+        'rounded-[8px] border-0 px-3 text-sm font-medium focus-visible:border-0',
+        selectedTone.background,
+        selectedTone.text,
+        triggerClassName
       )}
       optionClassName={cn('rounded-[7px]', optionClassName)}
       renderValue={(option) => <StatusValue option={option as StatusDropdownOption | undefined} />}
