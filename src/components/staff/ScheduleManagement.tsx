@@ -147,8 +147,8 @@ function ScheduleManagement({ batches }) {
   return (
     <>
       <PageHeading
-        title="Quản lý lịch học"
-        subtitle="Theo dõi lịch theo batch, nhóm học và nguồn lực giảng dạy."
+        title="Lịch học"
+        subtitle="Lịch học và phòng học."
         action={
           <>
             <Plus size={16} />

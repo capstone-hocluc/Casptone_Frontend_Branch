@@ -22,12 +22,12 @@ function FAQ() {
               <div
                 key={q.question}
                 style={{
-                  border: `1.5px solid ${isOpen ? '#1B4DE4' : '#E4E9F5'}`,
+                  border: `1.5px solid ${isOpen ? 'var(--color-primary)' : '#E4E9F5'}`,
                   borderRadius: 14,
                   background: isOpen ? '#F4F7FE' : '#fff',
                   overflow: 'hidden',
                   transition: 'border-color .3s, background .3s, box-shadow .3s',
-                  boxShadow: isOpen ? '0 18px 36px -24px rgba(27,77,228,.5)' : 'none',
+                  boxShadow: isOpen ? '0 18px 36px -24px rgba(29,120,155,.5)' : 'none',
                 }}
               >
                 <button
@@ -50,7 +50,7 @@ function FAQ() {
                     style={{
                       fontWeight: 800,
                       fontSize: 15.5,
-                      color: '#11183A',
+                      color: 'var(--color-heading)',
                       textTransform: 'uppercase',
                       letterSpacing: '-.2px',
                     }}
@@ -63,7 +63,7 @@ function FAQ() {
                       width: 34,
                       height: 34,
                       borderRadius: '50%',
-                      background: isOpen ? 'linear-gradient(180deg,#FBC34F,#F4A93C)' : '#1B4DE4',
+                      background: isOpen ? 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))' : 'var(--color-primary)',
                       color: '#fff',
                       display: 'grid',
                       placeItems: 'center',
@@ -90,7 +90,7 @@ function FAQ() {
                       padding: '0 24px 24px',
                       fontSize: 15,
                       lineHeight: 1.65,
-                      color: '#5B647F',
+                      color: 'var(--color-body)',
                     }}
                   >
                     {q.answer}

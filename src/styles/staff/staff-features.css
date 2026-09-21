@@ -1382,7 +1382,7 @@
 .hl-batch-card:hover {
   transform: translateY(-3px);
   border-color: #b8c9f7;
-  box-shadow: 0 16px 30px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 16px 30px rgba(29, 120, 155, 0.1);
 }
 .hl-batch-card h2 {
   margin: 6px 0 8px;
@@ -1551,7 +1551,7 @@
   border: 1px solid #c7d6fc;
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 25px rgba(17, 24, 58, 0.14);
+  box-shadow: 0 10px 25px rgba(24, 48, 68, 0.14);
 }
 .hl-batch-dev-menu span {
   padding: 0 5px;

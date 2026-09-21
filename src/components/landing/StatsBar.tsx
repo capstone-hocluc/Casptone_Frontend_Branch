@@ -37,7 +37,7 @@ function StatsBar() {
                 display: 'block',
                 fontSize: 'clamp(34px,3.6vw,48px)',
                 fontWeight: 900,
-                color: '#1B4DE4',
+                color: 'var(--color-primary)',
                 letterSpacing: '-1px',
               }}
             />
@@ -46,7 +46,7 @@ function StatsBar() {
                 fontSize: 13,
                 fontWeight: 700,
                 letterSpacing: 1,
-                color: '#5B647F',
+                color: 'var(--color-body)',
                 textTransform: 'uppercase',
                 marginTop: 4,
               }}

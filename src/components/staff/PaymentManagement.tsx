@@ -145,8 +145,8 @@ function PaymentManagement() {
   return (
     <>
       <PageHeading
-        title="Quản lý thanh toán"
-        subtitle="Theo dõi và đối soát các giao dịch tài chính của học viên."
+        title="Thanh toán"
+        subtitle="Giao dịch của học viên."
       />
       <section className="hl-staff-panel hl-payment-panel">
         <div className="hl-payment-summary">

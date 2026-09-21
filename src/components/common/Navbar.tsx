@@ -65,7 +65,7 @@ function Navbar() {
         transition: 'background .35s, box-shadow .35s, padding .35s',
         padding: scrolled ? '12px 0' : '20px 0',
         background: scrolled ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.6)',
-        boxShadow: scrolled ? '0 8px 30px -12px rgba(17,24,58,.18)' : 'none',
+        boxShadow: scrolled ? '0 8px 30px -12px rgba(24,48,68,.18)' : 'none',
         backdropFilter: 'saturate(180%) blur(10px)',
       }}
     >
@@ -110,7 +110,7 @@ function Navbar() {
                   width: 40,
                   height: 40,
                   flexShrink: 0,
-                  border: '1px solid rgba(27,77,228,.16)',
+                  border: '1px solid rgba(29,120,155,.16)',
                   cursor: 'pointer',
                   borderRadius: '50%',
                   background: '#fff',
@@ -131,13 +131,13 @@ function Navbar() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  border: '1px solid rgba(27,77,228,.16)',
+                  border: '1px solid rgba(29,120,155,.16)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                   background: '#fff',
                   padding: '6px 14px 6px 6px',
                   borderRadius: 40,
-                  boxShadow: '0 6px 16px -8px rgba(17,24,58,.2)',
+                  boxShadow: '0 6px 16px -8px rgba(24,48,68,.2)',
                 }}
               >
                 <img
@@ -177,8 +177,8 @@ function Navbar() {
                     minWidth: 200,
                     background: '#fff',
                     borderRadius: 16,
-                    boxShadow: '0 20px 44px -18px rgba(17,24,58,.32)',
-                    border: '1px solid rgba(17,24,58,.06)',
+                    boxShadow: '0 20px 44px -18px rgba(24,48,68,.32)',
+                    border: '1px solid rgba(24,48,68,.06)',
                     padding: 8,
                     display: 'flex',
                     flexDirection: 'column',
@@ -240,11 +240,11 @@ function Navbar() {
                 className="hl-nav-ghost"
                 onClick={() => openAuth('signup')}
                 style={{
-                  border: '1.5px solid rgba(27,77,228,.3)',
+                  border: '1.5px solid rgba(29,120,155,.3)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                   background: 'transparent',
-                  color: '#1B4DE4',
+                  color: 'var(--color-primary)',
                   fontWeight: 800,
                   fontSize: 13.5,
                   letterSpacing: '.5px',
@@ -263,15 +263,15 @@ function Navbar() {
                   border: 'none',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
-                  background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                  color: '#3a2a05',
+                  background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                  color: 'var(--color-primary-dark)',
                   fontWeight: 800,
                   fontSize: 13.5,
                   letterSpacing: '.5px',
                   textTransform: 'uppercase',
                   padding: '13px 24px',
                   borderRadius: 40,
-                  boxShadow: '0 8px 20px rgba(244,169,60,.4)',
+                  boxShadow: '0 8px 20px rgba(59,175,218,.4)',
                 }}
               >
                 Đăng nhập
@@ -287,12 +287,12 @@ function Navbar() {
                   border: 'none',
                   cursor: 'pointer',
                   borderRadius: '50%',
-                  background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                  color: '#3a2a05',
+                  background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                  color: 'var(--color-primary-dark)',
                   fontSize: 18,
                   display: 'grid',
                   placeItems: 'center',
-                  boxShadow: '0 8px 20px rgba(244,169,60,.4)',
+                  boxShadow: '0 8px 20px rgba(59,175,218,.4)',
                 }}
               >
                 ↗

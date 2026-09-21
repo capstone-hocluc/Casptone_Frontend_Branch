@@ -21,7 +21,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: 20px;
   padding: 40px 32px;
-  box-shadow: 0 20px 44px -30px rgba(17, 24, 58, 0.35);
+  box-shadow: 0 20px 44px -30px rgba(24, 48, 68, 0.35);
 }
 
 .hl-study-placeholder-card svg {

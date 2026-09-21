@@ -23,7 +23,7 @@
   padding: 30px 18px 24px;
   border-right: 1px solid #e2e9f9;
   background: rgba(255, 255, 255, 0.92);
-  box-shadow: 10px 0 34px rgba(17, 24, 58, 0.04);
+  box-shadow: 10px 0 34px rgba(24, 48, 68, 0.04);
 }
 .hl-student-sidebar.is-collapsed {
   padding: 30px 14px 20px;
@@ -73,7 +73,7 @@
   border-color: #c8d7ff;
   background: linear-gradient(135deg, var(--color-badge-info-bg), #f8faff);
   color: var(--color-primary);
-  box-shadow: 0 10px 22px rgba(27, 77, 228, 0.08);
+  box-shadow: 0 10px 22px rgba(29, 120, 155, 0.08);
 }
 .hl-student-main {
   grid-column: 2;
@@ -98,7 +98,7 @@
   border-bottom: 1px solid #e2e9f9;
   border-radius: 0;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 10px 28px rgba(17, 24, 58, 0.05);
+  box-shadow: 0 10px 28px rgba(24, 48, 68, 0.05);
   backdrop-filter: saturate(180%) blur(12px);
 }
 .hl-student-header-left,
@@ -147,7 +147,7 @@
   background: var(--color-surface);
   color: var(--color-primary);
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.04);
 }
 .hl-student-icon-button {
   position: relative;
@@ -227,7 +227,7 @@
   border: 1px solid #dfe6f7;
   border-radius: 16px;
   background: var(--color-surface);
-  box-shadow: 0 22px 44px rgba(17, 24, 58, 0.14);
+  box-shadow: 0 22px 44px rgba(24, 48, 68, 0.14);
 }
 .hl-student-profile-menu button {
   width: 100%;
@@ -261,7 +261,7 @@
   border: 1px solid #dfe6f7;
   border-radius: 16px;
   background: var(--color-surface);
-  box-shadow: 0 22px 44px rgba(17, 24, 58, 0.14);
+  box-shadow: 0 22px 44px rgba(24, 48, 68, 0.14);
 }
 .hl-student-notification-menu strong {
   display: block;
@@ -288,7 +288,7 @@
   font-size: 13px;
   font-weight: 800;
   line-height: 1.45;
-  box-shadow: 0 18px 40px rgba(17, 24, 58, 0.16);
+  box-shadow: 0 18px 40px rgba(24, 48, 68, 0.16);
 }
 .hl-student-page {
   max-width: 1280px;
@@ -327,7 +327,7 @@
   border: 4px solid var(--color-surface);
   border-radius: 50%;
   background: #1b74f2;
-  box-shadow: 0 10px 22px rgba(27, 77, 228, 0.12);
+  box-shadow: 0 10px 22px rgba(29, 120, 155, 0.12);
 }
 .hl-dashboard-welcome h2 {
   margin: 0 0 5px;
@@ -363,8 +363,8 @@
   overflow: visible;
   padding: 20px 16px 1px 16px;
   border-radius: 18px;
-  background: linear-gradient(180deg, #4d9bff 0%, var(--color-link) 50%, #1048ee 100%);
-  box-shadow: 0 18px 34px rgba(27, 77, 228, 0.16);
+  background: linear-gradient(180deg, var(--color-brand) 0%, var(--color-link) 50%, var(--color-primary) 100%);
+  box-shadow: 0 18px 34px rgba(29, 120, 155, 0.16);
 }
 .hl-dashboard-goal::before {
   display: none;
@@ -468,7 +468,7 @@
   height: auto;
   display: block;
   transform: translate(-42px, -72px);
-  filter: drop-shadow(0 16px 18px rgba(17, 24, 58, 0.18));
+  filter: drop-shadow(0 16px 18px rgba(24, 48, 68, 0.18));
 }
 .hl-dashboard-goal-box {
   position: relative;
@@ -652,7 +652,7 @@
 }
 .hl-dashboard-mini-course:hover {
   border-color: #bfd1ff;
-  box-shadow: 0 16px 30px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 16px 30px rgba(29, 120, 155, 0.1);
   transform: translateY(-2px);
 }
 .hl-dashboard-course-cover {
@@ -764,7 +764,7 @@
   border-radius: 10px;
   background: var(--color-surface);
   color: var(--color-link);
-  box-shadow: 0 8px 18px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 8px 18px rgba(24, 48, 68, 0.04);
 }
 .hl-dashboard-carousel-button:not(:disabled):hover {
   border-color: #bfd1ff;
@@ -821,7 +821,7 @@
 }
 .hl-dashboard-test-card:hover {
   border-color: #bfd1ff;
-  box-shadow: 0 16px 30px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 16px 30px rgba(29, 120, 155, 0.1);
   transform: translateY(-2px);
 }
 .hl-dashboard-test-cover {
@@ -916,7 +916,7 @@
   border: 1px solid #e0e7f3;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 12px 26px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 12px 26px rgba(24, 48, 68, 0.04);
 }
 .hl-dashboard-profile-box {
   position: relative;
@@ -1066,7 +1066,7 @@
 }
 .hl-dashboard-stat-stack article:nth-child(2) > svg {
   background: #fff4df;
-  color: #f4a93c;
+  color: var(--color-accent-dark);
 }
 .hl-dashboard-stat-stack article:nth-child(3) > svg {
   background: #ffe7ec;
@@ -1256,7 +1256,7 @@
   border: 1px solid #dce7f7;
   border-radius: 18px;
   background: linear-gradient(110deg, var(--color-surface) 0%, #f5f9ff 62%, #fff8e8 100%);
-  box-shadow: 0 16px 34px rgba(17, 24, 58, 0.06);
+  box-shadow: 0 16px 34px rgba(24, 48, 68, 0.06);
 }
 .hl-profile-summary span {
   display: block;
@@ -1343,7 +1343,7 @@
   border: 1px solid #dce7f7;
   border-radius: 14px;
   background: var(--color-surface);
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.04);
 }
 .hl-profile-tabs button {
   min-height: 38px;
@@ -1360,7 +1360,7 @@
 .hl-profile-tabs button.is-active {
   background: var(--color-primary);
   color: var(--color-surface);
-  box-shadow: 0 8px 18px rgba(27, 77, 228, 0.18);
+  box-shadow: 0 8px 18px rgba(29, 120, 155, 0.18);
 }
 .hl-profile-tab-panel {
   display: flex;
@@ -1372,7 +1372,7 @@
   border: 1px solid #e0e7f3;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 12px 26px rgba(17, 24, 58, 0.045);
+  box-shadow: 0 12px 26px rgba(24, 48, 68, 0.045);
 }
 .hl-profile-tab-panel > .hl-profile-card {
   padding: 20px;
@@ -1595,7 +1595,7 @@
   stroke-width: 1;
 }
 .hl-profile-target-line {
-  stroke: #f4a93c;
+  stroke: var(--color-accent-dark);
   stroke-width: 1.5;
   stroke-dasharray: 7 6;
 }
@@ -1749,8 +1749,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(27, 77, 228, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 77, 228, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(29, 120, 155, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 120, 155, 0.055) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
 }
@@ -1831,7 +1831,7 @@
   min-height: 132px;
   gap: 9px;
   text-align: left;
-  box-shadow: 0 12px 28px rgba(17, 24, 58, 0.055);
+  box-shadow: 0 12px 28px rgba(24, 48, 68, 0.055);
 }
 .hl-profile-learning-metric-icon {
   width: 38px;
@@ -1867,7 +1867,7 @@
   min-height: 132px;
   gap: 9px;
   text-align: left;
-  box-shadow: 0 12px 28px rgba(17, 24, 58, 0.055);
+  box-shadow: 0 12px 28px rgba(24, 48, 68, 0.055);
 }
 .hl-profile-practice-metric-icon {
   width: 38px;
@@ -2113,16 +2113,16 @@
   border: 1px solid #cde9ff;
   border-radius: 26px;
   background:
-    linear-gradient(rgba(27, 77, 228, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 77, 228, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at 88% 12%, rgba(251, 195, 79, 0.22), transparent 24%),
+    linear-gradient(rgba(29, 120, 155, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 120, 155, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 88% 12%, rgba(88, 204, 237, 0.22), transparent 24%),
     linear-gradient(135deg, #eaf7ff 0%, #f3f8ff 100%);
   background-size:
     64px 64px,
     64px 64px,
     auto,
     auto;
-  box-shadow: 0 14px 34px rgba(17, 24, 58, 0.06);
+  box-shadow: 0 14px 34px rgba(24, 48, 68, 0.06);
 }
 .hl-profile-hero-header {
   position: relative;
@@ -2143,7 +2143,7 @@
   height: 76px;
   flex: 0 0 auto;
   object-fit: contain;
-  filter: drop-shadow(0 12px 18px rgba(27, 77, 228, 0.14));
+  filter: drop-shadow(0 12px 18px rgba(29, 120, 155, 0.14));
 }
 .hl-profile-hero-content {
   min-width: 0;
@@ -2207,7 +2207,7 @@
   margin-right: 0;
   padding: 0 16px;
   background: var(--color-surface);
-  box-shadow: 0 10px 22px rgba(27, 77, 228, 0.08);
+  box-shadow: 0 10px 22px rgba(29, 120, 155, 0.08);
 }
 .hl-profile-hero-exam button:hover,
 .hl-profile-edit-button:hover {
@@ -2223,7 +2223,7 @@
   border: 1px solid rgba(221, 234, 248, 0.96);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 24px rgba(17, 24, 58, 0.045);
+  box-shadow: 0 10px 24px rgba(24, 48, 68, 0.045);
 }
 .hl-profile-hero-summary > strong {
   display: block;
@@ -2286,7 +2286,7 @@
   font-size: 12px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.04);
 }
 .hl-profile-date-filter svg {
   color: var(--color-primary);
@@ -2374,10 +2374,10 @@
 .hl-profile-bars span {
   width: min(58px, 100%);
   border-radius: 12px 12px 4px 4px;
-  background: linear-gradient(180deg, #9dcbff, #4d9bff);
+  background: linear-gradient(180deg, var(--color-brand-soft), var(--color-brand));
 }
 .hl-profile-bars span.is-target {
-  background: linear-gradient(180deg, #6ea7ff, var(--color-primary));
+  background: linear-gradient(180deg, var(--color-brand-soft), var(--color-primary));
 }
 .hl-profile-bars span.is-max {
   background: linear-gradient(180deg, #d9e5f8, #b7c7e5);
@@ -2438,7 +2438,7 @@
 .hl-profile-chart-tooltip rect {
   fill: var(--color-surface);
   stroke: #dce7f7;
-  filter: drop-shadow(0 8px 14px rgba(17, 24, 58, 0.12));
+  filter: drop-shadow(0 8px 14px rgba(24, 48, 68, 0.12));
 }
 .hl-profile-chart-tooltip text {
   fill: var(--color-primary);
@@ -2471,7 +2471,7 @@
   background: var(--color-primary);
 }
 .hl-profile-chart-legend span:nth-child(2) i {
-  background: repeating-linear-gradient(90deg, #f4a93c 0 5px, transparent 5px 9px);
+  background: repeating-linear-gradient(90deg, var(--color-accent-dark) 0 5px, transparent 5px 9px);
 }
 .hl-profile-analytics-grid,
 .hl-profile-bottom-grid {
@@ -2495,7 +2495,7 @@
   border: 1px solid #d7e5fa;
   border-radius: 20px;
   background: var(--color-surface);
-  box-shadow: 0 12px 26px rgba(17, 24, 58, 0.045);
+  box-shadow: 0 12px 26px rgba(24, 48, 68, 0.045);
 }
 .hl-profile-ai-stack.is-compact {
   padding: 0;
@@ -2632,8 +2632,8 @@
   overflow: hidden;
   padding: 20px;
   background:
-    linear-gradient(rgba(27, 77, 228, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 77, 228, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(29, 120, 155, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 120, 155, 0.045) 1px, transparent 1px),
     linear-gradient(135deg, rgba(248, 251, 255, 0.98), rgba(255, 255, 255, 0.92));
   background-size:
     26px 26px,
@@ -2646,7 +2646,7 @@
   inset: 0;
   background:
     radial-gradient(circle at 12% 18%, rgba(49, 168, 255, 0.08), transparent 28%),
-    radial-gradient(circle at 86% 8%, rgba(27, 77, 228, 0.07), transparent 24%);
+    radial-gradient(circle at 86% 8%, rgba(29, 120, 155, 0.07), transparent 24%);
   pointer-events: none;
 }
 .hl-profile-competency-suite > * {
@@ -2736,7 +2736,7 @@
   font-size: 12px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 8px 18px rgba(24, 48, 68, 0.04);
 }
 .hl-profile-comparison > button svg {
   transition: transform 0.2s;
@@ -2757,7 +2757,7 @@
   border: 1px solid #dce7f7;
   border-radius: 14px;
   background: var(--color-surface);
-  box-shadow: 0 18px 38px rgba(17, 24, 58, 0.14);
+  box-shadow: 0 18px 38px rgba(24, 48, 68, 0.14);
 }
 .hl-profile-comparison-menu button {
   width: 100%;
@@ -2796,7 +2796,7 @@
   padding: 18px;
   border-color: #cfe0ff;
   background:
-    radial-gradient(circle at 96% 4%, rgba(27, 77, 228, 0.12), transparent 32%),
+    radial-gradient(circle at 96% 4%, rgba(29, 120, 155, 0.12), transparent 32%),
     linear-gradient(145deg, #f8fbff, var(--color-surface) 62%);
 }
 .hl-profile-ai-head {
@@ -2942,8 +2942,8 @@
   padding: 10px;
   border: 1px solid #cfe0ff;
   border-radius: 18px;
-  background: linear-gradient(180deg, #3c97ff 0%, var(--color-primary) 100%);
-  box-shadow: 0 14px 26px rgba(27, 77, 228, 0.16);
+  background: linear-gradient(180deg, var(--color-brand) 0%, var(--color-primary) 100%);
+  box-shadow: 0 14px 26px rgba(29, 120, 155, 0.16);
 }
 .hl-profile-ai-banner-title {
   position: relative;
@@ -3179,7 +3179,7 @@
   border-color: var(--color-primary);
   background: var(--color-primary);
   color: var(--color-surface);
-  box-shadow: 0 8px 18px rgba(27, 77, 228, 0.16);
+  box-shadow: 0 8px 18px rgba(29, 120, 155, 0.16);
 }
 .hl-profile-practice-update-button {
   min-height: 38px;
@@ -3868,7 +3868,7 @@
   border: 1px solid #e2e9f9;
   border-radius: 24px;
   background: var(--color-surface);
-  box-shadow: 0 16px 34px rgba(17, 24, 58, 0.05);
+  box-shadow: 0 16px 34px rgba(24, 48, 68, 0.05);
 }
 .hl-student-panel {
   padding: 22px;
@@ -3890,7 +3890,7 @@
 }
 .hl-student-course-card[role='button']:hover {
   border-color: #bfd1ff;
-  box-shadow: 0 18px 34px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 18px 34px rgba(29, 120, 155, 0.1);
 }
 .hl-student-course-card[role='button']:focus-visible,
 .hl-dashboard-mini-course:focus-visible,
@@ -3930,7 +3930,7 @@
 .hl-student-profile-menu button:focus-visible,
 .hl-student-notification:focus-visible,
 .hl-student-streak:focus-visible {
-  outline: 3px solid rgba(27, 77, 228, 0.2);
+  outline: 3px solid rgba(29, 120, 155, 0.2);
   outline-offset: 3px;
 }
 .hl-student-primary-button,
@@ -3981,7 +3981,7 @@
   gap: 20px;
   padding: 26px;
   background:
-    radial-gradient(circle at 86% 12%, rgba(251, 195, 79, 0.22), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba(88, 204, 237, 0.22), transparent 28%),
     linear-gradient(135deg, var(--color-surface), #f2f6ff);
 }
 .hl-student-hero-card h2,
@@ -4042,7 +4042,7 @@
 .hl-student-course-card:hover {
   transform: translateY(-4px);
   border-color: #c8d7ff;
-  box-shadow: 0 22px 42px rgba(27, 77, 228, 0.12);
+  box-shadow: 0 22px 42px rgba(29, 120, 155, 0.12);
 }
 .hl-student-course-image {
   position: relative;
@@ -4139,7 +4139,7 @@
   border: 1px solid #dce7f7;
   border-radius: 14px;
   background: #eaf2ff;
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.04);
 }
 .hl-my-courses-tabs button {
   min-height: 34px;
@@ -4157,7 +4157,7 @@
 .hl-my-courses-tabs button.is-active {
   background: var(--color-surface);
   color: var(--color-primary);
-  box-shadow: 0 8px 18px rgba(27, 77, 228, 0.12);
+  box-shadow: 0 8px 18px rgba(29, 120, 155, 0.12);
 }
 .hl-my-courses-panel {
   min-width: 0;
@@ -4165,7 +4165,7 @@
   border: 1px solid #e0e7f3;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 12px 26px rgba(17, 24, 58, 0.045);
+  box-shadow: 0 12px 26px rgba(24, 48, 68, 0.045);
 }
 .hl-my-courses-toolbar {
   display: flex;
@@ -4259,7 +4259,7 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.04);
   transition:
     transform 0.2s,
     box-shadow 0.2s,
@@ -4268,7 +4268,7 @@
 .hl-my-course-card:hover {
   transform: translateY(-3px);
   border-color: #bfd4ff;
-  box-shadow: 0 18px 34px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 18px 34px rgba(29, 120, 155, 0.1);
 }
 .hl-my-course-cover {
   position: relative;
@@ -4303,7 +4303,7 @@
   text-transform: uppercase;
 }
 .hl-my-course-cover svg {
-  color: rgba(27, 77, 228, 0.82);
+  color: rgba(29, 120, 155, 0.82);
 }
 .hl-my-course-cover.is-green {
   background: linear-gradient(135deg, #dff8ea, #f5fffa);
@@ -4456,7 +4456,7 @@
   width: 92px;
   height: 92px;
   object-fit: contain;
-  filter: drop-shadow(0 10px 16px rgba(27, 77, 228, 0.12));
+  filter: drop-shadow(0 10px 16px rgba(29, 120, 155, 0.12));
 }
 .hl-my-courses-empty strong {
   color: var(--color-text-heading);
@@ -4516,7 +4516,7 @@
   border: 1px solid #e0e7f3;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 12px 26px rgba(17, 24, 58, 0.045);
+  box-shadow: 0 12px 26px rgba(24, 48, 68, 0.045);
 }
 .hl-course-detail-hero {
   padding: 18px;
@@ -4622,7 +4622,7 @@
   font-size: 12px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 12px 20px rgba(27, 77, 228, 0.14);
+  box-shadow: 0 12px 20px rgba(29, 120, 155, 0.14);
 }
 .hl-course-detail-progress-line {
   width: 100%;
@@ -4652,7 +4652,7 @@
 .hl-course-detail-filter-row button.is-active {
   background: var(--color-surface);
   color: var(--color-primary);
-  box-shadow: 0 8px 18px rgba(27, 77, 228, 0.12);
+  box-shadow: 0 8px 18px rgba(29, 120, 155, 0.12);
 }
 .hl-course-detail-overview {
   display: grid;
@@ -5004,7 +5004,7 @@
   border-radius: 16px;
   padding: 13px;
   background: var(--color-surface);
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.035);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.035);
 }
 .hl-course-detail-assessment-card > div {
   display: flex;
@@ -5102,7 +5102,7 @@
 }
 .hl-course-detail-page .hl-course-detail-accordion,
 .hl-course-detail-page .hl-course-detail-card {
-  box-shadow: 0 10px 24px rgba(17, 24, 58, 0.035);
+  box-shadow: 0 10px 24px rgba(24, 48, 68, 0.035);
 }
 .hl-course-detail-page .hl-course-detail-accordion-head span {
   font-size: 15px;
@@ -5322,7 +5322,7 @@
   border: 1px solid #e0e7f3;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 10px 24px rgba(17, 24, 58, 0.04);
+  box-shadow: 0 10px 24px rgba(24, 48, 68, 0.04);
 }
 .hl-activity-header-card {
   padding: 16px;
@@ -5467,7 +5467,7 @@
 .hl-activity-answer-list button.is-selected {
   border-color: var(--color-primary);
   background: #eaf3ff;
-  box-shadow: 0 0 0 3px rgba(27, 77, 228, 0.08);
+  box-shadow: 0 0 0 3px rgba(29, 120, 155, 0.08);
 }
 .hl-activity-answer-list b {
   width: 26px;
@@ -5795,7 +5795,7 @@
   height: 112px;
   object-fit: contain;
   transform: translateX(-50%);
-  filter: drop-shadow(0 12px 18px rgba(27, 77, 228, 0.14));
+  filter: drop-shadow(0 12px 18px rgba(29, 120, 155, 0.14));
   pointer-events: none;
 }
 .hl-activity-result-bubble {
@@ -5813,7 +5813,7 @@
   font-weight: 500;
   line-height: 1.35;
   text-align: left;
-  box-shadow: 0 10px 24px rgba(17, 24, 58, 0.07);
+  box-shadow: 0 10px 24px rgba(24, 48, 68, 0.07);
 }
 .hl-activity-result-bubble::after {
   content: '';
@@ -5841,7 +5841,7 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0) 46%), #eaf3ff;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.94),
-    0 12px 28px rgba(27, 77, 228, 0.08);
+    0 12px 28px rgba(29, 120, 155, 0.08);
 }
 .hl-activity-result-score-panel > span {
   color: var(--color-text-secondary);
@@ -5923,7 +5923,7 @@
   border-radius: 14px;
   padding: 12px;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 20px rgba(17, 24, 58, 0.035);
+  box-shadow: 0 8px 20px rgba(24, 48, 68, 0.035);
 }
 .hl-activity-attempt-row div {
   display: grid;
@@ -6265,7 +6265,7 @@
   background:
     linear-gradient(rgba(190, 216, 255, 0.34) 1px, transparent 1px),
     linear-gradient(90deg, rgba(190, 216, 255, 0.34) 1px, transparent 1px),
-    radial-gradient(circle at 80% 10%, rgba(251, 195, 79, 0.18), transparent 30%), #f3f7ff;
+    radial-gradient(circle at 80% 10%, rgba(88, 204, 237, 0.18), transparent 30%), #f3f7ff;
   background-size:
     42px 42px,
     42px 42px,
@@ -6403,7 +6403,7 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: 22px;
-  box-shadow: 0 22px 46px rgba(27, 77, 228, 0.16);
+  box-shadow: 0 22px 46px rgba(29, 120, 155, 0.16);
 }
 .hl-video-ai-close {
   align-self: flex-end;
@@ -6495,7 +6495,7 @@
   font-size: 13px;
   font-weight: 450;
   line-height: 1.48;
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.06);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.06);
 }
 .hl-video-ai-messages p.is-ai {
   align-self: flex-start;
@@ -6828,7 +6828,7 @@
 .hl-student-catalog-controls input:focus,
 .hl-student-catalog-controls [data-dropdown-trigger]:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 0 0 4px rgba(29, 120, 155, 0.1);
 }
 .hl-student-detail-hero {
   display: grid;

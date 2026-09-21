@@ -400,15 +400,15 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
             }
           />
           <span className="hl-teacher-group-label">Giảng dạy</span>
-          <NavItem
+           <NavItem
             icon={BookOpen}
-            label="Lớp học của tôi"
+            label="Lớp học"
             active={view === 'courses'}
             onClick={openCourses}
           />
-          <NavItem
+           <NavItem
             icon={CalendarDays}
-            label="Lịch giảng dạy"
+            label="Lịch dạy"
             onClick={() => action('Lịch giảng dạy chi tiết đang được chuẩn bị.')}
           />
           <NavItem
@@ -451,7 +451,7 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
             onClick={() => action('Tìm kiếm toàn hệ thống đang được chuẩn bị.')}
           >
             <Search size={16} />
-            <span>Tìm trong hệ thống...</span>
+            <span>Tìm kiếm...</span>
             <kbd>⌘K</kbd>
           </button>
           <div className="hl-teacher-header-actions">
@@ -545,7 +545,7 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
         </header>
         <div className="hl-teacher-main">
           <div className="hl-teacher-breadcrumb">
-            <span>Giảng viên</span>
+            <span>Giảng dạy</span>
             <ChevronRight size={14} />
             <strong>{breadcrumb}</strong>
           </div>
@@ -563,9 +563,8 @@ function TeacherDashboard({ onBack, onNavigate, onLogout, logoutLoading = false,
             <>
               <div className="hl-teacher-title">
                 <div>
-                  <span>THỨ BA, 09 THÁNG 09</span>
-                  <h1>Chào buổi sáng, thầy Nam!</h1>
-                  <p>Theo dõi lịch giảng dạy, tiến độ lớp học và các bài tập cần chấm.</p>
+                  <h1>Tổng quan</h1>
+                  <p>Theo dõi lớp học, lịch dạy và bài cần chấm.</p>
                 </div>
                 <div className="hl-teacher-welcome-actions">
                   <div className="hl-teacher-mascot-message">

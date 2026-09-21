@@ -17,11 +17,11 @@ function Logo({ light = false, monochrome = false }) {
           fontWeight: 800,
           fontSize: 21,
           letterSpacing: '-.5px',
-          color: light || monochrome ? '#fff' : '#11183A',
+          color: light || monochrome ? '#fff' : 'var(--color-heading)',
         }}
       >
         HocLuc
-        <span style={{ color: monochrome ? '#fff' : light ? '#FBC34F' : '#1B4DE4' }}>.com</span>
+        <span style={{ color: monochrome ? '#fff' : light ? 'var(--color-accent)' : 'var(--color-primary)' }}>.com</span>
       </span>
     </span>
   )

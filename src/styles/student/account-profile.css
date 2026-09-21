@@ -62,7 +62,7 @@
   border-color: #c8d7ff;
   background: linear-gradient(135deg, var(--color-badge-info-bg), #f8faff);
   color: var(--color-primary);
-  box-shadow: 0 8px 18px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 8px 18px rgba(29, 120, 155, 0.1);
 }
 .hl-account-nav-group button svg {
   flex: 0 0 auto;
@@ -160,7 +160,7 @@
   background: var(--color-primary);
   color: var(--color-surface);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(27, 77, 228, 0.32);
+  box-shadow: 0 2px 6px rgba(29, 120, 155, 0.32);
 }
 .hl-account-avatar-edit:disabled {
   cursor: wait;
@@ -259,7 +259,7 @@
 .hl-account-form input:focus,
 .hl-account-form textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 0 0 3px rgba(29, 120, 155, 0.1);
 }
 .hl-account-email-field {
   position: relative;
@@ -315,7 +315,7 @@
 .hl-account-primary {
   background: var(--color-primary);
   color: var(--color-surface);
-  box-shadow: 0 10px 22px rgba(27, 77, 228, 0.2);
+  box-shadow: 0 10px 22px rgba(29, 120, 155, 0.2);
 }
 .hl-account-primary:disabled {
   cursor: not-allowed;
@@ -359,7 +359,7 @@
 }
 .hl-account-password-input:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 0 0 3px rgba(29, 120, 155, 0.1);
 }
 .hl-account-password-input input {
   flex: 1;

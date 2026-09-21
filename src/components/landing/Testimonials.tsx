@@ -10,7 +10,7 @@ function Testimonials() {
         padding: '90px 0',
         background: '#F6F8FE',
         backgroundImage:
-          'linear-gradient(rgba(27,77,228,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.05) 1px, transparent 1px)',
+          'linear-gradient(rgba(29,120,155,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(29,120,155,.05) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }}
     >
@@ -45,13 +45,13 @@ function Testimonials() {
                   right: 24,
                   fontSize: 54,
                   lineHeight: 1,
-                  color: 'rgba(27,77,228,.12)',
+                  color: 'rgba(29,120,155,.12)',
                   fontWeight: 900,
                 }}
               >
                 ”
               </span>
-              <div style={{ color: '#F4A93C', letterSpacing: 2, fontSize: 16, marginBottom: 16 }}>
+              <div style={{ color: 'var(--color-accent-dark)', letterSpacing: 2, fontSize: 16, marginBottom: 16 }}>
                 ★★★★★
               </div>
               <p
@@ -90,14 +90,14 @@ function Testimonials() {
                     style={{
                       fontWeight: 800,
                       fontSize: 14,
-                      color: '#11183A',
+                      color: 'var(--color-heading)',
                       textTransform: 'uppercase',
                       letterSpacing: '.2px',
                     }}
                   >
                     {t.name}
                   </div>
-                  <div style={{ fontSize: 13, color: '#5B647F' }}>{t.loc}</div>
+                  <div style={{ fontSize: 13, color: 'var(--color-body)' }}>{t.loc}</div>
                 </div>
               </div>
             </Reveal>

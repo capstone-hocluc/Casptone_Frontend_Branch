@@ -209,8 +209,8 @@ function TuitionManagement() {
   return (
     <>
       <PageHeading
-        title="Quản lý học phí"
-        subtitle="Theo dõi công nợ, điều chỉnh số tiền và hạn nộp của học viên."
+        title="Học phí"
+        subtitle="Công nợ và hạn nộp."
       />
       {notice && (
         <div className="hl-staff-toast">
