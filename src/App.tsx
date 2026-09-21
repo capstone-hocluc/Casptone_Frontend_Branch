@@ -28,6 +28,7 @@ import CourseDetail from './pages/student/CourseDetail'
 import LearningActivity from './pages/student/LearningActivity'
 import VideoLearningPage from './pages/student/VideoLearningPage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import StaffDashboard from './components/staff/StaffDashboard'
 import ManagementDashboard from './components/management/ManagementDashboard'
 import ManagementRouteGuard, {
   type ManagementRole,
@@ -451,7 +452,20 @@ function App() {
   if (authMode?.startsWith('mentor-'))
     return renderManagement('MENTOR', authMode.replace('mentor-', ''), 'mentor')
   if (authMode === 'admin-dashboard' || authMode === 'admin-users')
-    return renderManagement('ADMINISTRATOR', authMode.replace('admin-', ''), 'admin')
+    return (
+      <ManagementRouteGuard
+        allowedRoles={['ADMINISTRATOR']}
+        onLogin={() => navigateTo('/management/login')}
+        onExit={handleLogout}
+      >
+        <StaffDashboard
+          page={authMode.replace('admin-', '')}
+          onNavigate={(nextPage) => navigateManagement('admin', nextPage)}
+          onBack={backToLanding}
+          adminArea
+        />
+      </ManagementRouteGuard>
+    )
   if (authMode === 'management-login')
     return (
       <AdminLoginPage
