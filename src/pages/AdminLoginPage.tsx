@@ -53,7 +53,7 @@ function AdminLoginPage({ onBack, onSuccess }: AdminLoginPageProps) {
   return (
     <main className="grid min-h-screen place-items-center bg-surface-soft px-4 py-8">
       <section
-        className="w-full max-w-[420px] rounded-2xl border border-border-primary bg-surface p-8 shadow-[0_24px_60px_-36px_rgba(17,24,58,0.35)] sm:p-9"
+        className="w-full max-w-[420px] rounded-2xl border border-border-primary bg-surface p-8 shadow-[0_24px_60px_-36px_rgba(24,48,68,0.35)] sm:p-9"
         aria-labelledby="admin-login-title"
       >
         <div className="mb-6 flex justify-center">
