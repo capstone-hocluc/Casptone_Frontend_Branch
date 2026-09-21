@@ -36,6 +36,7 @@ import Sidebar from '../ui/Sidebar'
 import NavItem, { SidebarGroupLabel } from '../ui/NavItem'
 import PageHeading from '../ui/PageHeading'
 import DropdownField from '../ui/DropdownField'
+import AdminOverview from '../admin/AdminOverview'
 import StudyGroupManagement from './StudyGroupManagement'
 import ScheduleManagement from './ScheduleManagement'
 import AttendanceManagement from './AttendanceManagement'
@@ -628,9 +629,8 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack, adminArea = fa
               {notice}
             </div>
           )}
-          {page === 'dashboard' && (
-            <Dashboard students={students} navigate={navigate} action={action} />
-          )}
+          {page === 'dashboard' &&
+            (adminArea ? <AdminOverview onNavigate={onNavigate} /> : <Dashboard students={students} navigate={navigate} action={action} />)}
           {page === 'students' && (
             <StudentList
               students={students}
