@@ -5,7 +5,7 @@ import PageHeading from '../ui/PageHeading'
 import SearchFilterBar from '../ui/SearchFilterBar'
 import DataTable from '../ui/DataTable'
 import Modal from '../ui/Modal'
-import StatusBadge from '../ui/StatusBadge'
+import Status from '../ui/Status'
 
 const invoices = [
   {
@@ -116,7 +116,7 @@ const columns = [
     id: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
-      <StatusBadge tone={statusTone[row.original.status]}>{row.original.status}</StatusBadge>
+      <Status tone={statusTone[row.original.status]}>{row.original.status}</Status>
     ),
   },
   { id: 'view', header: '', cell: () => <span className="hl-invoice-view">Xem chi tiết</span> },
@@ -134,10 +134,7 @@ function InvoiceManagement() {
 
   return (
     <>
-      <PageHeading
-        title="Hóa đơn"
-        subtitle="Hóa đơn và lịch sử thanh toán."
-      />
+      <PageHeading title="Hóa đơn" subtitle="Hóa đơn và lịch sử thanh toán." />
       <section className="hl-staff-panel hl-invoice-panel">
         <SearchFilterBar
           query={query}
@@ -174,7 +171,7 @@ function InvoiceManagement() {
                   {modal.data.student} · {modal.data.batch}
                 </p>
               </div>
-              <StatusBadge tone={statusTone[modal.data.status]}>{modal.data.status}</StatusBadge>
+              <Status tone={statusTone[modal.data.status]}>{modal.data.status}</Status>
             </div>
             <div className="hl-invoice-meta">
               <span>

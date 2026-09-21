@@ -1,50 +1,75 @@
 import type { DropdownFieldProps, DropdownOption } from './DropdownField'
 import DropdownField from './DropdownField'
 import { cn } from '../../lib/cn'
+import Status from './Status'
+import { statusToneClasses, type StatusTone } from './statusStyles'
 
-export type StatusDropdownTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+export type StatusDropdownTone = StatusTone
 
 export interface StatusDropdownOption extends DropdownOption {
   tone?: StatusDropdownTone
 }
 
-export interface StatusDropdownProps
-  extends Omit<DropdownFieldProps, 'options' | 'renderValue' | 'renderOption'> {
+export interface StatusDropdownProps extends Omit<
+  DropdownFieldProps,
+  'options' | 'renderValue' | 'renderOption'
+> {
   options: readonly StatusDropdownOption[]
 }
 
-const toneClasses: Record<StatusDropdownTone, { text: string; dot: string }> = {
-  success: { text: 'text-badge-success-text', dot: 'bg-badge-success-text' },
-  warning: { text: 'text-badge-warning-text', dot: 'bg-badge-warning-text' },
-  danger: { text: 'text-badge-danger-text', dot: 'bg-badge-danger-text' },
-  info: { text: 'text-badge-info-text', dot: 'bg-badge-info-text' },
-  neutral: { text: 'text-badge-neutral-text', dot: 'bg-badge-neutral-text' },
-}
-
-function StatusValue({ option }: { option?: StatusDropdownOption }) {
+function StatusValue({
+  option,
+  appearance = 'text',
+}: {
+  option?: StatusDropdownOption
+  appearance?: 'text' | 'chip'
+}) {
   if (!option) return null
 
-  const tone = toneClasses[option.tone ?? 'neutral']
+  if (appearance === 'chip') {
+    return (
+      <Status tone={option.tone ?? 'neutral'} className="px-2 py-1 text-xs">
+        {option.label}
+      </Status>
+    )
+  }
+
   return (
-    <span className={cn('inline-flex min-w-0 items-center gap-2 truncate font-medium', tone.text)}>
-      <span className={cn('size-2 shrink-0 rounded-full', tone.dot)} aria-hidden="true" />
-      <span className="truncate">{option.label}</span>
+    <span
+      className={cn(
+        'inline-flex min-w-0 truncate font-medium',
+        statusToneClasses[option.tone ?? 'neutral'].text
+      )}
+    >
+      {option.label}
     </span>
   )
 }
 
-function StatusDropdown({ options, triggerClassName, optionClassName, ...props }: StatusDropdownProps) {
+function StatusDropdown({
+  options,
+  triggerClassName,
+  optionClassName,
+  ...props
+}: StatusDropdownProps) {
+  const selectedOption = options.find((option) => option.id === (props.value ?? null))
+  const selectedTone = statusToneClasses[selectedOption?.tone ?? 'neutral']
+
   return (
     <DropdownField
       {...props}
       options={options}
       triggerClassName={cn(
-        'rounded-[8px] border-border-subtle bg-surface px-3 text-sm font-medium',
-        triggerClassName,
+        'rounded-[8px] border-0 px-3 text-sm font-medium focus-visible:border-0',
+        selectedTone.background,
+        selectedTone.text,
+        triggerClassName
       )}
       optionClassName={cn('rounded-[7px]', optionClassName)}
       renderValue={(option) => <StatusValue option={option as StatusDropdownOption | undefined} />}
-      renderOption={(option) => <StatusValue option={option as StatusDropdownOption} />}
+      renderOption={(option) => (
+        <StatusValue option={option as StatusDropdownOption} appearance="chip" />
+      )}
     />
   )
 }

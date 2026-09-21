@@ -5,7 +5,7 @@ import PageHeading from '../ui/PageHeading'
 import SearchFilterBar from '../ui/SearchFilterBar'
 import DataTable from '../ui/DataTable'
 import Modal from '../ui/Modal'
-import StatusBadge from '../ui/StatusBadge'
+import Status from '../ui/Status'
 import StatCard from '../ui/StatCard'
 
 const payments = [
@@ -120,7 +120,7 @@ const columns = [
     id: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
-      <StatusBadge tone={statusTone[row.original.status]}>{row.original.status}</StatusBadge>
+      <Status tone={statusTone[row.original.status]}>{row.original.status}</Status>
     ),
   },
 ]
@@ -144,10 +144,7 @@ function PaymentManagement() {
 
   return (
     <>
-      <PageHeading
-        title="Thanh toán"
-        subtitle="Giao dịch của học viên."
-      />
+      <PageHeading title="Thanh toán" subtitle="Giao dịch của học viên." />
       <section className="hl-staff-panel hl-payment-panel">
         <div className="hl-payment-summary">
           {statuses.map((status) => (
@@ -187,7 +184,7 @@ function PaymentManagement() {
                 <span className="hl-staff-eyebrow">CHI TIẾT GIAO DỊCH</span>
                 <p>Mã tham chiếu: {modal.data.reference}</p>
               </div>
-              <StatusBadge tone={statusTone[modal.data.status]}>{modal.data.status}</StatusBadge>
+              <Status tone={statusTone[modal.data.status]}>{modal.data.status}</Status>
             </div>
             <div className="hl-payment-amount">
               <span>TỔNG GIAO DỊCH</span>

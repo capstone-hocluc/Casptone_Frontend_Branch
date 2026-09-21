@@ -26,7 +26,7 @@ import DataTable from '../ui/DataTable'
 import DropdownField, { type DropdownOption } from '../ui/DropdownField'
 import Modal from '../ui/Modal'
 import SearchFilterBar from '../ui/SearchFilterBar'
-import StatusBadge from '../ui/StatusBadge'
+import Status from '../ui/Status'
 import StatusDropdown, { type StatusDropdownOption } from '../ui/StatusDropdown'
 import Button from '../ui/Button'
 
@@ -48,9 +48,13 @@ const STATUS_LABELS: Record<UserStatus, string> = {
   PENDING: 'Chờ xác minh',
 }
 
-const STATUS_FILTER_OPTIONS: DropdownOption[] = [
-  { id: 'ALL', label: 'Tất cả trạng thái' },
-  ...USER_STATUSES.map((status) => ({ id: status, label: STATUS_LABELS[status] })),
+const STATUS_FILTER_OPTIONS: StatusDropdownOption[] = [
+  { id: 'ALL', label: 'Tất cả trạng thái', tone: 'neutral' },
+  ...USER_STATUSES.map((status) => ({
+    id: status,
+    label: STATUS_LABELS[status],
+    tone: getStatusTone(status),
+  })),
 ]
 
 const STATUS_DROPDOWN_OPTIONS: StatusDropdownOption[] = USER_STATUSES.map((status) => ({
@@ -67,7 +71,7 @@ const ROLE_OPTIONS: DropdownOption[] = USER_ROLES.map((role) => ({
 const ROLE_FILTER_LABELS = ['Tất cả vai trò', ...USER_ROLES.map((role) => ROLE_LABELS[role])]
 
 const ROLE_BY_FILTER_LABEL = Object.fromEntries(
-  USER_ROLES.map((role) => [ROLE_LABELS[role], role]),
+  USER_ROLES.map((role) => [ROLE_LABELS[role], role])
 ) as Record<string, UserRole | undefined>
 
 function emptyPage(): UserListPage {
@@ -205,7 +209,7 @@ function UserManagement() {
               lastLoginAt: updated.lastLoginAt ?? user.lastLoginAt,
               createdAt: updated.createdAt ?? user.createdAt,
             }
-          : user,
+          : user
       ),
     }))
     setSelectedUser((current) => (current?.id === userId ? { ...current, ...updated } : current))
@@ -226,7 +230,7 @@ function UserManagement() {
         setUpdatingUserId(null)
       }
     },
-    [updateUserInPage],
+    [updateUserInPage]
   )
 
   const handleRoleChange = useCallback(
@@ -244,7 +248,7 @@ function UserManagement() {
         setUpdatingUserId(null)
       }
     },
-    [updateUserInPage],
+    [updateUserInPage]
   )
 
   const openUserDetail = useCallback(async (user: UserSummary) => {
@@ -353,11 +357,14 @@ function UserManagement() {
         ),
       },
     ],
-    [handleRoleChange, handleStatusChange, openUserDetail, updatingUserId],
+    [handleRoleChange, handleStatusChange, openUserDetail, updatingUserId]
   )
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-sm" aria-busy={loading}>
+    <section
+      className="overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-sm"
+      aria-busy={loading}
+    >
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
         <div>
           <h2 className="text-lg font-semibold text-text-heading">Danh sách</h2>
@@ -385,7 +392,7 @@ function UserManagement() {
         }}
         filterOptions={ROLE_FILTER_LABELS}
         additionalFilters={
-          <DropdownField
+          <StatusDropdown
             ariaLabel="Lọc theo trạng thái"
             options={STATUS_FILTER_OPTIONS}
             value={statusFilter}
@@ -393,7 +400,8 @@ function UserManagement() {
               setStatusFilter((value as UserStatus | null) ?? 'ALL')
               setPage(0)
             }}
-            triggerClassName="inline-flex h-10 w-auto min-w-40 cursor-pointer items-center gap-2 rounded-[9px] border border-border-subtle bg-surface px-3 text-sm font-semibold text-text-label outline-none"
+            className="w-auto min-w-40"
+            triggerClassName="h-10 w-auto min-w-40 cursor-pointer"
           />
         }
         resultCount={visibleUsers.length}
@@ -401,19 +409,30 @@ function UserManagement() {
       />
 
       {feedback && (
-        <div className="mx-5 mt-4 flex items-center gap-2 rounded-lg bg-badge-success-bg px-3 py-2 text-sm text-badge-success-text" role="status">
+        <div
+          className="mx-5 mt-4 flex items-center gap-2 rounded-lg bg-badge-success-bg px-3 py-2 text-sm text-badge-success-text"
+          role="status"
+        >
           <CheckCircle2 size={16} />
           {feedback}
         </div>
       )}
 
       {error && (
-        <div className="mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-badge-danger-bg px-3 py-2 text-sm text-badge-danger-text" role="alert">
+        <div
+          className="mx-5 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-badge-danger-bg px-3 py-2 text-sm text-badge-danger-text"
+          role="alert"
+        >
           <span className="flex items-center gap-2">
             <AlertCircle size={16} />
             {error}
           </span>
-          <Button variant="danger" appearance="ghost" size="sm" onClick={() => setReloadKey((current) => current + 1)}>
+          <Button
+            variant="danger"
+            appearance="ghost"
+            size="sm"
+            onClick={() => setReloadKey((current) => current + 1)}
+          >
             Thử lại
           </Button>
         </div>
@@ -438,7 +457,8 @@ function UserManagement() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle px-5 py-3 text-sm text-text-muted">
         <span>
-          Trang {pageData.totalPages ? page + 1 : 0} / {pageData.totalPages || 0} · {pageData.totalElements} tài khoản
+          Trang {pageData.totalPages ? page + 1 : 0} / {pageData.totalPages || 0} ·{' '}
+          {pageData.totalElements} tài khoản
         </span>
         <div className="flex items-center gap-2">
           <Button
@@ -480,35 +500,51 @@ function UserManagement() {
           <div className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Họ và tên</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Họ và tên
+                </p>
                 <p className="mt-1 font-medium text-text-heading">{getUserName(selectedUser)}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Email</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Email
+                </p>
                 <p className="mt-1 break-all font-medium text-text-heading">{selectedUser.email}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Số điện thoại</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Số điện thoại
+                </p>
                 <p className="mt-1 text-text-body">{selectedUser.phone || 'Chưa cập nhật'}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Xác thực email</p>
-                <p className="mt-1 text-text-body">{selectedUser.emailVerified ? 'Đã xác thực' : 'Chưa xác thực'}</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Xác thực email
+                </p>
+                <p className="mt-1 text-text-body">
+                  {selectedUser.emailVerified ? 'Đã xác thực' : 'Chưa xác thực'}
+                </p>
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Ngày tạo</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Ngày tạo
+                </p>
                 <p className="mt-1 text-text-body">{formatDate(selectedUser.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">Đăng nhập gần nhất</p>
-                <p className="mt-1 text-text-body">{formatDate(selectedUser.lastLoginAt, 'Chưa đăng nhập')}</p>
+                <p className="text-xs font-semibold tracking-wide text-text-subtle uppercase">
+                  Đăng nhập gần nhất
+                </p>
+                <p className="mt-1 text-text-body">
+                  {formatDate(selectedUser.lastLoginAt, 'Chưa đăng nhập')}
+                </p>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 border-t border-border-subtle pt-4">
-              <StatusBadge tone={getStatusTone(selectedUser.status ?? 'PENDING')}>
+              <Status tone={getStatusTone(selectedUser.status ?? 'PENDING')}>
                 {STATUS_LABELS[selectedUser.status ?? 'PENDING']}
-              </StatusBadge>
-              <StatusBadge tone="info">{ROLE_LABELS[selectedUser.role]}</StatusBadge>
+              </Status>
+              <Status tone="info">{ROLE_LABELS[selectedUser.role]}</Status>
             </div>
           </div>
         ) : null}
