@@ -8,6 +8,8 @@ const container = cva('mx-auto w-full', {
   variants: {
     width: {
       default: 'max-w-[1280px]',
+      compact: 'max-w-[680px]',
+      reading: 'max-w-[960px]',
       narrow: 'max-w-[980px]',
       wide: 'max-w-[1540px]',
     },

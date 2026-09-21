@@ -8,40 +8,15 @@ import MyOrdersPage from './pages/orders/MyOrdersPage'
 import OrderDetailPage from './pages/orders/OrderDetailPage'
 import PaymentResultPage from './pages/payment/PaymentResultPage'
 import PaymentInstructionsPage from './pages/payment/PaymentInstructionsPage'
-import CourseStudyPage from './pages/course/CourseStudyPage'
-import LessonPage from './pages/course/LessonPage'
-import QuizDetailPage from './pages/assessments/QuizDetailPage'
-import QuizAttemptPage from './pages/assessments/QuizAttemptPage'
-import QuizReviewPage from './pages/assessments/QuizReviewPage'
-import PlacementIntroPage from './pages/assessments/PlacementIntroPage'
-import PlacementAttemptPage from './pages/assessments/PlacementAttemptPage'
-import PlacementReviewPage from './pages/assessments/PlacementReviewPage'
-import PlacementResultPage from './pages/assessments/PlacementResultPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
-import StudentLayout from './components/student/layout/StudentLayout'
-import StudentDashboard from './pages/student/StudentDashboard'
-import LearningProfile from './pages/student/LearningProfile'
-import AccountProfile from './pages/student/AccountProfile'
-import MyCourses from './pages/student/MyCourses'
-import CourseDetail from './pages/student/CourseDetail'
-import LearningActivity from './pages/student/LearningActivity'
-import VideoLearningPage from './pages/student/VideoLearningPage'
+import StudentRoutes from './pages/student/StudentRoutes'
 import AdminLoginPage from './pages/AdminLoginPage'
 import StaffDashboard from './components/staff/StaffDashboard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
 import { useCurrentUser } from './hooks/useCurrentUser'
 import { logout } from './services/authService.ts'
-
-// Studying is a Student Area flow: legacy public study URLs
-// (/courses/:id/study[/lessons/:lessonId]) map onto /student/courses/....
-function toStudentStudyPath(path: string) {
-  const parts = path.split('/').filter(Boolean)
-  const isLegacyStudyRoot = parts.length === 3 && parts[0] === 'courses' && parts[2] === 'study'
-  const isLegacyStudyLesson =
-    parts.length === 5 && parts[0] === 'courses' && parts[2] === 'study' && parts[3] === 'lessons'
-  return isLegacyStudyRoot || isLegacyStudyLesson ? `/student/${parts.join('/')}` : path
-}
+import { parseStudentRoute, studentRoutes, toStudentPath } from './lib/studentRoutes'
 
 function App() {
   const { clearCurrentUser } = useCurrentUser()
@@ -88,7 +63,7 @@ function App() {
   const [authMode, setAuthMode] = useState(getAuthMode)
   const [currentPath, setCurrentPath] = useState(() => {
     const path = window.location.pathname.replace(/\/$/, '') || '/'
-    const target = toStudentStudyPath(path)
+    const target = toStudentPath(path)
     if (target !== path) window.history.replaceState({}, '', target)
     return target
   })
@@ -108,7 +83,7 @@ function App() {
   // instructions) to the next page without a prop path, since it's not
   // returned by GET endpoints and would otherwise be lost on navigation.
   const navigateTo = (rawPath, state = {}) => {
-    const path = toStudentStudyPath(rawPath)
+    const path = toStudentPath(rawPath)
     window.history.pushState(state, '', path)
     setAuthMode(getAuthMode())
     setCurrentPath(path.replace(/\/$/, '') || '/')
@@ -213,22 +188,6 @@ function App() {
     }
   }, [])
 
-  const navigateStudent = (path) => {
-    if (
-      ![
-        '/student/dashboard',
-        '/student/learning-profile',
-        '/student/courses',
-        '/student/profile',
-      ].includes(path) &&
-      !path.startsWith('/student/courses/')
-    )
-      return
-    window.history.pushState({}, '', path)
-    setAuthMode(null)
-    setCurrentPath(path)
-  }
-
   // Segments for any '/courses/...' path: ['courses', courseId]. Only the
   // course detail is public; studying lives under /student/courses/:id/study.
   const courseRouteSegments = currentPath.startsWith('/courses/')
@@ -254,154 +213,6 @@ function App() {
   const orderDetailId = isOrderDetailPath
     ? decodeURIComponent(orderRouteSegments[1] || '')
     : null
-
-  // Segments for any '/assessments/...' path:
-  // ['assessments','quizzes',quizId,'attempts'?,attemptId?]
-  // or ['assessments','attempts',attemptId,'review']
-  const assessmentSegments = currentPath.startsWith('/assessments/')
-    ? currentPath.split('/').filter(Boolean)
-    : []
-  const isQuizDetailPath = assessmentSegments.length === 3 && assessmentSegments[1] === 'quizzes'
-  const isQuizAttemptPath =
-    assessmentSegments.length === 5 &&
-    assessmentSegments[1] === 'quizzes' &&
-    assessmentSegments[3] === 'attempts'
-  const isAttemptReviewPath =
-    assessmentSegments.length === 4 &&
-    assessmentSegments[1] === 'attempts' &&
-    assessmentSegments[3] === 'review'
-
-  const quizDetailId = isQuizDetailPath ? decodeURIComponent(assessmentSegments[2] || '') : null
-  const attemptQuizId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[2] || '') : null
-  const quizAttemptId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[4] || '') : null
-  const reviewAttemptId = isAttemptReviewPath
-    ? decodeURIComponent(assessmentSegments[2] || '')
-    : null
-
-  // Placement segments: ['assessments','placement','result'? | 'attempts',attemptId?,'review'?]
-  const isPlacementIntroPath =
-    assessmentSegments.length === 2 && assessmentSegments[1] === 'placement'
-  const isPlacementResultPath =
-    assessmentSegments.length === 3 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'result'
-  const isPlacementAttemptPath =
-    assessmentSegments.length === 4 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'attempts'
-  const isPlacementReviewPath =
-    assessmentSegments.length === 5 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'attempts' &&
-    assessmentSegments[4] === 'review'
-
-  const placementAttemptId =
-    isPlacementAttemptPath || isPlacementReviewPath
-      ? decodeURIComponent(assessmentSegments[3] || '')
-      : null
-
-  const isCoursesPath =
-    currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
-  const coursePathParts = currentPath.startsWith('/student/courses/')
-    ? currentPath.split('/').filter(Boolean)
-    : []
-  const courseId = coursePathParts[2] ? decodeURIComponent(coursePathParts[2]) : null
-  const activityRouteType = coursePathParts[3] || ''
-  const activityId = coursePathParts[4] ? decodeURIComponent(coursePathParts[4]) : null
-  // /student/courses/:id/study and /student/courses/:id/study/lessons/:lessonId
-  const isStudentStudyPath = Boolean(courseId) && coursePathParts[3] === 'study'
-  const isStudentStudyRoot = isStudentStudyPath && coursePathParts.length === 4
-  const isStudentStudyLesson =
-    isStudentStudyPath && coursePathParts.length === 6 && coursePathParts[4] === 'lessons'
-  const studyLessonId = isStudentStudyLesson ? decodeURIComponent(coursePathParts[5] || '') : null
-  const isActivityPath = Boolean(courseId && activityRouteType && activityId) && !isStudentStudyPath
-  const openStudy = (targetCourseId: string) =>
-    navigateStudent(`/student/courses/${encodeURIComponent(targetCourseId)}/study`)
-  const studentTitle =
-    currentPath === '/student/learning-profile'
-      ? 'Hồ sơ năng lực'
-      : currentPath === '/student/profile'
-        ? 'Hồ sơ của tôi'
-        : isCoursesPath
-          ? 'Khóa học của tôi'
-          : 'Tổng quan'
-  const studentSubtitle =
-    currentPath === '/student/learning-profile'
-      ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
-      : currentPath === '/student/profile'
-        ? 'Quản lý thông tin cá nhân, hồ sơ học tập và bảo mật tài khoản.'
-        : isCoursesPath
-          ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
-          : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
-
-  const renderStudentDashboard = () => (
-    <StudentLayout
-      currentPath={currentPath}
-      title={studentTitle}
-      subtitle={studentSubtitle}
-      onNavigate={navigateStudent}
-      onBack={backToLanding}
-      onLogout={handleLogout}
-      logoutLoading={logoutLoading}
-    >
-      {currentPath === '/student/learning-profile' ? (
-        <LearningProfile />
-      ) : currentPath === '/student/profile' ? (
-        <AccountProfile />
-      ) : isStudentStudyLesson && courseId && studyLessonId ? (
-        <LessonPage
-          key={`${courseId}-${studyLessonId}`}
-          courseId={courseId}
-          lessonId={studyLessonId}
-          onBackToStudy={() => openStudy(courseId)}
-          onNavigateLesson={(lessonId) =>
-            navigateStudent(
-              `/student/courses/${encodeURIComponent(courseId)}/study/lessons/${encodeURIComponent(lessonId)}`
-            )
-          }
-          onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-        />
-      ) : isStudentStudyRoot && courseId ? (
-        <CourseStudyPage
-          key={courseId}
-          courseId={courseId}
-          onBackToMyCourses={() => navigateStudent('/student/courses')}
-          onViewCourseInfo={() => navigateTo(`/courses/${encodeURIComponent(courseId)}`)}
-          onOpenLesson={(lessonId) =>
-            navigateStudent(
-              `/student/courses/${encodeURIComponent(courseId)}/study/lessons/${encodeURIComponent(lessonId)}`
-            )
-          }
-          onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-          onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
-        />
-      ) : isActivityPath ? (
-        <LearningActivity
-          courseId={courseId}
-          routeType={activityRouteType}
-          activityId={activityId}
-          onBack={() => navigateStudent(`/student/courses/${courseId}`)}
-        />
-      ) : courseId ? (
-        <CourseDetail
-          courseId={courseId}
-          onBack={() => navigateStudent('/student/courses')}
-          onOpenActivity={(targetCourseId, routeType, targetActivityId) =>
-            navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)
-          }
-        />
-      ) : isCoursesPath ? (
-        <MyCourses
-          onOpenCourse={(course) => openStudy(course.id)}
-          onBrowseCourses={() => navigateTo('/courses')}
-        />
-      ) : (
-        <StudentDashboard
-          onOpenLearningProfile={() => navigateStudent('/student/learning-profile')}
-        />
-      )}
-    </StudentLayout>
-  )
 
   if (authMode?.startsWith('staff-'))
     return (
@@ -438,89 +249,18 @@ function App() {
       />
     )
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
-  if (isActivityPath && activityRouteType === 'lessons') {
+  // Every authenticated learning screen (dashboard, courses, study, lessons,
+  // video, quizzes, attempts, results, review, learning profile) renders inside
+  // the single StudentLayout owned by StudentRoutes.
+  const studentRoute = parseStudentRoute(currentPath)
+  if (studentRoute)
     return (
-      <VideoLearningPage
-        courseId={courseId}
-        activityId={activityId}
-        onBackCourse={() => navigateStudent(`/student/courses/${courseId}`)}
-        onCourses={() => navigateStudent('/student/courses')}
-        onNavigateActivity={(targetCourseId, routeType, targetActivityId) =>
-          navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)
-        }
-      />
-    )
-  }
-  if (
-    [
-      '/student/dashboard',
-      '/student/learning-profile',
-      '/student/courses',
-      '/student/profile',
-    ].includes(currentPath) || currentPath.startsWith('/student/courses/')
-  )
-    return renderStudentDashboard()
-  if (quizAttemptId && attemptQuizId)
-    return (
-      <QuizAttemptPage
-        key={quizAttemptId}
-        quizId={attemptQuizId}
-        attemptId={quizAttemptId}
-        onExit={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-        onSubmitted={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
-      />
-    )
-  if (quizDetailId)
-    return (
-      <QuizDetailPage
-        key={quizDetailId}
-        quizId={quizDetailId}
-        onStartAttempt={(quizId, attemptId) =>
-          navigateTo(`/assessments/quizzes/${quizId}/attempts/${attemptId}`)
-        }
-        onOpenReview={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
-      />
-    )
-  if (reviewAttemptId)
-    return (
-      <QuizReviewPage
-        key={reviewAttemptId}
-        attemptId={reviewAttemptId}
-        onBackToQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-      />
-    )
-  if (isPlacementReviewPath && placementAttemptId)
-    return (
-      <PlacementReviewPage
-        key={placementAttemptId}
-        attemptId={placementAttemptId}
-        onBack={() => navigateTo('/assessments/placement/result')}
-      />
-    )
-  if (isPlacementAttemptPath && placementAttemptId)
-    return (
-      <PlacementAttemptPage
-        key={placementAttemptId}
-        attemptId={placementAttemptId}
-        onExit={() => navigateTo('/assessments/placement')}
-        onSubmitted={() => navigateTo('/assessments/placement/result')}
-      />
-    )
-  if (isPlacementResultPath)
-    return (
-      <PlacementResultPage
-        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
-        onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
-      />
-    )
-  if (isPlacementIntroPath)
-    return (
-      <PlacementIntroPage
-        onStartAttempt={(attemptId) =>
-          navigateTo(`/assessments/placement/attempts/${attemptId}`)
-        }
-        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
-        onBack={backToLanding}
+      <StudentRoutes
+        route={studentRoute}
+        currentPath={currentPath}
+        navigate={navigateTo}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
       />
     )
   if (publicCourseId)
@@ -530,7 +270,7 @@ function App() {
         courseId={publicCourseId}
         onBackToHome={backToLanding}
         onBackToCatalog={() => navigateTo('/courses')}
-        onStartLearning={(id) => openStudy(id)}
+        onStartLearning={(id) => navigateTo(studentRoutes.courseStudy(id))}
         onGoToCart={() => navigateTo('/cart')}
       />
     )
@@ -540,7 +280,7 @@ function App() {
         key={orderPaymentOrderId}
         orderId={orderPaymentOrderId}
         onGoToOrderDetail={() => navigateTo(`/orders/${orderPaymentOrderId}`)}
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
       />
     )
   if (orderDetailId)
@@ -549,7 +289,7 @@ function App() {
         key={orderDetailId}
         orderId={orderDetailId}
         onBackToOrders={() => navigateTo('/orders')}
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
         onPaymentReady={(paymentData) =>
           navigateTo(`/orders/${paymentData.order.id}/payment`, paymentData)
         }
@@ -584,7 +324,7 @@ function App() {
   if (authMode === 'payment-result')
     return (
       <PaymentResultPage
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
         onOpenOrder={(orderId) => navigateTo(`/orders/${orderId}`)}
         onGoToOrders={() => navigateTo('/orders')}
       />

@@ -1,14 +1,9 @@
 import { Eye } from 'lucide-react'
 import type { QuizAttemptSummary } from '../../services/assessmentService'
 import { getAttemptStatusLabel } from '../../lib/attemptStatus'
-import { formatDuration } from '../../lib/courseFormat'
-
-function formatDateTime(value: string | null) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleString('vi-VN')
-}
+import { formatDateTime, formatDuration } from '../../lib/courseFormat'
+import Button from '../ui/Button'
+import Card, { CardTitle } from '../ui/Card'
 
 interface QuizAttemptHistoryProps {
   attempts: QuizAttemptSummary[]
@@ -22,43 +17,48 @@ function QuizAttemptHistory({ attempts, allowReview, onOpenReview }: QuizAttempt
   const sorted = [...attempts].sort((a, b) => b.attemptNumber - a.attemptNumber)
 
   return (
-    <section className="hl-quiz-card">
-      <h2>Lịch sử làm bài</h2>
-      <div className="hl-quiz-attempt-list">
+    <Card as="section" padding="none" radius="lg" className="border-border-subtle p-[22px]">
+      <CardTitle className="mb-3.5 text-base">Lịch sử làm bài</CardTitle>
+      <div className="flex flex-col gap-2.5">
         {sorted.map((attempt) => {
           const canReview = allowReview && attempt.status !== 'IN_PROGRESS'
           return (
-            <div className="hl-quiz-attempt-row" key={attempt.attemptId}>
-              <div>
-                <span className="hl-quiz-attempt-number">Lần {attempt.attemptNumber}</span>
-                <span className="hl-quiz-attempt-status">
+            <div
+              className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-border-subtle px-3.5 py-3"
+              key={attempt.attemptId}
+            >
+              <div className="flex flex-col gap-[3px]">
+                <span className="text-[13px] font-bold text-text-heading">
+                  Lần {attempt.attemptNumber}
+                </span>
+                <span className="text-[11.5px] text-text-faint">
                   {getAttemptStatusLabel(attempt.status)}
                 </span>
               </div>
-              <div className="hl-quiz-attempt-meta">
-                {attempt.status !== 'IN_PROGRESS' && (
-                  <span>{attempt.percentage}%</span>
-                )}
+              <div className="flex gap-3.5 text-[12.5px] text-text-faint">
+                {attempt.status !== 'IN_PROGRESS' && <span>{attempt.percentage}%</span>}
                 {attempt.timeSpentSeconds > 0 && (
                   <span>{formatDuration(attempt.timeSpentSeconds)}</span>
                 )}
-                <span>{formatDateTime(attempt.submittedAt || attempt.startedAt)}</span>
+                <span>{formatDateTime(attempt.submittedAt || attempt.startedAt || '')}</span>
               </div>
               {canReview && (
-                <button
-                  type="button"
-                  className="hl-quiz-attempt-review-btn"
+                <Button
+                  appearance="outline"
+                  shape="pill"
+                  size="sm"
+                  className="h-auto border-primary px-3.5 py-1.5 text-xs font-bold"
                   onClick={() => onOpenReview(attempt.attemptId)}
                 >
                   <Eye size={14} />
                   Xem lại
-                </button>
+                </Button>
               )}
             </div>
           )
         })}
       </div>
-    </section>
+    </Card>
   )
 }
 

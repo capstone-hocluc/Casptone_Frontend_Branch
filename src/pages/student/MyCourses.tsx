@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import MascotState from '../../components/common/MascotState'
 import MyCourseCard from '../../components/student/course/MyCourseCard'
 import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
@@ -7,7 +7,7 @@ import Card from '../../components/ui/Card'
 import SearchInput from '../../components/ui/SearchInput'
 import Skeleton from '../../components/ui/Skeleton'
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/Tabs'
-import { getErrorMessage } from '../../lib/errors'
+import { usePageResource } from '../../hooks/usePageResource'
 import { getMyCourses } from '../../services/courseService'
 import type { MyCourseEnrollment } from '../../services/courseService'
 
@@ -24,32 +24,13 @@ const courseGrid =
 function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState<CourseTab>('main')
-  const [enrollments, setEnrollments] = useState<MyCourseEnrollment[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function load() {
-      try {
-        const response = await getMyCourses()
-        if (cancelled) return
-        setEnrollments(response.data || [])
-        setStatus('ready')
-      } catch (error) {
-        if (cancelled) return
-        setErrorMessage(getErrorMessage(error) || 'Không thể tải khóa học của bạn')
-        setStatus('error')
-      }
-    }
-
-    load()
-    return () => {
-      cancelled = true
-    }
-  }, [reloadKey])
+  const {
+    data: response,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getMyCourses(), [], { forbidden: false, notFound: false })
+  const enrollments = useMemo<MyCourseEnrollment[]>(() => response?.data || [], [response])
 
   const visibleEnrollments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -116,10 +97,7 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
             title="Không thể tải khóa học của bạn"
             message={errorMessage}
             actionLabel="Thử lại"
-            onAction={() => {
-              setStatus('loading')
-              setReloadKey((current) => current + 1)
-            }}
+            onAction={reload}
           />
         )}
 

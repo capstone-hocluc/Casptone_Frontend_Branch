@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowLeft, CheckCircle2, Lock, SearchX } from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import Chatbot from '../../components/landing/Chatbot'
+import { useState } from 'react'
+import { CheckCircle2, Lock } from 'lucide-react'
 import QuizAttemptHistory from '../../components/assessment/QuizAttemptHistory'
-import { getQuiz, startQuizAttempt, type QuizDetail } from '../../services/assessmentService'
+import BackLink from '../../components/student/common/BackLink'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Button from '../../components/ui/Button'
+import Card from '../../components/ui/Card'
+import Notice from '../../components/ui/Notice'
+import Skeleton from '../../components/ui/Skeleton'
+import StatusBadge from '../../components/ui/StatusBadge'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getQuiz, startQuizAttempt } from '../../services/assessmentService'
 import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
 import { showErrorToast } from '../../lib/toastBus'
 import { getAssessmentLockMessage } from '../../lib/quizLock'
 import { prettifyEnum } from '../../lib/courseFormat'
+import { getQuizKind } from '../../lib/learningType'
 
 interface QuizDetailPageProps {
   quizId: string
@@ -18,39 +24,13 @@ interface QuizDetailPageProps {
 }
 
 function QuizDetailPage({ quizId, onStartAttempt, onOpenReview }: QuizDetailPageProps) {
-  const [quiz, setQuiz] = useState<QuizDetail | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
-    'loading'
-  )
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
+  const {
+    data: quiz,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getQuiz(quizId), [quizId])
   const [starting, setStarting] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    getQuiz(quizId)
-      .then((data) => {
-        if (cancelled) return
-        setQuiz(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 403) {
-          setStatus('forbidden')
-          return
-        }
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [quizId, reloadKey])
 
   const handleContinue = () => {
     if (!quiz?.inProgressAttemptId) return
@@ -71,111 +51,91 @@ function QuizDetailPage({ quizId, onStartAttempt, onOpenReview }: QuizDetailPage
   }
 
   return (
-    <div className="hl-quiz-page">
-      <Navbar />
-      <main className="hl-quiz-main-wrap">
-        <div className="hl-quiz-container hl-quiz-container-narrow">
-          {status === 'loading' && (
-            <div className="hl-quiz-attempt-grid">
-              <div className="hl-quiz-skeleton" style={{ height: 260 }} />
-            </div>
-          )}
+    <StudentPageContainer width="compact" spacing="stack">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={<Skeleton className="h-[260px] rounded-2xl" />}
+        forbidden={{ title: getAssessmentLockMessage(null) }}
+        notFound={{ title: 'Không tìm thấy bài kiểm tra.' }}
+        error={{ title: 'Không thể tải bài kiểm tra.' }}
+      />
 
-          {status === 'forbidden' && (
-            <div className="hl-quiz-state">
-              <Lock size={30} />
-              <p>{getAssessmentLockMessage(null)}</p>
-            </div>
-          )}
+      {status === 'ready' && quiz && (
+        <>
+          <BackLink onClick={() => window.history.back()}>Quay lại</BackLink>
 
-          {status === 'not-found' && (
-            <div className="hl-quiz-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy bài kiểm tra.</p>
-            </div>
-          )}
+          <Card
+            as="section"
+            padding="none"
+            radius="lg"
+            className="flex flex-col items-start border-border-subtle p-[22px]"
+          >
+            <StatusBadge
+              tone={getQuizKind(quiz.type) === 'assessment' ? 'assessment' : 'practice'}
+              size="sm"
+              className="mb-2.5 px-3 py-1 text-[11.5px] font-extrabold tracking-[0.04em] uppercase"
+            >
+              {prettifyEnum(quiz.type)}
+            </StatusBadge>
+            <h1 className="mb-2.5 text-xl font-bold text-text-heading">{quiz.title}</h1>
+            {quiz.description && (
+              <p className="mb-4 text-sm text-text-secondary">{quiz.description}</p>
+            )}
 
-          {status === 'error' && (
-            <div className="hl-quiz-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải bài kiểm tra.'}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
+            <div className="mb-3.5 flex flex-wrap gap-x-[18px] gap-y-2.5 text-[13px] text-text-faint">
+              <span>{quiz.questionCount} câu hỏi</span>
+              {quiz.durationMinutes > 0 && <span>{quiz.durationMinutes} phút</span>}
+              <span>Điểm đạt: {quiz.passingPercentage}%</span>
+              <span>
+                Lượt làm: {quiz.attemptsUsed}/{quiz.maxAttempts}
+              </span>
+            </div>
+
+            {quiz.passed && (
+              <StatusBadge
+                tone="success"
+                className="mb-3.5 gap-1.5 px-3 py-1.5 text-[12.5px] font-bold"
               >
-                Thử lại
-              </button>
-            </div>
-          )}
+                <CheckCircle2 size={14} />
+                Đã đạt · Kết quả tốt nhất {quiz.bestPercentage}%
+              </StatusBadge>
+            )}
 
-          {status === 'ready' && quiz && (
-            <div className="hl-quiz-grid">
-              <button
-                type="button"
-                className="hl-quiz-exit"
-                onClick={() => window.history.back()}
+            {quiz.locked ? (
+              <Notice tone="danger" className="flex-nowrap self-stretch">
+                <Lock size={16} className="shrink-0" />
+                {getAssessmentLockMessage(quiz.lockReason)}
+              </Notice>
+            ) : quiz.inProgressAttemptId ? (
+              <Button
+                shape="pill"
+                className="h-[46px] px-[26px] text-sm font-extrabold"
+                onClick={handleContinue}
               >
-                <ArrowLeft size={15} />
-                Quay lại
-              </button>
+                Tiếp tục làm bài
+              </Button>
+            ) : (
+              <Button
+                shape="pill"
+                className="h-[46px] px-[26px] text-sm font-extrabold"
+                onClick={handleStart}
+                disabled={starting}
+              >
+                {starting ? 'Đang bắt đầu...' : 'Bắt đầu làm bài'}
+              </Button>
+            )}
+          </Card>
 
-              <section className="hl-quiz-card hl-quiz-intro-card">
-                <span className="hl-quiz-card-eyebrow">{prettifyEnum(quiz.type)}</span>
-                <h1>{quiz.title}</h1>
-                {quiz.description && <p className="hl-quiz-intro-desc">{quiz.description}</p>}
-
-                <div className="hl-quiz-intro-stats">
-                  <span>{quiz.questionCount} câu hỏi</span>
-                  {quiz.durationMinutes > 0 && <span>{quiz.durationMinutes} phút</span>}
-                  <span>Điểm đạt: {quiz.passingPercentage}%</span>
-                  <span>
-                    Lượt làm: {quiz.attemptsUsed}/{quiz.maxAttempts}
-                  </span>
-                </div>
-
-                {quiz.passed && (
-                  <span className="hl-quiz-passed-tag">
-                    <CheckCircle2 size={14} />
-                    Đã đạt · Kết quả tốt nhất {quiz.bestPercentage}%
-                  </span>
-                )}
-
-                {quiz.locked ? (
-                  <div className="hl-quiz-locked-note">
-                    <Lock size={16} />
-                    {getAssessmentLockMessage(quiz.lockReason)}
-                  </div>
-                ) : quiz.inProgressAttemptId ? (
-                  <button type="button" className="hl-quiz-start-cta" onClick={handleContinue}>
-                    Tiếp tục làm bài
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="hl-quiz-start-cta"
-                    onClick={handleStart}
-                    disabled={starting}
-                  >
-                    {starting ? 'Đang bắt đầu...' : 'Bắt đầu làm bài'}
-                  </button>
-                )}
-              </section>
-
-              <QuizAttemptHistory
-                attempts={quiz.attempts}
-                allowReview={quiz.showAnswers}
-                onOpenReview={onOpenReview}
-              />
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Chatbot />
-    </div>
+          <QuizAttemptHistory
+            attempts={quiz.attempts}
+            allowReview={quiz.showAnswers}
+            onOpenReview={onOpenReview}
+          />
+        </>
+      )}
+    </StudentPageContainer>
   )
 }
 

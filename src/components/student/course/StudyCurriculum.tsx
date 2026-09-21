@@ -4,17 +4,13 @@ import type {
   CourseStudyPhase,
   CourseStudySection,
 } from '../../../services/courseService'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '../../ui/Accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/Accordion'
 import Progress from '../../ui/Progress'
 import MascotState from '../../common/MascotState'
 import LessonRow from './LessonRow'
 import QuizRow from './QuizRow'
-import { bySequence, lessonContainsId } from './studyUtils'
+import { bySequence } from '../../../lib/sequence'
+import { lessonContainsId } from './studyUtils'
 
 function clampPercent(value?: number) {
   return Math.max(0, Math.min(100, value ?? 0))
@@ -33,10 +29,7 @@ function ChapterBlock({
   onOpenQuiz,
 }: CurriculumHandlers & { chapter: CourseStudyChapter }) {
   return (
-    <AccordionItem
-      value={chapter.id}
-      className="rounded-[15px] border border-line bg-surface p-3"
-    >
+    <AccordionItem value={chapter.id} className="rounded-[15px] border border-line bg-surface p-3">
       <AccordionTrigger iconSize={16} className="gap-3 text-heading">
         <span className="inline-flex min-w-0 flex-1 items-center gap-2 text-sm font-extrabold text-text-heading">
           {chapter.title}

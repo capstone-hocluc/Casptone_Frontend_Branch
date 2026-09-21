@@ -14,8 +14,6 @@ import {
   Volume2,
   X,
 } from 'lucide-react'
-import { useCurrentUser } from '../../hooks/useCurrentUser'
-import { dashboardSummary } from '../../data/studentDashboard'
 import {
   findCourseActivity,
   getActivityRouteType,
@@ -24,6 +22,9 @@ import {
 } from '../../data/courseLookup'
 import { useTransientMessage } from '../../hooks/useTransientMessage'
 import StudentToast from '../../components/student/common/StudentToast'
+import MascotState from '../../components/common/MascotState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card from '../../components/ui/Card'
 
 const quickActions = ['Tóm tắt bài học', 'Giải thích dễ hiểu', 'Cho ví dụ', 'Gợi ý làm bài']
 
@@ -53,36 +54,6 @@ function getMockAiResponse(prompt, lessonTitle) {
     return 'Hãy đọc câu hỏi trước, gạch ý chính từng đoạn, sau đó loại đáp án quá hẹp hoặc quá xa nội dung văn bản.'
   }
   return 'Mình đã ghi nhận câu hỏi của bạn. Với bản mock frontend này, mình sẽ gợi ý ngắn gọn: hãy tập trung vào mục tiêu chính của bài và thử áp dụng ngay vào câu hỏi luyện tập.'
-}
-
-function LearningHeader({ course, onBack }) {
-  const { profile } = useCurrentUser()
-  const displayName =
-    profile?.displayName ||
-    [profile?.lastName, profile?.firstName].filter(Boolean).join(' ') ||
-    dashboardSummary.studentName
-
-  return (
-    <header className="hl-video-learn-header">
-      <div>
-        <button type="button" aria-label="Quay lại khóa học" onClick={onBack}>
-          <ArrowLeft size={18} />
-        </button>
-        <span className="hl-video-logo">
-          <img src="/logo.png" alt="HocLuc.com" />
-          <b>
-            HocLuc<span>.com</span>
-          </b>
-        </span>
-        <span />
-        <strong>{course.title}</strong>
-      </div>
-      <img
-        src={profile?.avatarUrl || dashboardSummary.avatar || '/avatar-minhanh.jpg'}
-        alt={displayName}
-      />
-    </header>
-  )
 }
 
 function LessonNavBar({
@@ -376,22 +347,21 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
 
   if (!context || !['Video', 'Buổi giải đề'].includes(context.activity.type)) {
     return (
-      <section className="hl-video-learning-page">
-        <article className="hl-video-invalid">
-          <h1>Không tìm thấy video bài học</h1>
-          <p>Nội dung này không tồn tại hoặc chưa được thêm vào.</p>
-          <button type="button" onClick={onBackCourse}>
-            <ArrowLeft size={16} />
-            Quay lại khóa học
-          </button>
-        </article>
-      </section>
+      <StudentPageContainer>
+        <Card padding="lg" radius="xl">
+          <MascotState
+            title="Không tìm thấy video bài học"
+            message="Nội dung này không tồn tại hoặc chưa được thêm vào."
+            actionLabel="Quay lại khóa học"
+            onAction={onBackCourse}
+          />
+        </Card>
+      </StudentPageContainer>
     )
   }
 
   return (
     <section className="hl-video-learning-page">
-      <LearningHeader course={context.course} onBack={onBackCourse} />
       <LessonNavBar
         context={context}
         previous={adjacent.previous}

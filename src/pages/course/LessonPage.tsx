@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
-import MascotState from '../../components/common/MascotState'
+import { useRef, useState } from 'react'
 import LessonBreadcrumb from '../../components/lesson/LessonBreadcrumb'
 import LessonContent from '../../components/lesson/LessonContent'
 import LessonInfoCard from '../../components/lesson/LessonInfoCard'
 import LessonNavFooter from '../../components/lesson/LessonNavFooter'
 import LessonQuizzes from '../../components/lesson/LessonQuizzes'
+import ResourceState from '../../components/student/common/ResourceState'
 import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
 import Skeleton from '../../components/ui/Skeleton'
-import { getLesson, updateLessonProgress, type LessonDetail } from '../../services/lessonService'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getLesson, updateLessonProgress } from '../../services/lessonService'
 import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
 import { showErrorToast, showSuccessToast } from '../../lib/toastBus'
 
 interface LessonPageProps {
@@ -21,44 +21,23 @@ interface LessonPageProps {
 }
 
 function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: LessonPageProps) {
-  const [lesson, setLesson] = useState<LessonDetail | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
-    'loading'
-  )
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
   const [completing, setCompleting] = useState(false)
 
-  const videoRef = useRef<HTMLVideoElement | null>(null)
   const watchSecondsRef = useRef(0)
-  const savingRef = useRef(false)
+  const {
+    data: lesson,
+    setData: setLesson,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getLesson(lessonId), [lessonId], {
+    onLoaded: (data) => {
+      watchSecondsRef.current = Math.max(0, data.progress?.watchDurationSeconds ?? 0)
+    },
+  })
 
-  useEffect(() => {
-    let cancelled = false
-    getLesson(lessonId)
-      .then((data) => {
-        if (cancelled) return
-        watchSecondsRef.current = Math.max(0, data.progress?.watchDurationSeconds ?? 0)
-        setLesson(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 403) {
-          setStatus('forbidden')
-          return
-        }
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [lessonId, reloadKey])
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const savingRef = useRef(false)
 
   const clampWatchSeconds = () => {
     let seconds = Math.max(0, Math.floor(watchSecondsRef.current))
@@ -117,43 +96,31 @@ function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: L
 
   return (
     <StudentPageContainer width="narrow" className="pb-8">
-      {status === 'loading' && (
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-6 w-[260px] max-w-full" />
-          <Skeleton className="h-[360px]" />
-          <Skeleton className="h-[120px]" />
-        </div>
-      )}
-
-      {status === 'forbidden' && (
-        <MascotState
-          title="Chưa thể truy cập bài học"
-          message="Bạn chưa có quyền truy cập bài học này."
-          actionLabel="Quay lại khóa học"
-          onAction={onBackToStudy}
-        />
-      )}
-
-      {status === 'not-found' && (
-        <MascotState
-          title="Không tìm thấy bài học"
-          message="Bài học này không tồn tại hoặc đã bị gỡ."
-          actionLabel="Quay lại khóa học"
-          onAction={onBackToStudy}
-        />
-      )}
-
-      {status === 'error' && (
-        <MascotState
-          title="Không thể tải bài học"
-          message={errorMessage}
-          actionLabel="Thử lại"
-          onAction={() => {
-            setStatus('loading')
-            setReloadKey((current) => current + 1)
-          }}
-        />
-      )}
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-6 w-[260px] max-w-full" />
+            <Skeleton className="h-[360px]" />
+            <Skeleton className="h-[120px]" />
+          </div>
+        }
+        forbidden={{
+          title: 'Chưa thể truy cập bài học',
+          message: 'Bạn chưa có quyền truy cập bài học này.',
+          actionLabel: 'Quay lại khóa học',
+          onAction: onBackToStudy,
+        }}
+        notFound={{
+          title: 'Không tìm thấy bài học',
+          message: 'Bài học này không tồn tại hoặc đã bị gỡ.',
+          actionLabel: 'Quay lại khóa học',
+          onAction: onBackToStudy,
+        }}
+        error={{ title: 'Không thể tải bài học' }}
+      />
 
       {status === 'ready' && lesson && (
         <div className="flex flex-col gap-4">
@@ -164,7 +131,11 @@ function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: L
             onTimeUpdate={handleTimeUpdate}
             onPause={handlePause}
           />
-          <LessonInfoCard lesson={lesson} completing={completing} onMarkComplete={handleMarkComplete} />
+          <LessonInfoCard
+            lesson={lesson}
+            completing={completing}
+            onMarkComplete={handleMarkComplete}
+          />
           <LessonQuizzes quizzes={lesson.quizzes} onOpenQuiz={onOpenQuiz} />
           <LessonNavFooter
             previousLessonId={lesson.previousLessonId}

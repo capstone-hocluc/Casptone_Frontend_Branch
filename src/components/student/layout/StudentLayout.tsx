@@ -5,25 +5,24 @@ import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { dashboardSummary } from '../../../data/studentDashboard'
 import { useTransientMessage } from '../../../hooks/useTransientMessage'
 import StudentToast from '../common/StudentToast'
+import { getStudentNavKeyForPath } from '../../../lib/studentNav'
+import { studentRoutes } from '../../../lib/studentRoutes'
 import { cn } from '../../../lib/cn'
 
 interface StudentLayoutProps {
   currentPath: string
-  title?: ReactNode
-  subtitle?: ReactNode
   onNavigate: (path: string) => void
-  onBack?: () => void
   onLogout?: () => void
   logoutLoading?: boolean
   children: ReactNode
 }
 
-// The one shell every /student/... screen renders inside: sticky topbar,
-// icon-rail sidebar and the page area. Pages never render their own header.
+// The one shell every /student/... screen renders inside (learning, courses,
+// lessons, quizzes, results, review...): sticky topbar, icon-rail sidebar and
+// the page area (`children` is the routed page). Pages never render their own
+// header/sidebar; the sidebar highlight is derived from the current URL.
 function StudentLayout({
   currentPath,
-  title,
-  subtitle,
   onNavigate,
   onLogout,
   logoutLoading = false,
@@ -51,19 +50,17 @@ function StudentLayout({
       )}
     >
       <StudentTopbar
-        title={title}
-        subtitle={subtitle}
         student={student}
         onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
-        onNavigateHome={() => onNavigate('/student/dashboard')}
-        onNavigateLearningProfile={() => onNavigate('/student/learning-profile')}
-        onNavigateProfile={() => onNavigate('/student/profile')}
+        onNavigateHome={() => onNavigate(studentRoutes.dashboard())}
+        onNavigateLearningProfile={() => onNavigate(studentRoutes.learningProfile())}
+        onNavigateProfile={() => onNavigate(studentRoutes.profile())}
         onLogout={onLogout}
         logoutLoading={logoutLoading}
         onNotify={notify}
       />
       <StudentSidebar
-        currentPath={currentPath}
+        activeKey={getStudentNavKeyForPath(currentPath)}
         onNavigate={onNavigate}
         collapsed={sidebarCollapsed}
         onNotify={notify}

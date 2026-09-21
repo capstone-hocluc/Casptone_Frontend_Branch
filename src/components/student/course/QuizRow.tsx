@@ -4,7 +4,7 @@ import { getQuizLockMessage } from '../../../lib/quizLock'
 import LearningStatus from '../common/LearningStatus'
 import LearningTypeIcon from '../common/LearningTypeIcon'
 import CurriculumRow from './CurriculumRow'
-import { getQuizKind, quizKindLabel } from './studyUtils'
+import { getQuizKind, quizKindLabel } from '../../../lib/learningType'
 
 interface QuizRowProps {
   quiz: CourseStudyQuiz | LessonQuiz

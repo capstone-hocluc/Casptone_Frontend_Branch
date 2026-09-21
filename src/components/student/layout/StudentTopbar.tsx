@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Bell, Flame, LogOut, Menu, Settings, User, UserRound } from 'lucide-react'
 import Logo from '../../common/Logo'
 import Avatar from '../../ui/Avatar'
@@ -13,10 +12,6 @@ import { dashboardSummary } from '../../../data/studentDashboard'
 import { cn } from '../../../lib/cn'
 
 interface StudentTopbarProps {
-  // Accepted for future use (a page title/subtitle in the topbar) but not
-  // rendered anywhere yet - StudentLayout already passes these today.
-  title?: ReactNode
-  subtitle?: ReactNode
   student: typeof dashboardSummary
   onToggleSidebar?: () => void
   onNavigateHome?: () => void

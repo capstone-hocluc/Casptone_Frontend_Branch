@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Star } from 'lucide-react'
 import MascotState from '../../common/MascotState'
+import ResourceState from '../common/ResourceState'
 import CourseCard from '../../landing/CourseCard'
 import Button from '../../ui/Button'
 import Card, { CardEyebrow, CardTitle } from '../../ui/Card'
@@ -8,12 +8,8 @@ import Progress from '../../ui/Progress'
 import Skeleton from '../../ui/Skeleton'
 import StatusBadge from '../../ui/StatusBadge'
 import CourseListRow from './CourseListRow'
-import {
-  getCourseEnrollmentPlan,
-  type Course,
-  type EnrollmentPlan,
-} from '../../../services/courseService'
-import { getErrorMessage } from '../../../lib/errors'
+import { usePageResource } from '../../../hooks/usePageResource'
+import { getCourseEnrollmentPlan, type Course } from '../../../services/courseService'
 import {
   formatDateTime,
   formatEnrollmentBranch,
@@ -26,53 +22,32 @@ interface CourseEnrollmentPlanTabProps {
 }
 
 function CourseEnrollmentPlanTab({ courseId, onOpenCourse }: CourseEnrollmentPlanTabProps) {
-  const [plan, setPlan] = useState<EnrollmentPlan | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
+  const {
+    data: plan,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getCourseEnrollmentPlan(courseId), [courseId], {
+    forbidden: false,
+    notFound: false,
+  })
 
-  useEffect(() => {
-    let cancelled = false
-    getCourseEnrollmentPlan(courseId)
-      .then((data) => {
-        if (cancelled) return
-        setPlan(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [courseId, reloadKey])
-
-  if (status === 'loading') {
+  if (status !== 'ready' || !plan) {
     return (
-      <div className="flex flex-col gap-5">
-        <Skeleton className="h-[140px]" />
-        <Skeleton className="h-[220px]" />
-      </div>
-    )
-  }
-
-  if (status === 'error') {
-    return (
-      <MascotState
-        title="Không thể tải lộ trình học"
-        message={errorMessage}
-        actionLabel="Thử lại"
-        onAction={() => {
-          setStatus('loading')
-          setReloadKey((current) => current + 1)
-        }}
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <div className="flex flex-col gap-5">
+            <Skeleton className="h-[140px]" />
+            <Skeleton className="h-[220px]" />
+          </div>
+        }
+        error={{ title: 'Không thể tải lộ trình học' }}
       />
     )
   }
-
-  if (!plan) return null
 
   const elapsed = Math.max(0, Math.min(100, plan.elapsedPercentage ?? 0))
   const planMessage = formatEnrollmentBranchMessage(plan.branch, plan.message)
@@ -112,7 +87,11 @@ function CourseEnrollmentPlanTab({ courseId, onOpenCourse }: CourseEnrollmentPla
               <CourseListRow
                 key={item.liveClassId}
                 title={item.title}
-                meta={<span className="text-[12.5px] text-text-secondary">{formatDateTime(item.startTime)}</span>}
+                meta={
+                  <span className="text-[12.5px] text-text-secondary">
+                    {formatDateTime(item.startTime)}
+                  </span>
+                }
                 actions={
                   item.recordingUrl && (
                     <Button

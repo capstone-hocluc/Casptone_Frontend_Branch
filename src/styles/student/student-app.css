@@ -4276,33 +4276,19 @@
   font-size: 13px;
   text-align: center;
 }
+/* Video lesson player inside the Student shell: fills the area under the topbar
+   (86px) minus the shell's vertical padding (2 x 35px). */
 .hl-video-learning-page {
-  height: 100vh;
+  height: calc(100vh - 156px);
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid #e0e7f3;
+  border-radius: 18px;
   background: #f3f7ff;
   color: var(--color-text-heading);
 }
-.hl-video-learn-header {
-  height: 60px;
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border-bottom: 1px solid #e0e7f3;
-  padding: 0 20px;
-  background: var(--color-surface);
-}
-.hl-video-learn-header > div {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1;
-}
-.hl-video-learn-header button,
 .hl-video-drawer-head button,
 .hl-video-ai-chat-head button {
   width: 36px;
@@ -4314,51 +4300,6 @@
   background: var(--color-surface);
   color: var(--color-primary);
   cursor: pointer;
-}
-.hl-video-learn-header > div > span {
-  width: 1px;
-  height: 28px;
-  background: #dce7f7;
-}
-.hl-video-learn-header > div > .hl-video-logo {
-  width: auto;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  background: transparent;
-}
-.hl-video-logo img {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-}
-.hl-video-logo b {
-  color: var(--color-text-heading);
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-}
-.hl-video-logo b span {
-  color: var(--color-primary);
-}
-.hl-video-learn-header strong {
-  min-width: 0;
-  flex: 1;
-  overflow: hidden;
-  color: var(--color-text-heading);
-  font-size: 14px;
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.hl-video-learn-header > img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 .hl-video-lesson-nav {
   height: 54px;
@@ -4372,8 +4313,7 @@
   background: #f8fbff;
 }
 .hl-video-list-button,
-.hl-video-nav-actions button,
-.hl-video-invalid button {
+.hl-video-nav-actions button {
   min-height: 34px;
   display: inline-flex;
   align-items: center;
@@ -4458,7 +4398,7 @@
 }
 .hl-video-player {
   position: relative;
-  width: min(100%, calc((100vh - 158px) * 16 / 9));
+  width: min(100%, calc((100vh - 264px) * 16 / 9));
   max-width: 1280px;
   aspect-ratio: 16 / 9;
   display: grid;
@@ -4809,21 +4749,6 @@
 .hl-video-drawer-list button.is-locked {
   color: #8c98ad;
   cursor: default;
-}
-.hl-video-invalid {
-  margin: auto;
-  display: grid;
-  place-items: center;
-  gap: 10px;
-  border: 1px solid #e0e7f3;
-  border-radius: 18px;
-  padding: 28px;
-  background: var(--color-surface);
-  text-align: center;
-}
-.hl-video-invalid h1,
-.hl-video-invalid p {
-  margin: 0;
 }
 
 @media (max-width: 800px) {

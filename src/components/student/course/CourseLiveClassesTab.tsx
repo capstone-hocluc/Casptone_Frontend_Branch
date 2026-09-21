@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import ResourceState from '../common/ResourceState'
 import MascotState from '../../common/MascotState'
 import Card, { CardTitle } from '../../ui/Card'
 import Skeleton from '../../ui/Skeleton'
 import NextLiveClassCard from './NextLiveClassCard'
 import LiveClassRow from './LiveClassRow'
+import { usePageResource } from '../../../hooks/usePageResource'
 import { getCourseLiveClasses, type CourseLiveClasses } from '../../../services/courseService'
-import { getErrorMessage } from '../../../lib/errors'
 
 interface CourseLiveClassesTabProps {
   courseId: string
@@ -37,53 +37,28 @@ function LiveClassSection({
 }
 
 function CourseLiveClassesTab({ courseId }: CourseLiveClassesTabProps) {
-  const [data, setData] = useState<CourseLiveClasses | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
+  const { data, status, errorMessage, reload } = usePageResource(
+    () => getCourseLiveClasses(courseId),
+    [courseId],
+    { forbidden: false, notFound: false }
+  )
 
-  useEffect(() => {
-    let cancelled = false
-    getCourseLiveClasses(courseId)
-      .then((result) => {
-        if (cancelled) return
-        setData(result)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [courseId, reloadKey])
-
-  if (status === 'loading') {
+  if (status !== 'ready' || !data) {
     return (
-      <div className="flex flex-col gap-5">
-        <Skeleton className="h-40" />
-        <Skeleton className="h-[220px]" />
-      </div>
-    )
-  }
-
-  if (status === 'error') {
-    return (
-      <MascotState
-        title="Không thể tải lịch học trực tuyến"
-        message={errorMessage}
-        actionLabel="Thử lại"
-        onAction={() => {
-          setStatus('loading')
-          setReloadKey((current) => current + 1)
-        }}
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <div className="flex flex-col gap-5">
+            <Skeleton className="h-40" />
+            <Skeleton className="h-[220px]" />
+          </div>
+        }
+        error={{ title: 'Không thể tải lịch học trực tuyến' }}
       />
     )
   }
-
-  if (!data) return null
 
   const hasAny = Boolean(data.next) || data.upcoming.length > 0 || data.past.length > 0
 

@@ -1,3 +1,5 @@
+import ConfirmDialog from '../ui/ConfirmDialog'
+
 interface SubmitQuizDialogProps {
   answeredCount: number
   totalQuestions: number
@@ -14,33 +16,17 @@ function SubmitQuizDialog({
   onConfirm,
 }: SubmitQuizDialogProps) {
   return (
-    <div className="hl-quiz-dialog-backdrop">
-      <div className="hl-quiz-dialog" role="dialog" aria-modal="true">
-        <h3>Nộp bài kiểm tra?</h3>
-        <p>
-          Bạn đã trả lời {answeredCount}/{totalQuestions} câu. Sau khi nộp bài, bạn không thể thay
-          đổi đáp án.
-        </p>
-        <div className="hl-quiz-dialog-actions">
-          <button
-            type="button"
-            className="hl-quiz-dialog-btn is-secondary"
-            onClick={onCancel}
-            disabled={submitting}
-          >
-            Tiếp tục làm bài
-          </button>
-          <button
-            type="button"
-            className="hl-quiz-dialog-btn is-primary"
-            onClick={onConfirm}
-            disabled={submitting}
-          >
-            {submitting ? 'Đang nộp bài...' : 'Nộp bài'}
-          </button>
-        </div>
-      </div>
-    </div>
+    <ConfirmDialog
+      title="Nộp bài kiểm tra?"
+      description={`Bạn đã trả lời ${answeredCount}/${totalQuestions} câu. Sau khi nộp bài, bạn không thể thay đổi đáp án.`}
+      cancelLabel="Tiếp tục làm bài"
+      confirmLabel="Nộp bài"
+      busyLabel="Đang nộp bài..."
+      variant="danger"
+      busy={submitting}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+    />
   )
 }
 

@@ -253,19 +253,8 @@
     grid-template-columns: repeat(6, 1fr);
   }
   .hl-video-learning-page {
-    min-height: 100vh;
-    height: 100dvh;
-  }
-  .hl-video-learn-header {
-    height: 56px;
-    padding: 0 12px;
-  }
-  .hl-video-learn-header .hl-video-logo b,
-  .hl-video-learn-header strong {
-    display: none;
-  }
-  .hl-video-learn-header > div {
-    gap: 8px;
+    min-height: calc(100dvh - 130px);
+    height: auto;
   }
   .hl-video-lesson-nav {
     height: auto;
@@ -289,7 +278,7 @@
   }
   .hl-video-player {
     width: 100%;
-    max-height: calc(100dvh - 150px);
+    max-height: calc(100dvh - 260px);
   }
   .hl-video-controls {
     right: 10px;

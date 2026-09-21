@@ -1,15 +1,9 @@
-import { BarChart3, BookOpen, Home, UserRound } from 'lucide-react'
+import { studentNavItems, type StudentNavKey } from '../../../lib/studentNav'
 import { cn } from '../../../lib/cn'
 
-const navItems = [
-  { label: 'Tổng quan', path: '/student/dashboard', icon: Home },
-  { label: 'Hồ sơ năng lực', path: '/student/learning-profile', icon: UserRound },
-  { label: 'Khóa học', path: '/student/courses', icon: BookOpen },
-  { label: 'Tiến độ', icon: BarChart3, comingSoon: true },
-]
-
 interface StudentSidebarProps {
-  currentPath: string
+  /** Entry to highlight; comes from getStudentNavKey(route), so deep routes keep their section active. */
+  activeKey: StudentNavKey | null
   onNavigate: (path: string) => void
   collapsed?: boolean
   onNotify?: (message: string) => void
@@ -19,7 +13,7 @@ interface StudentSidebarProps {
 // (StudentLayout forces the 92px rail there); below 760px it becomes a
 // horizontal bar under the topbar.
 function StudentSidebar({
-  currentPath,
+  activeKey,
   onNavigate,
   collapsed = false,
   onNotify,
@@ -35,21 +29,17 @@ function StudentSidebar({
       )}
     >
       <nav className="flex w-full flex-col gap-2 max-[760px]:flex-1 max-[760px]:flex-row max-[760px]:justify-center">
-        {navItems.map((item) => {
+        {studentNavItems.map((item) => {
           const Icon = item.icon
-          const active =
-            item.path === currentPath ||
-            (item.path === '/student/courses' && currentPath.startsWith('/student/courses/'))
+          const active = item.key === activeKey
           return (
             <button
-              key={item.label}
+              key={item.key}
               type="button"
               title={item.label}
               aria-current={active ? 'page' : undefined}
               onClick={() =>
-                item.comingSoon
-                  ? onNotify?.('Tính năng đang được phát triển.')
-                  : onNavigate(item.path as string)
+                item.path ? onNavigate(item.path) : onNotify?.('Tính năng đang được phát triển.')
               }
               className={cn(
                 'flex min-h-[46px] w-full cursor-pointer items-center gap-[11px] rounded-[15px] border px-3.5 text-[13px] font-extrabold transition duration-200',

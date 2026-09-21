@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Clock } from 'lucide-react'
+import { cn } from '../../lib/cn'
 
 interface QuizTimerProps {
   deadlineAt: string
@@ -62,7 +63,15 @@ function QuizTimer({ deadlineAt, onExpire }: QuizTimerProps) {
   }, [deadlineAt])
 
   return (
-    <div className={`hl-quiz-timer${remaining <= 60 ? ' is-low' : ''}`}>
+    <div
+      role="timer"
+      className={cn(
+        'flex items-center justify-center gap-2 rounded-[14px] border p-3.5 text-xl font-extrabold tabular-nums',
+        remaining <= 60
+          ? 'border-danger bg-badge-danger-bg text-danger'
+          : 'border-line bg-surface text-text-heading'
+      )}
+    >
       <Clock size={16} />
       <span>{formatCountdown(remaining)}</span>
     </div>
