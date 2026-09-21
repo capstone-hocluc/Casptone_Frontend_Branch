@@ -105,7 +105,9 @@ export function clearTokens() {
 
 function getSessionLoginPath() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
-  return pathname === '/admin' || pathname.startsWith('/admin/') ? '/admin/login' : '/login'
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return '/management/login'
+  if (/^\/(staff|manager|management|teacher)(\/|$)/.test(pathname)) return '/management/login'
+  return '/login'
 }
 
 function handleSessionExpired() {

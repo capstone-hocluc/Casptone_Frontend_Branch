@@ -6,13 +6,29 @@ import { useCurrentUser } from '../hooks/useCurrentUser'
 import { clearTokens } from '../lib/api'
 import { getErrorMessage } from '../lib/errors'
 import { login as loginAccount } from '../services/authService'
+import type { UserProfile, UserRole } from '../services/userService'
 
 interface AdminLoginPageProps {
   onBack: () => void
-  onSuccess: () => void
+  onSuccess: (profile: UserProfile) => void
+  allowedRoles?: readonly UserRole[]
+  eyebrow?: string
+  title?: string
+  description?: string
+  rejectedRoleMessage?: string
 }
 
-function AdminLoginPage({ onBack, onSuccess }: AdminLoginPageProps) {
+const ADMINISTRATOR_ONLY: readonly UserRole[] = ['ADMINISTRATOR']
+
+function AdminLoginPage({
+  onBack,
+  onSuccess,
+  allowedRoles = ADMINISTRATOR_ONLY,
+  eyebrow = 'KHU VỰC QUẢN TRỊ',
+  title = 'Đăng nhập quản trị',
+  description = 'Đăng nhập bằng tài khoản administrator để tiếp tục.',
+  rejectedRoleMessage = 'Tài khoản này không có quyền quản trị viên.',
+}: AdminLoginPageProps) {
   const { loadCurrentUser } = useCurrentUser()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,13 +51,13 @@ function AdminLoginPage({ onBack, onSuccess }: AdminLoginPageProps) {
       await loginAccount({ email: trimmedEmail, password })
       const profile = await loadCurrentUser()
 
-      if (profile.role !== 'ADMINISTRATOR') {
+      if (!allowedRoles.includes(profile.role)) {
         clearTokens()
-        setError('Tài khoản này không có quyền quản trị viên.')
+        setError(rejectedRoleMessage)
         return
       }
 
-      onSuccess()
+      onSuccess(profile)
     } catch (requestError) {
       clearTokens()
       setError(getErrorMessage(requestError) || 'Email hoặc mật khẩu không đúng.')
@@ -63,13 +79,13 @@ function AdminLoginPage({ onBack, onSuccess }: AdminLoginPageProps) {
         <div className="mb-6 text-center">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold tracking-[0.12em] text-primary">
             <ShieldCheck size={14} aria-hidden="true" />
-            KHU VỰC QUẢN TRỊ
+            {eyebrow}
           </span>
           <h1 id="admin-login-title" className="mt-2 text-[28px] font-bold leading-tight text-text-heading">
-            Đăng nhập quản trị
+            {title}
           </h1>
           <p className="mt-2 text-sm leading-6 text-text-body">
-            Đăng nhập bằng tài khoản administrator để tiếp tục.
+            {description}
           </p>
         </div>
 

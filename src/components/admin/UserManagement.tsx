@@ -119,7 +119,11 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Đã xảy ra lỗi. Vui lòng thử lại.'
 }
 
-function UserManagement() {
+interface UserManagementProps {
+  readOnly?: boolean
+}
+
+function UserManagement({ readOnly = false }: UserManagementProps) {
   const [page, setPage] = useState(0)
   const [roleFilter, setRoleFilter] = useState<UserRole | 'ALL'>('ALL')
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>('ALL')
@@ -292,42 +296,50 @@ function UserManagement() {
       {
         id: 'role',
         header: 'Vai trò',
-        cell: ({ row }) => (
-          <div className="min-w-36" onClick={(event) => event.stopPropagation()}>
-            <DropdownField
-              ariaLabel={`Vai trò của ${row.original.email}`}
-              options={ROLE_OPTIONS}
-              value={row.original.role}
-              isDisabled={updatingUserId === row.original.id}
-              triggerClassName="h-9 min-w-32 px-2 text-xs"
-              onChange={(value) => {
-                if (value && value !== row.original.role) {
-                  void handleRoleChange(row.original.id, value as UserRole)
-                }
-              }}
-            />
-          </div>
-        ),
+        cell: ({ row }) =>
+          readOnly ? (
+            <Status tone="info">{ROLE_LABELS[row.original.role]}</Status>
+          ) : (
+            <div className="min-w-36" onClick={(event) => event.stopPropagation()}>
+              <DropdownField
+                ariaLabel={`Vai trò của ${row.original.email}`}
+                options={ROLE_OPTIONS}
+                value={row.original.role}
+                isDisabled={updatingUserId === row.original.id}
+                triggerClassName="h-9 min-w-32 px-2 text-xs"
+                onChange={(value) => {
+                  if (value && value !== row.original.role) {
+                    void handleRoleChange(row.original.id, value as UserRole)
+                  }
+                }}
+              />
+            </div>
+          ),
       },
       {
         id: 'status',
         header: 'Trạng thái',
-        cell: ({ row }) => (
-          <div className="min-w-44" onClick={(event) => event.stopPropagation()}>
-            <StatusDropdown
-              ariaLabel={`Trạng thái của ${row.original.email}`}
-              options={STATUS_DROPDOWN_OPTIONS}
-              value={row.original.status}
-              isDisabled={updatingUserId === row.original.id}
-              triggerClassName="h-9 min-w-44 px-3 text-xs"
-              onChange={(value) => {
-                if (value && value !== row.original.status) {
-                  void handleStatusChange(row.original.id, value as UserStatus)
-                }
-              }}
-            />
-          </div>
-        ),
+        cell: ({ row }) =>
+          readOnly ? (
+            <Status tone={getStatusTone(row.original.status)}>
+              {STATUS_LABELS[row.original.status]}
+            </Status>
+          ) : (
+            <div className="min-w-44" onClick={(event) => event.stopPropagation()}>
+              <StatusDropdown
+                ariaLabel={`Trạng thái của ${row.original.email}`}
+                options={STATUS_DROPDOWN_OPTIONS}
+                value={row.original.status}
+                isDisabled={updatingUserId === row.original.id}
+                triggerClassName="h-9 min-w-44 px-3 text-xs"
+                onChange={(value) => {
+                  if (value && value !== row.original.status) {
+                    void handleStatusChange(row.original.id, value as UserStatus)
+                  }
+                }}
+              />
+            </div>
+          ),
       },
       {
         accessorKey: 'lastLoginAt',
@@ -357,7 +369,7 @@ function UserManagement() {
         ),
       },
     ],
-    [handleRoleChange, handleStatusChange, openUserDetail, updatingUserId]
+    [handleRoleChange, handleStatusChange, openUserDetail, readOnly, updatingUserId]
   )
 
   return (

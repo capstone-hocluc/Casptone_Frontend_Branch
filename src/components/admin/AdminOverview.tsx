@@ -12,6 +12,7 @@ import Status from '../ui/Status'
 
 interface AdminOverviewProps {
   onNavigate: (page: string) => void
+  areaLabel?: string
 }
 
 const STATUS_LABELS: Record<UserStatus, string> = {
@@ -74,7 +75,7 @@ const EMPTY_DATA: OverviewData = {
   recent: [],
 }
 
-function AdminOverview({ onNavigate }: AdminOverviewProps) {
+function AdminOverview({ onNavigate, areaLabel = 'quản trị' }: AdminOverviewProps) {
   const [data, setData] = useState<OverviewData>(EMPTY_DATA)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -114,7 +115,7 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : 'Không thể tải tổng quan quản trị.'
+              : `Không thể tải tổng quan ${areaLabel}.`
           )
         }
       })
@@ -125,7 +126,7 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
     return () => {
       ignore = true
     }
-  }, [reloadKey])
+  }, [areaLabel, reloadKey])
 
   const stats = [
     { label: 'Tổng tài khoản', value: data.total },
@@ -138,7 +139,7 @@ function AdminOverview({ onNavigate }: AdminOverviewProps) {
     <section className="space-y-5" aria-busy={loading}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm text-text-muted">Dữ liệu tài khoản từ hệ thống.</p>
+          <p className="text-sm text-text-muted">Dữ liệu tài khoản trong khu vực {areaLabel}.</p>
         </div>
         <Button
           variant="primary"

@@ -53,6 +53,10 @@ function Navbar() {
     [profile?.lastName, profile?.firstName].filter(Boolean).join(' ') ||
     profile?.email ||
     'Học viên'
+  const profileInitials =
+    `${profile?.lastName?.[0] ?? ''}${profile?.firstName?.[0] ?? ''}`.trim() ||
+    profile?.email?.slice(0, 2).toUpperCase() ||
+    'HV'
 
   return (
     <header
@@ -140,17 +144,26 @@ function Navbar() {
                   boxShadow: '0 6px 16px -8px rgba(24,48,68,.2)',
                 }}
               >
-                <img
-                  src={profile.avatarUrl || '/avatar-minhanh.jpg'}
-                  alt={displayName}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
+                {profile.avatarUrl ? (
+                  <img
+                    src={profile.avatarUrl}
+                    alt={displayName}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="grid size-8 shrink-0 place-items-center rounded-full bg-[#E8F7FC] text-xs font-extrabold text-[#1679A4]"
+                  >
+                    {profileInitials}
+                  </span>
+                )}
                 <span
                   style={{
                     fontWeight: 700,
