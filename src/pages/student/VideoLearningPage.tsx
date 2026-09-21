@@ -256,7 +256,7 @@ function TeacherAIButton({ state, onToggle }) {
       aria-label="Mở Teacher AI"
       onClick={onToggle}
     >
-      <img src="/owl-mascot5.png" alt="" aria-hidden="true" />
+      <img src="/owl-support-headset.png" alt="" aria-hidden="true" />
     </button>
   )
 }
@@ -276,7 +276,7 @@ function TeacherAIPanel({
   return (
     <aside className="hl-video-ai-panel is-chat">
       <div className="hl-video-ai-chat-head">
-        <img src="/owl-mascot5.png" alt="" aria-hidden="true" />
+        <img src="/owl-support-headset.png" alt="" aria-hidden="true" />
         <div>
           <strong>Trợ lý AI HocLuc</strong>
           <span>

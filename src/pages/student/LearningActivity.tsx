@@ -268,7 +268,7 @@ function ResultSummary({
             <br />
             theo kết quả cao nhất
           </div>
-          <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+          <img src="/owl-success-celebrate.png" alt="" aria-hidden="true" />
           <div className="hl-activity-result-score-panel">
             <span>Điểm cao nhất</span>
             <h2>

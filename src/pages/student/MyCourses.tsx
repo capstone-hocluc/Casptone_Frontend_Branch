@@ -86,7 +86,7 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
 
         {status === 'error' && (
           <div className="hl-my-courses-empty">
-            <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+            <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
             <strong>Không thể tải khóa học của bạn</strong>
             <p>{errorMessage}</p>
             <button
@@ -114,7 +114,7 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
               ))}
               {!visibleEnrollments.length && (
                 <div className="hl-my-courses-empty">
-                  <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+                  <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
                   <strong>Không tìm thấy khóa học</strong>
                   <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
                 </div>
@@ -122,7 +122,7 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
             </div>
           ) : (
             <div className="hl-my-courses-empty">
-              <img src="/owl-mascot4.png" alt="" aria-hidden="true" />
+              <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
               <strong>Bạn chưa có khóa học nào</strong>
               <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
               <button type="button" className="hl-my-courses-empty-cta" onClick={onBrowseCourses}>

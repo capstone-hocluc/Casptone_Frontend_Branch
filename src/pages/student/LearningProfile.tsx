@@ -59,7 +59,7 @@ function LearningProfile() {
           <div className="hl-profile-hero-user">
             <img
               className="hl-profile-hero-avatar"
-              src="/owl-mascot3.png"
+              src="/owl-welcome-wave.png"
               alt=""
               aria-hidden="true"
             />

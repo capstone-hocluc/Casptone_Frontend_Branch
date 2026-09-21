@@ -21,6 +21,7 @@ import {
   testPractice,
   todaysGoal,
 } from '../../data/studentDashboard'
+import OwlWelcome from '../../components/common/OwlWelcome'
 import { type CSSProperties, useEffect, useState } from 'react'
 
 const getVisibleCounts = () => {
@@ -164,7 +165,7 @@ function StudentDashboard({ onOpenLearningProfile }) {
                 <div className="hl-dashboard-goal-bubble">Bắt tay vào mục tiêu đầu tiên thôi!</div>
 
                 <div className="hl-dashboard-mascot">
-                  <img src="/owl-mascot2.png" alt="" aria-hidden="true" />
+                  <OwlWelcome className="hl-dashboard-mascot-animation" />
                 </div>
               </div>
             </div>
