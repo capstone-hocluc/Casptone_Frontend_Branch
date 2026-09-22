@@ -1,138 +1,78 @@
-import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowLeft, SearchX } from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import Chatbot from '../../components/landing/Chatbot'
+import { useState } from 'react'
 import QuizResultSummary from '../../components/assessment/QuizResultSummary'
 import QuizReviewQuestionCard from '../../components/assessment/QuizReviewQuestionCard'
-import { getAttemptReview, getQuiz, type QuizReview } from '../../services/assessmentService'
-import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
+import BackLink from '../../components/student/common/BackLink'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card, { CardTitle } from '../../components/ui/Card'
+import Skeleton from '../../components/ui/Skeleton'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getAttemptReview, getQuiz } from '../../services/assessmentService'
+import { bySequence } from '../../lib/sequence'
 
 interface QuizReviewPageProps {
   attemptId: string
   onBackToQuiz: (quizId: string) => void
 }
 
-function bySequence<T extends { sequence: number }>(items: T[]) {
-  return [...items].sort((a, b) => a.sequence - b.sequence)
-}
-
 function QuizReviewPage({ attemptId, onBackToQuiz }: QuizReviewPageProps) {
-  const [review, setReview] = useState<QuizReview | null>(null)
   const [showAnswers, setShowAnswers] = useState(false)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
-    'loading'
-  )
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-
-  useEffect(() => {
-    let cancelled = false
-    getAttemptReview(attemptId)
-      .then((data) => {
-        if (cancelled) return
-        setReview(data)
-        setStatus('ready')
-        // showAnswers isn't part of the review contract - the only way to
-        // know it is to look at the quiz's own setting. Fails closed: if
-        // this lookup fails, per-question answers stay hidden.
-        getQuiz(data.quizId)
-          .then((quiz) => {
-            if (!cancelled) setShowAnswers(Boolean(quiz.showAnswers))
-          })
-          .catch(() => {})
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 403) {
-          setStatus('forbidden')
-          return
-        }
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [attemptId, reloadKey])
+  const {
+    data: review,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getAttemptReview(attemptId), [attemptId], {
+    // showAnswers isn't part of the review contract - the only way to
+    // know it is to look at the quiz's own setting. Fails closed: if
+    // this lookup fails, per-question answers stay hidden.
+    onLoaded: (data) => {
+      getQuiz(data.quizId)
+        .then((quiz) => setShowAnswers(Boolean(quiz.showAnswers)))
+        .catch(() => {})
+    },
+  })
 
   return (
-    <div className="hl-quiz-page">
-      <Navbar />
-      <main className="hl-quiz-main-wrap">
-        <div className="hl-quiz-container">
-          {status === 'loading' && (
-            <div className="hl-quiz-attempt-grid">
-              <div className="hl-quiz-skeleton" style={{ height: 160 }} />
-              <div className="hl-quiz-skeleton" style={{ height: 320 }} />
-            </div>
+    <StudentPageContainer width="reading" spacing="stack">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <>
+            <Skeleton className="h-40 rounded-2xl" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </>
+        }
+        forbidden={{ title: 'Bạn chưa có quyền xem kết quả bài kiểm tra này.' }}
+        notFound={{ title: 'Không tìm thấy kết quả bài kiểm tra.' }}
+        error={{ title: 'Không thể tải kết quả bài kiểm tra.' }}
+      />
+
+      {status === 'ready' && review && (
+        <>
+          <BackLink onClick={() => onBackToQuiz(review.quizId)}>Quay lại bài kiểm tra</BackLink>
+
+          <QuizResultSummary review={review} />
+
+          {showAnswers && (
+            <Card as="section" padding="none" radius="lg" className="border-border-subtle p-[22px]">
+              <CardTitle className="mb-3.5 text-base">Chi tiết bài làm</CardTitle>
+              <div className="flex flex-col gap-3.5">
+                {bySequence(review.questions).map((question, index) => (
+                  <QuizReviewQuestionCard
+                    key={question.questionId}
+                    question={question}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </Card>
           )}
-
-          {status === 'forbidden' && (
-            <div className="hl-quiz-state">
-              <ArrowLeft size={30} />
-              <p>Bạn chưa có quyền xem kết quả bài kiểm tra này.</p>
-            </div>
-          )}
-
-          {status === 'not-found' && (
-            <div className="hl-quiz-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy kết quả bài kiểm tra.</p>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="hl-quiz-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải kết quả bài kiểm tra.'}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
-              >
-                Thử lại
-              </button>
-            </div>
-          )}
-
-          {status === 'ready' && review && (
-            <div className="hl-quiz-grid">
-              <button type="button" className="hl-quiz-exit" onClick={() => onBackToQuiz(review.quizId)}>
-                <ArrowLeft size={15} />
-                Quay lại bài kiểm tra
-              </button>
-
-              <QuizResultSummary review={review} />
-
-              {showAnswers && (
-                <section className="hl-quiz-card">
-                  <h2>Chi tiết bài làm</h2>
-                  <div className="hl-quiz-review-list">
-                    {bySequence(review.questions).map((question, index) => (
-                      <QuizReviewQuestionCard
-                        key={question.questionId}
-                        question={question}
-                        index={index}
-                      />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Chatbot />
-    </div>
+        </>
+      )}
+    </StudentPageContainer>
   )
 }
 

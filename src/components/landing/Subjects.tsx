@@ -4,8 +4,8 @@ import { subjects, sampleExams, mindBranches } from '../../data/content'
 
 const node = (status) =>
   ({
-    done: { bg: '#1B4DE4', border: '#1B4DE4', color: '#fff', dot: '#fff' },
-    doing: { bg: '#EAF0FF', border: '#1B4DE4', color: '#1B4DE4', dot: '#1B4DE4' },
+    done: { bg: 'var(--color-primary)', border: 'var(--color-primary)', color: '#fff', dot: '#fff' },
+    doing: { bg: 'var(--color-brand-soft-bg)', border: 'var(--color-primary)', color: 'var(--color-primary)', dot: 'var(--color-primary)' },
     todo: { bg: '#F4F6FB', border: '#E0E4EF', color: '#9AA2BC', dot: '#C2C8DA' },
   })[status]
 
@@ -17,7 +17,7 @@ function Subjects() {
         padding: '90px 0',
         background: '#F6F8FE',
         backgroundImage:
-          'linear-gradient(rgba(27,77,228,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.05) 1px, transparent 1px)',
+          'linear-gradient(rgba(29,120,155,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(29,120,155,.05) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }}
     >
@@ -72,7 +72,7 @@ function Subjects() {
             border: '1.5px solid #E4E9F5',
             borderRadius: 24,
             padding: 32,
-            boxShadow: '0 26px 56px -36px rgba(27,77,228,.5)',
+            boxShadow: '0 26px 56px -36px rgba(29,120,155,.5)',
             display: 'grid',
             gridTemplateColumns: '.82fr 1.18fr',
             gap: 36,
@@ -86,7 +86,7 @@ function Subjects() {
                 fontWeight: 800,
                 letterSpacing: 1,
                 textTransform: 'uppercase',
-                color: '#1B4DE4',
+                color: 'var(--color-primary)',
                 marginBottom: 10,
               }}
             >
@@ -97,13 +97,13 @@ function Subjects() {
                 margin: '0 0 12px',
                 fontSize: 22,
                 fontWeight: 900,
-                color: '#11183A',
+                color: 'var(--color-heading)',
                 lineHeight: 1.25,
               }}
             >
               Mindmap giúp bạn kiểm soát quá trình học
             </h3>
-            <p style={{ margin: '0 0 20px', fontSize: 14.5, color: '#5B647F', lineHeight: 1.6 }}>
+            <p style={{ margin: '0 0 20px', fontSize: 14.5, color: 'var(--color-body)', lineHeight: 1.6 }}>
               Mỗi môn được trực quan hóa thành sơ đồ tư duy: bạn thấy rõ đã học gì, phần nào chưa
               nắm và lộ trình tiếp theo — tất cả trong một bức tranh tổng thể.
             </p>
@@ -120,7 +120,7 @@ function Subjects() {
                       width: 24,
                       height: 24,
                       borderRadius: 7,
-                      background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)',
+                      background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand))',
                       color: '#fff',
                       display: 'grid',
                       placeItems: 'center',
@@ -142,7 +142,7 @@ function Subjects() {
                 position: 'relative',
                 minWidth: 560,
                 backgroundColor: '#FBFCFF',
-                backgroundImage: 'radial-gradient(rgba(27,77,228,.12) 1.2px, transparent 1.2px)',
+                backgroundImage: 'radial-gradient(rgba(29,120,155,.12) 1.2px, transparent 1.2px)',
                 backgroundSize: '18px 18px',
                 border: '1px solid #EAEEF8',
                 borderRadius: 18,
@@ -156,10 +156,10 @@ function Subjects() {
                     width: 118,
                     height: 118,
                     borderRadius: '50%',
-                    background: 'conic-gradient(#FBC34F 0% 62%, #E3E9F6 62% 100%)',
+                    background: 'conic-gradient(var(--color-accent) 0% 62%, #E3E9F6 62% 100%)',
                     padding: 7,
                     flexShrink: 0,
-                    boxShadow: '0 16px 34px -16px rgba(27,77,228,.6)',
+                    boxShadow: '0 16px 34px -16px rgba(29,120,155,.6)',
                   }}
                 >
                   <div
@@ -167,7 +167,7 @@ function Subjects() {
                       width: '100%',
                       height: '100%',
                       borderRadius: '50%',
-                      background: 'linear-gradient(140deg,#1230A6,#1B4DE4)',
+                      background: 'linear-gradient(140deg,var(--color-primary-dark),var(--color-primary))',
                       display: 'grid',
                       placeItems: 'center',
                       textAlign: 'center',
@@ -189,7 +189,7 @@ function Subjects() {
                     flexShrink: 0,
                     width: 30,
                     height: 3,
-                    background: 'linear-gradient(90deg,#1B4DE4,#9BB6FF)',
+                    background: 'linear-gradient(90deg,var(--color-primary),var(--color-brand-soft))',
                   }}
                 />
                 <div style={{ position: 'relative', flex: 1 }}>
@@ -200,7 +200,7 @@ function Subjects() {
                       top: 33,
                       bottom: 33,
                       width: 3,
-                      background: 'linear-gradient(180deg,#9BB6FF,#1B4DE4)',
+                      background: 'linear-gradient(180deg,var(--color-brand-soft),var(--color-primary))',
                       borderRadius: 3,
                     }}
                   />
@@ -233,7 +233,7 @@ function Subjects() {
                             background: n.bg,
                             border: `1.5px solid ${n.border}`,
                             color: n.color,
-                            boxShadow: '0 8px 18px -12px rgba(27,77,228,.5)',
+                            boxShadow: '0 8px 18px -12px rgba(29,120,155,.5)',
                           }}
                         >
                           <span
@@ -281,11 +281,11 @@ function Subjects() {
                   alignItems: 'center',
                   gap: 7,
                   fontSize: 12,
-                  color: '#5B647F',
+                  color: 'var(--color-body)',
                 }}
               >
                 <span
-                  style={{ width: 12, height: 12, borderRadius: '50%', background: '#1B4DE4' }}
+                  style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--color-primary)' }}
                 />
                 Đã học
               </div>
@@ -295,7 +295,7 @@ function Subjects() {
                   alignItems: 'center',
                   gap: 7,
                   fontSize: 12,
-                  color: '#5B647F',
+                  color: 'var(--color-body)',
                 }}
               >
                 <span
@@ -303,8 +303,8 @@ function Subjects() {
                     width: 12,
                     height: 12,
                     borderRadius: '50%',
-                    background: '#EAF0FF',
-                    border: '1.5px solid #1B4DE4',
+                    background: 'var(--color-brand-soft-bg)',
+                    border: '1.5px solid var(--color-primary)',
                   }}
                 />
                 Đang học
@@ -315,7 +315,7 @@ function Subjects() {
                   alignItems: 'center',
                   gap: 7,
                   fontSize: 12,
-                  color: '#5B647F',
+                  color: 'var(--color-body)',
                 }}
               >
                 <span
@@ -361,7 +361,7 @@ function Subjects() {
                   style={{
                     fontWeight: 900,
                     fontSize: 26,
-                    color: '#1B4DE4',
+                    color: 'var(--color-primary)',
                     letterSpacing: '-.5px',
                   }}
                 >
@@ -373,8 +373,8 @@ function Subjects() {
                     fontWeight: 800,
                     letterSpacing: '.4px',
                     textTransform: 'uppercase',
-                    color: '#3a2a05',
-                    background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
+                    color: 'var(--color-primary-dark)',
+                    background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
                     padding: '6px 13px',
                     borderRadius: 30,
                   }}
@@ -387,13 +387,13 @@ function Subjects() {
                   margin: '0 0 10px',
                   fontSize: 17,
                   fontWeight: 800,
-                  color: '#11183A',
+                  color: 'var(--color-heading)',
                   lineHeight: 1.3,
                 }}
               >
                 {e.name}
               </h3>
-              <div style={{ fontSize: 13.5, color: '#5B647F', marginBottom: 18 }}>{e.meta}</div>
+              <div style={{ fontSize: 13.5, color: 'var(--color-body)', marginBottom: 18 }}>{e.meta}</div>
               <button
                 className="hl-bb"
                 style={{
@@ -405,7 +405,7 @@ function Subjects() {
                   letterSpacing: '.4px',
                   textTransform: 'uppercase',
                   color: '#fff',
-                  background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                  background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                   border: 'none',
                   borderRadius: 40,
                   padding: 13,

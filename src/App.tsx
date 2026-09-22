@@ -8,48 +8,45 @@ import MyOrdersPage from './pages/orders/MyOrdersPage'
 import OrderDetailPage from './pages/orders/OrderDetailPage'
 import PaymentResultPage from './pages/payment/PaymentResultPage'
 import PaymentInstructionsPage from './pages/payment/PaymentInstructionsPage'
-import CourseStudyPage from './pages/course/CourseStudyPage'
-import LessonPage from './pages/course/LessonPage'
-import QuizDetailPage from './pages/assessments/QuizDetailPage'
-import QuizAttemptPage from './pages/assessments/QuizAttemptPage'
-import QuizReviewPage from './pages/assessments/QuizReviewPage'
-import PlacementIntroPage from './pages/assessments/PlacementIntroPage'
-import PlacementAttemptPage from './pages/assessments/PlacementAttemptPage'
-import PlacementReviewPage from './pages/assessments/PlacementReviewPage'
-import PlacementResultPage from './pages/assessments/PlacementResultPage'
 import AuthPage from './components/auth/AuthPage'
 import StudentOnboarding from './components/student/StudentOnboarding'
-import StudentLayout from './components/student/StudentLayout'
-import StudentDashboard from './pages/student/StudentDashboard'
-import LearningProfile from './pages/student/LearningProfile'
-import AccountProfile from './pages/student/AccountProfile'
-import MyCourses from './pages/student/MyCourses'
-import CourseDetail from './pages/student/CourseDetail'
-import LearningActivity from './pages/student/LearningActivity'
-import VideoLearningPage from './pages/student/VideoLearningPage'
+import StudentRoutes from './pages/student/StudentRoutes'
 import AdminLoginPage from './pages/AdminLoginPage'
 import StaffDashboard from './components/staff/StaffDashboard'
+import ManagementDashboard from './components/management/ManagementDashboard'
+import ManagementRouteGuard, {
+  type ManagementRole,
+} from './components/management/ManagementRouteGuard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
 import { useCurrentUser } from './hooks/useCurrentUser'
 import { logout } from './services/authService.ts'
-
-// Studying is a Student Area flow: legacy public study URLs
-// (/courses/:id/study[/lessons/:lessonId]) map onto /student/courses/....
-function toStudentStudyPath(path: string) {
-  const parts = path.split('/').filter(Boolean)
-  const isLegacyStudyRoot = parts.length === 3 && parts[0] === 'courses' && parts[2] === 'study'
-  const isLegacyStudyLesson =
-    parts.length === 5 && parts[0] === 'courses' && parts[2] === 'study' && parts[3] === 'lessons'
-  return isLegacyStudyRoot || isLegacyStudyLesson ? `/student/${parts.join('/')}` : path
-}
+import type { UserProfile } from './services/userService'
+import { parseStudentRoute, studentRoutes, toStudentPath } from './lib/studentRoutes'
 
 function App() {
   const { clearCurrentUser } = useCurrentUser()
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
-    if (path === '/admin/login') return 'admin-login'
+    if (path === '/admin/login') {
+      window.history.replaceState({}, '', '/management/login')
+      return 'management-login'
+    }
+    if (path === '/management/login') return 'management-login'
+    if (path === '/admin/users') return 'admin-users'
     if (path === '/admin/dashboard') return 'admin-dashboard'
+    if (path === '/manager/dashboard') return 'manager-dashboard'
+    if (path === '/manager/courses') return 'manager-courses'
+    if (path === '/manager/users') return 'manager-courses'
+    if (path === '/manager/students') return 'manager-students'
+    if (path === '/manager/enrollments') return 'manager-enrollments'
+    if (path === '/manager/schedules') return 'manager-schedules'
+    if (path === '/manager/attendance') return 'manager-attendance'
+    if (path === '/manager/tuition') return 'manager-tuition'
+    if (path === '/manager/invoices') return 'manager-invoices'
+    if (path === '/manager/payments') return 'manager-payments'
+    if (path === '/manager/batches') return 'manager-batches'
+    if (path === '/mentor/dashboard') return 'mentor-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
     if (path === '/teacher/mock-exams') return 'teacher-mock-exams'
@@ -73,6 +70,7 @@ function App() {
     if (path === '/staff/payments') return 'staff-payments'
     if (path === '/staff/batches') return 'staff-batches'
     if (path === '/staff/batches/batch-12a-k24') return 'staff-batch-detail'
+    if (path === '/staff/users') return 'staff-users'
     if (path === '/onboarding') return 'onboarding'
     if (path === '/verify-email') return 'verify-email'
     if (path === '/forgot-password') return 'forgot-password'
@@ -88,7 +86,7 @@ function App() {
   const [authMode, setAuthMode] = useState(getAuthMode)
   const [currentPath, setCurrentPath] = useState(() => {
     const path = window.location.pathname.replace(/\/$/, '') || '/'
-    const target = toStudentStudyPath(path)
+    const target = toStudentPath(path)
     if (target !== path) window.history.replaceState({}, '', target)
     return target
   })
@@ -108,7 +106,7 @@ function App() {
   // instructions) to the next page without a prop path, since it's not
   // returned by GET endpoints and would otherwise be lost on navigation.
   const navigateTo = (rawPath, state = {}) => {
-    const path = toStudentStudyPath(rawPath)
+    const path = toStudentPath(rawPath)
     window.history.pushState(state, '', path)
     setAuthMode(getAuthMode())
     setCurrentPath(path.replace(/\/$/, '') || '/')
@@ -132,23 +130,48 @@ function App() {
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
   }
-  const navigateStaff = (page) => {
+  const navigateManagement = (scope: 'admin' | 'staff' | 'manager' | 'mentor', page: string) => {
     const paths = {
-      dashboard: '/staff/dashboard',
-      students: '/staff/students',
-      detail: '/staff/students/hs-24091',
-      enrollments: '/staff/enrollments',
-      schedules: '/staff/schedules',
-      attendance: '/staff/attendance',
-      tuition: '/staff/tuition',
-      invoices: '/staff/invoices',
-      payments: '/staff/payments',
-      batches: '/staff/batches',
-      'batch-detail': '/staff/batches/batch-12a-k24',
-    }
-    window.history.pushState({}, '', paths[page])
-    setAuthMode(`staff-${page}`)
+      admin: {
+        dashboard: '/admin/dashboard',
+        users: '/admin/users',
+      },
+      staff: {
+        dashboard: '/staff/dashboard',
+        users: '/staff/users',
+        students: '/staff/students',
+        detail: '/staff/students/hs-24091',
+        enrollments: '/staff/enrollments',
+        schedules: '/staff/schedules',
+        attendance: '/staff/attendance',
+        tuition: '/staff/tuition',
+        invoices: '/staff/invoices',
+        payments: '/staff/payments',
+        batches: '/staff/batches',
+        'batch-detail': '/staff/batches/batch-12a-k24',
+      },
+      manager: {
+        dashboard: '/manager/dashboard',
+        courses: '/manager/courses',
+        students: '/manager/students',
+        enrollments: '/manager/enrollments',
+        schedules: '/manager/schedules',
+        attendance: '/manager/attendance',
+        tuition: '/manager/tuition',
+        invoices: '/manager/invoices',
+        payments: '/manager/payments',
+        batches: '/manager/batches',
+      },
+      mentor: {
+        dashboard: '/mentor/dashboard',
+      },
+    } as const
+    const path = paths[scope][page as keyof (typeof paths)[typeof scope]] ?? paths[scope].dashboard
+    window.history.pushState({}, '', path)
+    setAuthMode(`${scope}-${page}`)
+    setCurrentPath(path)
   }
+
   const navigateTeacher = (page) => {
     const paths = {
       dashboard: '/teacher/dashboard',
@@ -161,9 +184,21 @@ function App() {
     setAuthMode(`teacher-${page}`)
     setCurrentPath(path)
   }
-  const goAfterLogin = () => {
+  const goAfterLogin = (profile: UserProfile) => {
     setPendingVerificationEmail('')
-    backToLanding()
+    navigateTo(profile.role === 'MENTOR' ? '/mentor/dashboard' : '/student/dashboard')
+  }
+
+  const goAfterManagementLogin = (profile: UserProfile) => {
+    const path =
+      profile.role === 'TEACHER'
+        ? '/teacher/dashboard'
+        : profile.role === 'MANAGER'
+          ? '/manager/dashboard'
+          : profile.role === 'STAFF'
+            ? '/staff/dashboard'
+            : '/admin/dashboard'
+    navigateTo(path)
   }
 
   const handleLogout = async () => {
@@ -213,22 +248,6 @@ function App() {
     }
   }, [])
 
-  const navigateStudent = (path) => {
-    if (
-      ![
-        '/student/dashboard',
-        '/student/learning-profile',
-        '/student/courses',
-        '/student/profile',
-      ].includes(path) &&
-      !path.startsWith('/student/courses/')
-    )
-      return
-    window.history.pushState({}, '', path)
-    setAuthMode(null)
-    setCurrentPath(path)
-  }
-
   // Segments for any '/courses/...' path: ['courses', courseId]. Only the
   // course detail is public; studying lives under /student/courses/:id/study.
   const courseRouteSegments = currentPath.startsWith('/courses/')
@@ -255,272 +274,89 @@ function App() {
     ? decodeURIComponent(orderRouteSegments[1] || '')
     : null
 
-  // Segments for any '/assessments/...' path:
-  // ['assessments','quizzes',quizId,'attempts'?,attemptId?]
-  // or ['assessments','attempts',attemptId,'review']
-  const assessmentSegments = currentPath.startsWith('/assessments/')
-    ? currentPath.split('/').filter(Boolean)
-    : []
-  const isQuizDetailPath = assessmentSegments.length === 3 && assessmentSegments[1] === 'quizzes'
-  const isQuizAttemptPath =
-    assessmentSegments.length === 5 &&
-    assessmentSegments[1] === 'quizzes' &&
-    assessmentSegments[3] === 'attempts'
-  const isAttemptReviewPath =
-    assessmentSegments.length === 4 &&
-    assessmentSegments[1] === 'attempts' &&
-    assessmentSegments[3] === 'review'
-
-  const quizDetailId = isQuizDetailPath ? decodeURIComponent(assessmentSegments[2] || '') : null
-  const attemptQuizId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[2] || '') : null
-  const quizAttemptId = isQuizAttemptPath ? decodeURIComponent(assessmentSegments[4] || '') : null
-  const reviewAttemptId = isAttemptReviewPath
-    ? decodeURIComponent(assessmentSegments[2] || '')
-    : null
-
-  // Placement segments: ['assessments','placement','result'? | 'attempts',attemptId?,'review'?]
-  const isPlacementIntroPath =
-    assessmentSegments.length === 2 && assessmentSegments[1] === 'placement'
-  const isPlacementResultPath =
-    assessmentSegments.length === 3 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'result'
-  const isPlacementAttemptPath =
-    assessmentSegments.length === 4 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'attempts'
-  const isPlacementReviewPath =
-    assessmentSegments.length === 5 &&
-    assessmentSegments[1] === 'placement' &&
-    assessmentSegments[2] === 'attempts' &&
-    assessmentSegments[4] === 'review'
-
-  const placementAttemptId =
-    isPlacementAttemptPath || isPlacementReviewPath
-      ? decodeURIComponent(assessmentSegments[3] || '')
-      : null
-
-  const isCoursesPath =
-    currentPath === '/student/courses' || currentPath.startsWith('/student/courses/')
-  const coursePathParts = currentPath.startsWith('/student/courses/')
-    ? currentPath.split('/').filter(Boolean)
-    : []
-  const courseId = coursePathParts[2] ? decodeURIComponent(coursePathParts[2]) : null
-  const activityRouteType = coursePathParts[3] || ''
-  const activityId = coursePathParts[4] ? decodeURIComponent(coursePathParts[4]) : null
-  // /student/courses/:id/study and /student/courses/:id/study/lessons/:lessonId
-  const isStudentStudyPath = Boolean(courseId) && coursePathParts[3] === 'study'
-  const isStudentStudyRoot = isStudentStudyPath && coursePathParts.length === 4
-  const isStudentStudyLesson =
-    isStudentStudyPath && coursePathParts.length === 6 && coursePathParts[4] === 'lessons'
-  const studyLessonId = isStudentStudyLesson ? decodeURIComponent(coursePathParts[5] || '') : null
-  const isActivityPath = Boolean(courseId && activityRouteType && activityId) && !isStudentStudyPath
-  const openStudy = (targetCourseId: string) =>
-    navigateStudent(`/student/courses/${encodeURIComponent(targetCourseId)}/study`)
-  const studentTitle =
-    currentPath === '/student/learning-profile'
-      ? 'Hồ sơ năng lực'
-      : currentPath === '/student/profile'
-        ? 'Hồ sơ của tôi'
-        : isCoursesPath
-          ? 'Khóa học của tôi'
-          : 'Tổng quan'
-  const studentSubtitle =
-    currentPath === '/student/learning-profile'
-      ? 'Theo dõi năng lực và sự tiến bộ trong quá trình ôn thi ĐGNL.'
-      : currentPath === '/student/profile'
-        ? 'Quản lý thông tin cá nhân, hồ sơ học tập và bảo mật tài khoản.'
-        : isCoursesPath
-          ? 'Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.'
-          : 'Theo dõi tiến độ, bài tập và lịch học sắp tới.'
-
-  const renderStudentDashboard = () => (
-    <StudentLayout
-      currentPath={currentPath}
-      title={studentTitle}
-      subtitle={studentSubtitle}
-      onNavigate={navigateStudent}
-      onBack={backToLanding}
-      onLogout={handleLogout}
-      logoutLoading={logoutLoading}
+  const renderManagement = (
+    role: ManagementRole,
+    page: string,
+    scope: 'admin' | 'staff' | 'manager' | 'mentor'
+  ) => (
+    <ManagementRouteGuard
+      allowedRoles={[role]}
+      onLogin={() => navigateTo(scope === 'mentor' ? '/login' : '/management/login')}
+      onExit={handleLogout}
     >
-      {currentPath === '/student/learning-profile' ? (
-        <LearningProfile />
-      ) : currentPath === '/student/profile' ? (
-        <AccountProfile />
-      ) : isStudentStudyLesson && courseId && studyLessonId ? (
-        <LessonPage
-          key={`${courseId}-${studyLessonId}`}
-          courseId={courseId}
-          lessonId={studyLessonId}
-          onBackToStudy={() => openStudy(courseId)}
-          onNavigateLesson={(lessonId) =>
-            navigateStudent(
-              `/student/courses/${encodeURIComponent(courseId)}/study/lessons/${encodeURIComponent(lessonId)}`
-            )
-          }
-          onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-        />
-      ) : isStudentStudyRoot && courseId ? (
-        <CourseStudyPage
-          key={courseId}
-          courseId={courseId}
-          onBackToMyCourses={() => navigateStudent('/student/courses')}
-          onViewCourseInfo={() => navigateTo(`/courses/${encodeURIComponent(courseId)}`)}
-          onOpenLesson={(lessonId) =>
-            navigateStudent(
-              `/student/courses/${encodeURIComponent(courseId)}/study/lessons/${encodeURIComponent(lessonId)}`
-            )
-          }
-          onOpenQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-          onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
-        />
-      ) : isActivityPath ? (
-        <LearningActivity
-          courseId={courseId}
-          routeType={activityRouteType}
-          activityId={activityId}
-          onBack={() => navigateStudent(`/student/courses/${courseId}`)}
-        />
-      ) : courseId ? (
-        <CourseDetail
-          courseId={courseId}
-          onBack={() => navigateStudent('/student/courses')}
-          onOpenActivity={(targetCourseId, routeType, targetActivityId) =>
-            navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)
-          }
-        />
-      ) : isCoursesPath ? (
-        <MyCourses
-          onOpenCourse={(course) => openStudy(course.id)}
-          onBrowseCourses={() => navigateTo('/courses')}
-        />
-      ) : (
-        <StudentDashboard
-          onOpenLearningProfile={() => navigateStudent('/student/learning-profile')}
-        />
-      )}
-    </StudentLayout>
+      <ManagementDashboard
+        role={role}
+        page={page}
+        onNavigate={(nextPage) => navigateManagement(scope, nextPage)}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
+      />
+    </ManagementRouteGuard>
   )
 
   if (authMode?.startsWith('staff-'))
+    return renderManagement('STAFF', authMode.replace('staff-', ''), 'staff')
+  if (authMode?.startsWith('manager-'))
+    return renderManagement('MANAGER', authMode.replace('manager-', ''), 'manager')
+  if (authMode?.startsWith('mentor-'))
+    return renderManagement('MENTOR', authMode.replace('mentor-', ''), 'mentor')
+  if (authMode === 'admin-dashboard' || authMode === 'admin-users')
     return (
-      <StaffDashboard
-        page={authMode.replace('staff-', '')}
-        onNavigate={navigateStaff}
-        onBack={backToLanding}
-      />
+      <ManagementRouteGuard
+        allowedRoles={['ADMINISTRATOR']}
+        onLogin={() => navigateTo('/management/login')}
+        onExit={handleLogout}
+      >
+        <StaffDashboard
+          page={authMode.replace('admin-', '')}
+          onNavigate={(nextPage) => navigateManagement('admin', nextPage)}
+          onBack={backToLanding}
+          adminArea
+        />
+      </ManagementRouteGuard>
     )
-  if (authMode === 'admin-dashboard')
-    return (
-      <StaffDashboard
-        page="dashboard"
-        onNavigate={navigateStaff}
-        onBack={backToLanding}
-      />
-    )
-  if (authMode === 'admin-login')
+  if (authMode === 'management-login')
     return (
       <AdminLoginPage
         onBack={backToLanding}
-        onSuccess={() => navigateTo('/admin/dashboard')}
+        onSuccess={goAfterManagementLogin}
+        allowedRoles={['ADMINISTRATOR', 'MANAGER', 'STAFF', 'TEACHER']}
+        eyebrow="KHU VỰC QUẢN LÝ"
+        title="Đăng nhập vận hành"
+        description="Đăng nhập bằng tài khoản quản trị hoặc đội ngũ vận hành để tiếp tục."
+        rejectedRoleMessage="Tài khoản này không có quyền truy cập khu vực quản lý."
       />
     )
   if (authMode?.startsWith('teacher-'))
     return (
-      <TeacherDashboard
-        key={authMode}
-        page={authMode.replace('teacher-', '')}
-        onNavigate={navigateTeacher}
-        onBack={backToLanding}
-        onLogout={handleLogout}
-        logoutLoading={logoutLoading}
-      />
+      <ManagementRouteGuard
+        allowedRoles={['TEACHER']}
+        onLogin={() => navigateTo('/management/login')}
+        onExit={handleLogout}
+      >
+        <TeacherDashboard
+          key={authMode}
+          page={authMode.replace('teacher-', '')}
+          onNavigate={navigateTeacher}
+          onBack={backToLanding}
+          onLogout={handleLogout}
+          logoutLoading={logoutLoading}
+        />
+      </ManagementRouteGuard>
     )
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
-  if (isActivityPath && activityRouteType === 'lessons') {
+  // Every authenticated learning screen (dashboard, courses, study, lessons,
+  // video, quizzes, attempts, results, review, learning profile) renders inside
+  // the single StudentLayout owned by StudentRoutes.
+  const studentRoute = parseStudentRoute(currentPath)
+  if (studentRoute)
     return (
-      <VideoLearningPage
-        courseId={courseId}
-        activityId={activityId}
-        onBackCourse={() => navigateStudent(`/student/courses/${courseId}`)}
-        onCourses={() => navigateStudent('/student/courses')}
-        onNavigateActivity={(targetCourseId, routeType, targetActivityId) =>
-          navigateStudent(`/student/courses/${targetCourseId}/${routeType}/${targetActivityId}`)
-        }
-      />
-    )
-  }
-  if (
-    [
-      '/student/dashboard',
-      '/student/learning-profile',
-      '/student/courses',
-      '/student/profile',
-    ].includes(currentPath) || currentPath.startsWith('/student/courses/')
-  )
-    return renderStudentDashboard()
-  if (quizAttemptId && attemptQuizId)
-    return (
-      <QuizAttemptPage
-        key={quizAttemptId}
-        quizId={attemptQuizId}
-        attemptId={quizAttemptId}
-        onExit={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-        onSubmitted={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
-      />
-    )
-  if (quizDetailId)
-    return (
-      <QuizDetailPage
-        key={quizDetailId}
-        quizId={quizDetailId}
-        onStartAttempt={(quizId, attemptId) =>
-          navigateTo(`/assessments/quizzes/${quizId}/attempts/${attemptId}`)
-        }
-        onOpenReview={(attemptId) => navigateTo(`/assessments/attempts/${attemptId}/review`)}
-      />
-    )
-  if (reviewAttemptId)
-    return (
-      <QuizReviewPage
-        key={reviewAttemptId}
-        attemptId={reviewAttemptId}
-        onBackToQuiz={(quizId) => navigateTo(`/assessments/quizzes/${quizId}`)}
-      />
-    )
-  if (isPlacementReviewPath && placementAttemptId)
-    return (
-      <PlacementReviewPage
-        key={placementAttemptId}
-        attemptId={placementAttemptId}
-        onBack={() => navigateTo('/assessments/placement/result')}
-      />
-    )
-  if (isPlacementAttemptPath && placementAttemptId)
-    return (
-      <PlacementAttemptPage
-        key={placementAttemptId}
-        attemptId={placementAttemptId}
-        onExit={() => navigateTo('/assessments/placement')}
-        onSubmitted={() => navigateTo('/assessments/placement/result')}
-      />
-    )
-  if (isPlacementResultPath)
-    return (
-      <PlacementResultPage
-        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
-        onOpenCourse={(course) => navigateTo(`/courses/${course.id}`)}
-      />
-    )
-  if (isPlacementIntroPath)
-    return (
-      <PlacementIntroPage
-        onStartAttempt={(attemptId) =>
-          navigateTo(`/assessments/placement/attempts/${attemptId}`)
-        }
-        onOpenReview={(attemptId) => navigateTo(`/assessments/placement/attempts/${attemptId}/review`)}
-        onBack={backToLanding}
+      <StudentRoutes
+        route={studentRoute}
+        currentPath={currentPath}
+        navigate={navigateTo}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
       />
     )
   if (publicCourseId)
@@ -530,7 +366,7 @@ function App() {
         courseId={publicCourseId}
         onBackToHome={backToLanding}
         onBackToCatalog={() => navigateTo('/courses')}
-        onStartLearning={(id) => openStudy(id)}
+        onStartLearning={(id) => navigateTo(studentRoutes.courseStudy(id))}
         onGoToCart={() => navigateTo('/cart')}
       />
     )
@@ -540,7 +376,7 @@ function App() {
         key={orderPaymentOrderId}
         orderId={orderPaymentOrderId}
         onGoToOrderDetail={() => navigateTo(`/orders/${orderPaymentOrderId}`)}
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
       />
     )
   if (orderDetailId)
@@ -549,7 +385,7 @@ function App() {
         key={orderDetailId}
         orderId={orderDetailId}
         onBackToOrders={() => navigateTo('/orders')}
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
         onPaymentReady={(paymentData) =>
           navigateTo(`/orders/${paymentData.order.id}/payment`, paymentData)
         }
@@ -584,7 +420,7 @@ function App() {
   if (authMode === 'payment-result')
     return (
       <PaymentResultPage
-        onGoToMyCourses={() => navigateStudent('/student/courses')}
+        onGoToMyCourses={() => navigateTo(studentRoutes.courses())}
         onOpenOrder={(orderId) => navigateTo(`/orders/${orderId}`)}
         onGoToOrders={() => navigateTo('/orders')}
       />

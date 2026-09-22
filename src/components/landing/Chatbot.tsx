@@ -52,7 +52,7 @@ function Chatbot() {
             maxHeight: 'calc(100vh - 130px)',
             background: '#fff',
             borderRadius: 22,
-            boxShadow: '0 30px 70px -18px rgba(17,24,58,.5)',
+            boxShadow: '0 30px 70px -18px rgba(24,48,68,.5)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -66,12 +66,12 @@ function Chatbot() {
               alignItems: 'center',
               gap: 12,
               padding: '16px 18px',
-              background: 'linear-gradient(135deg, #1B4DE4, #2C63F0)',
+              background: 'linear-gradient(135deg, var(--color-primary), var(--color-brand-bright))',
               color: '#fff',
             }}
           >
             <img
-              src="/owl-mascot.png"
+              src="/owl-support-headset.png"
               alt="Trợ lý"
               style={{
                 width: 40,
@@ -135,13 +135,13 @@ function Chatbot() {
                   alignSelf: c.role === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: '82%',
                   background:
-                    c.role === 'user' ? 'linear-gradient(180deg,#1B4DE4,#2C63F0)' : '#fff',
+                    c.role === 'user' ? 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))' : '#fff',
                   color: c.role === 'user' ? '#fff' : '#2A3354',
                   padding: '11px 15px',
                   borderRadius: 16,
                   fontSize: 14,
                   lineHeight: 1.5,
-                  boxShadow: '0 4px 12px rgba(17,24,58,.06)',
+                  boxShadow: '0 4px 12px rgba(24,48,68,.06)',
                 }}
               >
                 {c.text}
@@ -160,7 +160,7 @@ function Chatbot() {
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                     fontSize: 12,
-                    color: '#1B4DE4',
+                    color: 'var(--color-primary)',
                     background: '#EEF3FF',
                     border: '1px solid #D9E3FB',
                     borderRadius: 30,
@@ -202,7 +202,7 @@ function Chatbot() {
                   width: 44,
                   height: 44,
                   borderRadius: '50%',
-                  background: 'linear-gradient(180deg,#1B4DE4,#2C63F0)',
+                  background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-bright))',
                   color: '#fff',
                   fontSize: 16,
                   flexShrink: 0,
@@ -224,14 +224,14 @@ function Chatbot() {
             width: 84,
             height: 84,
             borderRadius: '50%',
-            boxShadow: '0 16px 34px -10px rgba(27,77,228,.5)',
+            boxShadow: '0 16px 34px -10px rgba(29,120,155,.5)',
             animation: 'hl-pulse 3s infinite',
             overflow: 'hidden',
             display: 'block',
           }}
         >
           <img
-            src="/owl-mascot.png"
+              src="/owl-support-headset.png"
             alt="Trợ lý AI"
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />

@@ -1,27 +1,33 @@
 
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --color-primary: #1b4de4;
-  --color-primary-dark: #1230a6;
-  --color-accent: #fbc34f;
-  --color-heading: #11183a;
-  --color-body: #5b647f;
+  /* Duolingo-inspired blue system: bright primary, neutral text, light surfaces. */
+  --color-primary: #1cb0f6;
+  --color-primary-dark: #0b76a8;
+  --color-brand: #1cb0f6;
+  --color-brand-bright: #58cced;
+  --color-brand-soft: #a9e8fb;
+  --color-brand-soft-bg: #eaf8fc;
+  --color-accent: #58cced;
+  --color-accent-dark: #1cb0f6;
+  --color-heading: #4b4b4b;
+  --color-body: #656565;
 
   /* Semantic design tokens (staff dashboard) */
-  --color-text-heading: #11183a;
-  --color-text-heading-soft: #35405e;
-  --color-text-strong: #26304d;
-  --color-text-label: #495674;
-  --color-text-body: #58657f;
-  --color-text-muted: #7b86a2;
-  --color-text-subtle: #8791aa;
+  --color-text-heading: #4b4b4b;
+  --color-text-heading-soft: #59636a;
+  --color-text-strong: #3f4b52;
+  --color-text-label: #59686f;
+  --color-text-body: #656565;
+  --color-text-muted: #6f7b81;
+  --color-text-subtle: #77848a;
 
-  --color-border-primary: #dde5f3;
-  --color-border-subtle: #eef1f7;
+  --color-border-primary: #d5eef9;
+  --color-border-subtle: #e5e5e5;
 
   --color-surface: #ffffff;
-  --color-surface-soft: #f9fafd;
-  --color-surface-hover: #fafbff;
+  --color-surface-soft: #f7f7f7;
+  --color-surface-hover: #f0faff;
 
   --color-badge-success-bg: #e3f7ec;
   --color-badge-success-text: #227a58;
@@ -29,26 +35,81 @@
   --color-badge-warning-text: #a56800;
   --color-badge-danger-bg: #ffebed;
   --color-badge-danger-text: #d84954;
-  --color-badge-info-bg: #eaf0ff;
-  --color-badge-info-text: #315dc7;
+  --color-badge-info-bg: #e8f7fe;
+  --color-badge-info-text: #0b76a8;
   --color-badge-neutral-bg: #eef1f6;
   --color-badge-neutral-text: #6c7893;
 
   /* Site-wide tokens (landing, auth, student app, teacher dashboard) */
-  --color-text-secondary: #66728d;
-  --color-text-emphasis: #2a3354;
-  --color-text-faint: #7d889d;
-  --color-text-dark: #252a36;
-  --color-text-dim: #33415f;
-  --color-text-heading-muted: #42506e;
+  --color-text-secondary: #6f7b81;
+  --color-text-emphasis: #43535b;
+  --color-text-faint: #77848a;
+  --color-text-dark: #38464d;
+  --color-text-dim: #53636b;
+  --color-text-heading-muted: #59686f;
 
   --color-success: #16a05b;
   --color-warning: #d97706;
   --color-warning-dark: #dca400;
   --color-danger: #e8324a;
-  --color-link: #086bff;
+  --color-link: #0b76a8;
   --color-violet: #6d54d4;
-  --color-sky: #31a8ff;
+  --color-sky: #1cb0f6;
+
+  /* Student learning semantics. Blue (primary) = action / current / video,
+     green = completed / practice, purple = quiz / assessment,
+     amber = live class / upcoming, gray = locked / secondary.
+     Each pair is a soft tile background + its foreground. */
+  --color-primary-soft: #eaf1ff;
+  --color-practice-soft: #e5f5ec;
+  --color-practice: #23845a;
+  --color-assess-soft: #efeafd;
+  --color-assess: #6a52d0;
+  --color-live-soft: #fff2df;
+  --color-live: #b86a0c;
+  --color-live-tint: #fffaf2;
+  --color-live-line: #f6dfbb;
+  --color-lock-soft: #f1f3f8;
+  --color-lock: #8a93a8;
+
+  /* Student surfaces & borders */
+  --color-app-bg: #f7f9ff;
+  --color-surface-tint: #fbfcff;
+  --color-surface-brand: #f4f8ff;
+  --color-surface-sky: #f8fbff;
+  --color-line: #e8edf6;
+  --color-line-soft: #f0f3f9;
+  --color-line-card: #e0e7f3;
+  --color-line-brand: #bfd4ff;
+  --color-line-blue: #dce7f7;
+  --color-line-shell: #e2e9f9;
+  --color-primary-bright: #2455ea;
+  --color-streak: #ff8a00;
+  --color-streak-soft: #fff8ec;
+
+  --shadow-card: 0 12px 26px rgba(17, 24, 58, 0.045);
+  --shadow-card-soft: 0 10px 24px rgba(17, 24, 58, 0.035);
+  --shadow-card-hover: 0 18px 34px rgba(27, 77, 228, 0.1);
+
+  --animate-float-y: hl-float-y 2.8s ease-in-out infinite;
+  @keyframes hl-float-y {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-7px) scale(1.04);
+    }
+  }
+  --animate-shimmer: hl-shimmer 1.4s ease-in-out infinite;
+  @keyframes hl-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 * {

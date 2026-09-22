@@ -11,7 +11,7 @@ function Features() {
         padding: '90px 0',
         background: '#F6F8FE',
         backgroundImage:
-          'linear-gradient(rgba(27,77,228,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.05) 1px, transparent 1px)',
+          'linear-gradient(rgba(29,120,155,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(29,120,155,.05) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }}
     >
@@ -32,7 +32,7 @@ function Features() {
             style={{
               position: 'absolute',
               inset: -14,
-              border: '1.5px solid rgba(27,77,228,.4)',
+              border: '1.5px solid rgba(29,120,155,.4)',
               borderRadius: 22,
             }}
           />
@@ -42,7 +42,7 @@ function Features() {
               height: 430,
               borderRadius: 16,
               overflow: 'hidden',
-              boxShadow: '0 30px 60px -28px rgba(27,77,228,.5)',
+              boxShadow: '0 30px 60px -28px rgba(29,120,155,.5)',
             }}
           >
             <ImageSlot src={media.feature} alt="Nhóm học tập" />
@@ -55,7 +55,7 @@ function Features() {
               background: '#fff',
               borderRadius: 16,
               padding: '16px 20px',
-              boxShadow: '0 20px 44px -18px rgba(27,77,228,.5)',
+              boxShadow: '0 20px 44px -18px rgba(29,120,155,.5)',
               display: 'flex',
               alignItems: 'center',
               gap: 14,
@@ -67,7 +67,7 @@ function Features() {
                 width: 46,
                 height: 46,
                 borderRadius: 12,
-                background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)',
+                background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand))',
                 color: '#fff',
                 display: 'grid',
                 placeItems: 'center',
@@ -78,8 +78,8 @@ function Features() {
               ↑
             </span>
             <div>
-              <div style={{ fontWeight: 900, fontSize: 20, color: '#1B4DE4' }}>+38%</div>
-              <div style={{ fontSize: 12, color: '#5B647F' }}>Điểm trung bình</div>
+              <div style={{ fontWeight: 900, fontSize: 20, color: 'var(--color-primary)' }}>+38%</div>
+              <div style={{ fontSize: 12, color: 'var(--color-body)' }}>Điểm trung bình</div>
             </div>
           </div>
         </Reveal>
@@ -89,7 +89,7 @@ function Features() {
             style={{
               fontSize: 'clamp(34px,4.4vw,56px)',
               fontWeight: 900,
-              color: '#1B4DE4',
+              color: 'var(--color-primary)',
               letterSpacing: '-1px',
               margin: '0 0 16px',
               textTransform: 'uppercase',
@@ -97,7 +97,7 @@ function Features() {
           >
             Tại sao chọn chúng tôi
           </h2>
-          <p style={{ color: '#5B647F', fontSize: 16, margin: '18px 0 30px', maxWidth: 480 }}>
+          <p style={{ color: 'var(--color-body)', fontSize: 16, margin: '18px 0 30px', maxWidth: 480 }}>
             Giải pháp ôn thi đánh giá năng lực toàn diện, phục vụ mọi lĩnh vực và mọi vùng miền tại
             Việt Nam.
           </p>
@@ -122,7 +122,7 @@ function Features() {
                     width: 30,
                     height: 30,
                     borderRadius: 8,
-                    background: 'linear-gradient(135deg,#1B4DE4,#4C7BFF)',
+                    background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand))',
                     color: '#fff',
                     display: 'grid',
                     placeItems: 'center',
@@ -138,14 +138,14 @@ function Features() {
                       margin: '0 0 4px',
                       fontSize: 16,
                       fontWeight: 800,
-                      color: '#11183A',
+                      color: 'var(--color-heading)',
                       textTransform: 'uppercase',
                       letterSpacing: '-.2px',
                     }}
                   >
                     {ft.title}
                   </h4>
-                  <p style={{ margin: 0, fontSize: 14, color: '#5B647F', lineHeight: 1.5 }}>
+                  <p style={{ margin: 0, fontSize: 14, color: 'var(--color-body)', lineHeight: 1.5 }}>
                     {ft.desc}
                   </p>
                 </div>

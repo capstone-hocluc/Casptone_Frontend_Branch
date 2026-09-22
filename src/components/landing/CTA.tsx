@@ -10,7 +10,7 @@ function CTA() {
       style={{
         position: 'relative',
         padding: '64px 0',
-        background: 'linear-gradient(120deg,#1230A6,#1B4DE4 60%,#2C63F0)',
+        background: 'linear-gradient(120deg,var(--color-primary-dark),var(--color-primary) 60%,var(--color-brand-bright))',
         overflow: 'hidden',
       }}
     >
@@ -124,8 +124,8 @@ function CTA() {
                 style={{
                   cursor: 'pointer',
                   fontFamily: 'inherit',
-                  background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                  color: '#3a2a05',
+                  background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                  color: 'var(--color-primary-dark)',
                   fontWeight: 800,
                   fontSize: 14,
                   letterSpacing: '.6px',

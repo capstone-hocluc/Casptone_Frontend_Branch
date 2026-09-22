@@ -4,8 +4,10 @@ import Logo from '../common/Logo'
 import GoogleSignInButton from './GoogleSignInButton'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { getErrorMessage } from '../../lib/errors'
+import { clearTokens } from '../../lib/api'
 import { getPasswordHelper, getPasswordIssues, validatePassword } from '../../lib/passwordRules'
 import { showSuccessToast } from '../../lib/toastBus'
+import type { UserRole } from '../../services/userService'
 import {
   confirmAccount,
   forgotPassword,
@@ -16,12 +18,16 @@ import {
   resetPassword,
 } from '../../services/authService'
 
+const DEFAULT_ALLOWED_ROLES: readonly UserRole[] = ['STUDENT', 'MENTOR']
+
 function AuthPage({
   mode: initialMode = 'login',
   verificationEmail = '',
   onModeChange,
   onContinue,
   onBack,
+  allowedRoles = DEFAULT_ALLOWED_ROLES,
+  rejectedRoleMessage = 'Tài khoản này không có quyền truy cập khu vực học tập.',
 }) {
   const { loadCurrentUser } = useCurrentUser()
   const [mode, setMode] = useState(initialMode)
@@ -383,11 +389,12 @@ function AuthPage({
     try {
       await loginAccount({ email, password: authPassword })
       const profile = await loadCurrentUser()
-      if (profile.role !== 'STUDENT') {
-        setLoginError('Tài khoản này hiện chưa được hỗ trợ trong khu vực Học sinh.')
+      if (!allowedRoles.includes(profile.role)) {
+        clearTokens()
+        setLoginError(rejectedRoleMessage)
         return
       }
-      onContinue?.(email)
+      onContinue?.(profile)
     } catch (error) {
       const fieldErrors = error?.errors && typeof error.errors === 'object' ? error.errors : {}
       setLoginErrors(fieldErrors)
@@ -413,11 +420,12 @@ function AuthPage({
     try {
       await googleAuth({ idToken })
       const profile = await loadCurrentUser()
-      if (profile.role !== 'STUDENT') {
-        setLoginError('Tài khoản này hiện chưa được hỗ trợ trong khu vực Học sinh.')
+      if (!allowedRoles.includes(profile.role)) {
+        clearTokens()
+        setLoginError(rejectedRoleMessage)
         return
       }
-      onContinue?.(profile.email)
+      onContinue?.(profile)
     } catch (error) {
       setLoginError(
         getErrorMessage(error) || 'Đăng nhập với Google không thành công. Vui lòng thử lại.'

@@ -1,4 +1,8 @@
 import type { QuizQuestion } from '../../services/assessmentService'
+import { bySequence } from '../../lib/sequence'
+import { cn } from '../../lib/cn'
+import Card from '../ui/Card'
+import { RadioGroup, RadioGroupItem } from '../ui/RadioGroup'
 
 interface QuizQuestionCardProps {
   question: QuizQuestion
@@ -21,50 +25,47 @@ function QuizQuestionCard({
   disabled,
   onSelectOption,
 }: QuizQuestionCardProps) {
-  const sortedOptions = [...question.options].sort((a, b) => a.sequence - b.sequence)
+  const saveState = saving
+    ? { text: 'Đang lưu...', className: 'text-text-faint' }
+    : saveFailed
+      ? { text: 'Lưu chưa thành công, thử chọn lại', className: 'text-danger' }
+      : selectedOptionId
+        ? { text: 'Đã lưu', className: 'text-badge-success-text' }
+        : null
 
   return (
-    <div className="hl-quiz-question-card">
-      <div className="hl-quiz-question-head">
-        <span className="hl-quiz-question-count">
+    <Card padding="none" radius="lg" className="border-border-subtle p-[22px]">
+      <div className="mb-3 flex items-center justify-between text-[12.5px]">
+        <span className="font-extrabold tracking-[0.03em] text-assess uppercase">
           Câu {index + 1}/{total}
         </span>
-        {saving && <span className="hl-quiz-save-state is-saving">Đang lưu...</span>}
-        {!saving && saveFailed && (
-          <span className="hl-quiz-save-state is-failed">Lưu chưa thành công, thử chọn lại</span>
-        )}
-        {!saving && !saveFailed && selectedOptionId && (
-          <span className="hl-quiz-save-state is-saved">Đã lưu</span>
+        {saveState && (
+          <span className={cn('font-semibold', saveState.className)}>{saveState.text}</span>
         )}
       </div>
 
       {question.imageUrl && (
-        <img className="hl-quiz-question-image" src={question.imageUrl} alt="" />
+        <img className="mb-3.5 max-w-full rounded-xl" src={question.imageUrl} alt="" />
       )}
 
-      <p className="hl-quiz-question-text">{question.questionText}</p>
+      <p className="mb-[18px] text-base leading-[1.6] text-text-heading">{question.questionText}</p>
 
       {question.questionType === 'SINGLE_CHOICE' ? (
-        <div className="hl-quiz-options" role="radiogroup">
-          {sortedOptions.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              role="radio"
-              aria-checked={selectedOptionId === option.id}
-              className={`hl-quiz-option${selectedOptionId === option.id ? ' is-selected' : ''}`}
-              onClick={() => onSelectOption(option.id)}
-              disabled={disabled}
-            >
-              <span className="hl-quiz-option-radio" aria-hidden="true" />
+        <RadioGroup
+          value={selectedOptionId ?? ''}
+          onValueChange={onSelectOption}
+          disabled={disabled}
+        >
+          {bySequence(question.options).map((option) => (
+            <RadioGroupItem key={option.id} value={option.id}>
               {option.optionText}
-            </button>
+            </RadioGroupItem>
           ))}
-        </div>
+        </RadioGroup>
       ) : (
-        <p className="hl-quiz-unsupported">Loại câu hỏi này chưa được hỗ trợ.</p>
+        <p className="text-[13.5px] text-text-faint">Loại câu hỏi này chưa được hỗ trợ.</p>
       )}
-    </div>
+    </Card>
   )
 }
 

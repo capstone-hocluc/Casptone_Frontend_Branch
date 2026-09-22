@@ -1,3 +1,5 @@
+import { cn } from '../../lib/cn'
+
 interface QuestionNavigatorProps {
   questions: { id: string }[]
   currentQuestionId: string
@@ -14,7 +16,7 @@ function QuestionNavigator({
   onSelect,
 }: QuestionNavigatorProps) {
   return (
-    <div className="hl-quiz-navigator">
+    <div className="grid grid-cols-5 gap-2 rounded-[14px] border border-line bg-surface p-3 max-[640px]:grid-cols-6">
       {questions.map((question, index) => {
         const isCurrent = question.id === currentQuestionId
         const isAnswered = answeredQuestionIds.has(question.id)
@@ -22,7 +24,15 @@ function QuestionNavigator({
           <button
             key={question.id}
             type="button"
-            className={`hl-quiz-nav-item${isCurrent ? ' is-current' : ''}${isAnswered ? ' is-answered' : ''}`}
+            aria-current={isCurrent ? 'step' : undefined}
+            className={cn(
+              'grid aspect-square cursor-pointer place-items-center rounded-lg border text-[13px] font-bold disabled:cursor-not-allowed disabled:opacity-60',
+              isCurrent
+                ? 'border-primary bg-primary text-surface'
+                : isAnswered
+                  ? 'border-primary bg-badge-info-bg text-primary'
+                  : 'border-border-primary bg-surface text-text-heading'
+            )}
             onClick={() => onSelect(question.id)}
             disabled={disabled}
           >

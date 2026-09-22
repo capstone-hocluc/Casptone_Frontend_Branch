@@ -1,140 +1,41 @@
 import { useState } from 'react'
-import {
-  ArrowLeft,
-  BookOpen,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  Circle,
-  CircleAlert,
-  ClipboardCheck,
-  GraduationCap,
-  Lock,
-  Play,
-  Radio,
-  Target,
-} from 'lucide-react'
 import { getActivityRouteType, getStudentCourseDetail } from '../../data/courseLookup'
+import { useTransientMessage } from '../../hooks/useTransientMessage'
+import StudentToast from '../../components/student/common/StudentToast'
+import MascotState from '../../components/common/MascotState'
+import ActivityRow from '../../components/student/course-detail/ActivityRow'
+import { getActivityMessage } from '../../components/student/course-detail/activityUtils'
+import CourseHero from '../../components/student/course-detail/CourseHero'
+import {
+  ActivityList,
+  BlockList,
+  CurriculumBlock,
+  CurriculumCard,
+  CurriculumHead,
+  CurriculumIndex,
+  CurriculumProgress,
+} from '../../components/student/course-detail/CurriculumBlocks'
+import type { CourseActivity } from '../../components/student/course-detail/types'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card from '../../components/ui/Card'
 
-const activityIcons = {
-  Video: Play,
-  'Bài tập': ClipboardCheck,
-  'Mini Test': Target,
-  'Mock Test': Target,
-  'Buổi giải đề': Radio,
+interface ActivityHandlers {
+  onAction: (message: string) => void
+  onOpenActivity: (activity: CourseActivity) => void
 }
 
-const statusMeta = {
-  completed: { label: 'Đã hoàn thành', icon: CheckCircle2 },
-  'in-progress': { label: 'Đang học', icon: Play },
-  'not-started': { label: 'Chưa làm', icon: Circle },
-  locked: { label: 'Đang khóa', icon: Lock },
-  overdue: { label: 'Quá hạn', icon: CircleAlert },
-}
-
-function ProgressLine({ value }) {
+function ChapterAccordion({ chapter, index, open, onToggle, bare, onAction, onOpenActivity }) {
   return (
-    <div className="hl-course-detail-progress-line" aria-hidden="true">
-      <span style={{ width: `${value}%` }} />
-    </div>
-  )
-}
-
-function getActivityClass(type) {
-  return type
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
-function getActivityMeta(activity) {
-  return [
-    activity.questionCount ? `${activity.questionCount} câu` : '',
-    activity.duration || '',
-    activity.deadline ? `Hạn ${activity.deadline}` : '',
-    activity.instructor ? `Giảng viên ${activity.instructor}` : '',
-    activity.date ? `${activity.date}${activity.time ? ` · ${activity.time}` : ''}` : '',
-  ].filter(Boolean)
-}
-
-function getActivityMessage(activity) {
-  if (activity.status === 'locked') return 'Nội dung này đang được khóa theo lộ trình học.'
-  if (activity.type === 'Video') return 'Trình phát video đang được phát triển.'
-  if (activity.type === 'Buổi giải đề') return 'Buổi giải đề đang được chuẩn bị.'
-  if (activity.type === 'Bài tập') return 'Bài tập sẽ được mở ở bước tiếp theo.'
-  if (activity.type === 'Mini Test' || activity.type === 'Mock Test')
-    return 'Chức năng làm bài đang được phát triển.'
-  return 'Tính năng này đang được phát triển.'
-}
-
-function ActivityRow({ activity, onAction, onOpenActivity }) {
-  const Icon = activityIcons[activity.type] || BookOpen
-  const StatusIcon = statusMeta[activity.status]?.icon || Circle
-  const meta = getActivityMeta(activity)
-  const isCurrent = activity.status === 'in-progress'
-
-  return (
-    <button
-      type="button"
-      className={`hl-course-detail-activity is-${activity.status} is-type-${getActivityClass(activity.type)}`}
-      onClick={() => {
-        if (activity.status === 'locked') {
-          onAction('Bạn cần hoàn thành nội dung trước đó để mở khóa.')
-          return
-        }
-
-        if (!getActivityRouteType(activity)) {
-          onAction(getActivityMessage(activity))
-          return
-        }
-
-        onOpenActivity(activity)
-      }}
-    >
-      <span className="hl-course-detail-activity-icon">
-        <Icon size={15} />
-      </span>
-      <span className="hl-course-detail-activity-copy">
-        <small>{activity.type}</small>
-        <strong>{activity.title}</strong>
-        {meta.length > 0 && <em>{meta.join(' · ')}</em>}
-      </span>
-      <span className="hl-course-detail-activity-state">
-        {activity.score && <b>{activity.score}</b>}
-        <i>
-          <StatusIcon size={14} />
-          {statusMeta[activity.status]?.label || activity.status}
-        </i>
-        {isCurrent && <mark>Đang học</mark>}
-      </span>
-      {activity.status !== 'locked' && getActivityRouteType(activity) && (
-        <ChevronRight className="hl-course-detail-activity-next" size={16} />
-      )}
-    </button>
-  )
-}
-
-function ChapterAccordion({ chapter, index, open, onToggle, onAction, onOpenActivity }) {
-  return (
-    <article className="hl-course-detail-chapter">
-      <button
-        type="button"
-        className="hl-course-detail-chapter-head"
-        aria-expanded={open}
-        onClick={onToggle}
-      >
-        <span>
-          <ChevronDown size={16} />
-          {String(index + 1).padStart(2, '0')} · {chapter.title.replace(/^Chương \d+ - /, '')}
-        </span>
-        <strong>
-          {chapter.completed}/{chapter.total}
-        </strong>
-      </button>
+    <CurriculumBlock tone="chapter" bare={bare}>
+      <CurriculumHead
+        level="chapter"
+        expanded={open}
+        onToggle={onToggle}
+        label={`${String(index + 1).padStart(2, '0')} · ${chapter.title.replace(/^Chương \d+ - /, '')}`}
+        value={`${chapter.completed}/${chapter.total}`}
+      />
       {open && (
-        <div className="hl-course-detail-activity-list">
+        <ActivityList>
           {chapter.activities.map((activity) => (
             <ActivityRow
               key={activity.id}
@@ -143,60 +44,57 @@ function ChapterAccordion({ chapter, index, open, onToggle, onAction, onOpenActi
               onOpenActivity={onOpenActivity}
             />
           ))}
-        </div>
+        </ActivityList>
       )}
-    </article>
+    </CurriculumBlock>
   )
 }
 
-function CurriculumSection({ section, index, openState, toggle, onAction, onOpenActivity }) {
+function CurriculumSection({
+  section,
+  index,
+  openState,
+  toggle,
+  onAction,
+  onOpenActivity,
+}: ActivityHandlers & { section; index: number; openState; toggle }) {
   const sectionOpen = openState.sections.includes(section.id)
 
   return (
-    <article className="hl-course-detail-accordion">
-      <button
-        type="button"
-        className="hl-course-detail-accordion-head"
-        aria-expanded={sectionOpen}
-        onClick={() => toggle('sections', section.id)}
-      >
-        <div>
-          <span>
-            <ChevronDown size={17} />
-            <b>{String(index + 1).padStart(2, '0')}</b>
+    <CurriculumCard>
+      <CurriculumHead
+        level="section"
+        expanded={sectionOpen}
+        onToggle={() => toggle('sections', section.id)}
+        label={
+          <>
+            <CurriculumIndex>{String(index + 1).padStart(2, '0')}</CurriculumIndex>
             {section.title.replace(/^Phần \d+ - /, 'PHẦN ' + (index + 1) + ' · ').toUpperCase()}
-          </span>
-          <small>{section.summary}</small>
-        </div>
-        <strong>{section.progress}%</strong>
-      </button>
-      <ProgressLine value={section.progress} />
+          </>
+        }
+        caption={section.summary}
+        value={`${section.progress}%`}
+      />
+      <CurriculumProgress value={section.progress} />
 
       {sectionOpen && (
-        <div className="hl-course-detail-group-list">
+        <BlockList>
           {section.groups.map((group) => {
             const groupOpen = openState.groups.includes(group.id)
             return (
-              <article key={group.id} className="hl-course-detail-group">
-                <button
-                  type="button"
-                  className="hl-course-detail-group-head"
-                  aria-expanded={groupOpen}
-                  onClick={() => toggle('groups', group.id)}
-                >
-                  <div>
-                    <span>
-                      <ChevronDown size={16} />
-                      {group.title}
-                    </span>
-                    <small>{group.questionCount} câu</small>
-                  </div>
-                  <strong>{group.progress}%</strong>
-                </button>
-                <ProgressLine value={group.progress} />
+              <CurriculumBlock key={group.id}>
+                <CurriculumHead
+                  level="group"
+                  expanded={groupOpen}
+                  onToggle={() => toggle('groups', group.id)}
+                  label={group.title}
+                  caption={`${group.questionCount} câu`}
+                  value={`${group.progress}%`}
+                />
+                <CurriculumProgress value={group.progress} />
 
                 {groupOpen && (
-                  <div className="hl-course-detail-chapter-list">
+                  <BlockList>
                     {group.chapters.map((chapter, chapterIndex) => (
                       <ChapterAccordion
                         key={chapter.id}
@@ -204,45 +102,46 @@ function CurriculumSection({ section, index, openState, toggle, onAction, onOpen
                         index={chapterIndex}
                         open={openState.chapters.includes(chapter.id)}
                         onToggle={() => toggle('chapters', chapter.id)}
+                        bare={false}
                         onAction={onAction}
                         onOpenActivity={onOpenActivity}
                       />
                     ))}
-                  </div>
+                  </BlockList>
                 )}
-              </article>
+              </CurriculumBlock>
             )
           })}
-        </div>
+        </BlockList>
       )}
-    </article>
+    </CurriculumCard>
   )
 }
 
-function FullMockTests({ course, open, onToggle, onAction, onOpenActivity }) {
+function FullMockTests({
+  course,
+  open,
+  onToggle,
+  onAction,
+  onOpenActivity,
+}: ActivityHandlers & { course; open: boolean; onToggle: () => void }) {
   return (
-    <article className="hl-course-detail-accordion hl-course-detail-full-mock">
-      <button
-        type="button"
-        className="hl-course-detail-accordion-head"
-        aria-expanded={open}
-        onClick={onToggle}
-      >
-        <div>
-          <span>
-            <ChevronDown size={17} />
-            <b>04</b>
+    <CurriculumCard className="mt-0.5 bg-linear-to-b from-surface to-surface-tint">
+      <CurriculumHead
+        level="section"
+        expanded={open}
+        onToggle={onToggle}
+        label={
+          <>
+            <CurriculumIndex>04</CurriculumIndex>
             LUYỆN ĐỀ TỔNG HỢP
-          </span>
-          <small>Full ĐGNL Mock Tests</small>
-        </div>
-        <strong>
-          {course.fullMockTests.filter((item) => item.status === 'completed').length}/
-          {course.fullMockTests.length}
-        </strong>
-      </button>
+          </>
+        }
+        caption="Full ĐGNL Mock Tests"
+        value={`${course.fullMockTests.filter((item) => item.status === 'completed').length}/${course.fullMockTests.length}`}
+      />
       {open && (
-        <div className="hl-course-detail-activity-list">
+        <ActivityList>
           {course.fullMockTests.map((activity) => (
             <ActivityRow
               key={activity.id}
@@ -251,60 +150,61 @@ function FullMockTests({ course, open, onToggle, onAction, onOpenActivity }) {
               onOpenActivity={onOpenActivity}
             />
           ))}
-        </div>
+        </ActivityList>
       )}
-    </article>
+    </CurriculumCard>
   )
 }
 
-function SupplementaryCurriculum({ course, openState, toggle, onAction, onOpenActivity }) {
+function SupplementaryCurriculum({
+  course,
+  openState,
+  toggle,
+  onAction,
+  onOpenActivity,
+}: ActivityHandlers & { course; openState; toggle }) {
   return (
     <>
       {course.chapters.map((chapter, index) => (
-        <article
-          key={chapter.id}
-          className="hl-course-detail-accordion hl-course-detail-supp-chapter"
-        >
+        <CurriculumCard key={chapter.id}>
           <ChapterAccordion
             chapter={chapter}
             index={index}
             open={openState.chapters.includes(chapter.id)}
             onToggle={() => toggle('chapters', chapter.id)}
+            bare
             onAction={onAction}
             onOpenActivity={onOpenActivity}
           />
-          <ProgressLine value={chapter.progress} />
-        </article>
+          <CurriculumProgress value={chapter.progress} className="mt-2.5" />
+        </CurriculumCard>
       ))}
-      <article className="hl-course-detail-accordion hl-course-detail-full-mock">
-        <button
-          type="button"
-          className="hl-course-detail-accordion-head"
-          aria-expanded={openState.finalTest}
-          onClick={() => toggle('finalTest')}
-        >
-          <div>
-            <span>
-              <ChevronDown size={17} />
-              <b>{String(course.chapters.length + 1).padStart(2, '0')}</b>
+      <CurriculumCard className="mt-0.5 bg-linear-to-b from-surface to-surface-tint">
+        <CurriculumHead
+          level="section"
+          expanded={openState.finalTest}
+          onToggle={() => toggle('finalTest')}
+          label={
+            <>
+              <CurriculumIndex>
+                {String(course.chapters.length + 1).padStart(2, '0')}
+              </CurriculumIndex>
               MOCK TEST
-            </span>
-            <small>
-              {course.finalTest.questionCount} câu · {course.finalTest.duration}
-            </small>
-          </div>
-          <strong>{course.finalTest.status === 'completed' ? '1/1' : '0/1'}</strong>
-        </button>
+            </>
+          }
+          caption={`${course.finalTest.questionCount} câu · ${course.finalTest.duration}`}
+          value={course.finalTest.status === 'completed' ? '1/1' : '0/1'}
+        />
         {openState.finalTest && (
-          <div className="hl-course-detail-activity-list">
+          <ActivityList>
             <ActivityRow
               activity={course.finalTest}
               onAction={onAction}
               onOpenActivity={onOpenActivity}
             />
-          </div>
+          </ActivityList>
         )}
-      </article>
+      </CurriculumCard>
     </>
   )
 }
@@ -320,16 +220,11 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
     fullMock: false,
     finalTest: false,
   }))
-  const [message, setMessage] = useState('')
+  const { message, show: showMessage } = useTransientMessage(2400)
   const course = courseEntry?.data || null
   const isSupplementary = courseEntry?.kind === 'supplementary'
 
-  const showMessage = (text) => {
-    setMessage(text)
-    window.setTimeout(() => setMessage(''), 2400)
-  }
-
-  const openActivity = (activity) => {
+  const openActivity = (activity: CourseActivity) => {
     const routeType = getActivityRouteType(activity)
     if (!routeType) {
       showMessage(getActivityMessage(activity))
@@ -339,7 +234,7 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
     onOpenActivity?.(course.id, routeType, activity.id)
   }
 
-  const toggle = (level, id) => {
+  const toggle = (level, id?) => {
     if (level === 'finalTest') {
       setOpenState((current) => ({ ...current, finalTest: !current.finalTest }))
       return
@@ -355,72 +250,44 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
 
   if (!course) {
     return (
-      <section className="hl-student-page hl-course-detail-page">
-        <article className="hl-course-detail-card hl-course-detail-not-found">
-          <h1>Không tìm thấy khóa học</h1>
-          <p>Khóa học này không tồn tại hoặc chưa được thêm vào.</p>
-          <button type="button" onClick={onBack}>
-            <ArrowLeft size={16} />
-            Quay lại Khóa học của tôi
-          </button>
-        </article>
-      </section>
+      <StudentPageContainer>
+        <Card padding="lg" radius="xl">
+          <MascotState
+            title="Không tìm thấy khóa học"
+            message="Khóa học này không tồn tại hoặc chưa được thêm vào."
+            actionLabel="Quay lại Khóa học của tôi"
+            onAction={onBack}
+          />
+        </Card>
+      </StudentPageContainer>
     )
   }
 
   return (
-    <section className="hl-student-page hl-course-detail-page">
-      <header className="hl-course-detail-hero">
-        <button type="button" className="hl-course-detail-back" onClick={onBack}>
-          <ArrowLeft size={17} />
-          Khóa học của tôi
-        </button>
-        <div className="hl-course-detail-hero-grid">
-          <div>
-            <span className="hl-course-detail-badge">{course.subject || 'ĐGNL'}</span>
-            <h1>{course.title}</h1>
-            <p>{course.description}</p>
-            <div className="hl-course-detail-meta">
-              <span>
-                <GraduationCap size={16} />
-                Giảng viên: {course.instructor}
-              </span>
-              <span>
-                <BookOpen size={16} />
-                {course.totalContent || course.totalLessons} nội dung học
-              </span>
-            </div>
-          </div>
-          <div className="hl-course-detail-hero-action">
-            <span>Tiến độ khóa học</span>
-            <div>
-              <small>
-                {course.completedContent || course.completedLessons}/
-                {course.totalContent || course.totalLessons} bài học
-              </small>
-              <strong>{course.progress}%</strong>
-            </div>
-            <ProgressLine value={course.progress} />
-            <button
-              type="button"
-              onClick={() => showMessage('Trình phát video đang được phát triển.')}
-            >
-              Tiếp tục học
-              <Play size={15} />
-            </button>
-          </div>
-        </div>
-      </header>
+    <StudentPageContainer className="flex flex-col gap-3.5 px-[18px] pt-2 pb-8 text-text-heading max-[760px]:px-0 max-[760px]:pt-1.5 max-[760px]:pb-7">
+      <CourseHero
+        subject={course.subject || 'ĐGNL'}
+        title={course.title}
+        description={course.description}
+        instructor={course.instructor}
+        contentCount={course.totalContent || course.totalLessons}
+        completedCount={course.completedContent || course.completedLessons}
+        progress={course.progress}
+        onBack={onBack}
+        onContinue={() => showMessage('Trình phát video đang được phát triển.')}
+      />
 
-      <main className="hl-course-detail-curriculum">
-        <div className="hl-course-detail-content-head">
-          <h2>Nội dung khóa học</h2>
-          <p>
+      <main className="flex flex-col gap-3.5">
+        <div className="flex items-end justify-between gap-3.5 max-[760px]:flex-col max-[760px]:items-start">
+          <h2 className="text-xl leading-normal font-extrabold text-text-heading">
+            Nội dung khóa học
+          </h2>
+          <p className="max-w-[560px] text-right text-[12.5px] leading-[1.45] font-medium text-text-secondary max-[760px]:max-w-none max-[760px]:text-left">
             Học tuần tự từ phần đang mở, hoàn thành từng hoạt động để mở khóa các bài tiếp theo.
           </p>
         </div>
 
-        <div className="hl-course-detail-curriculum-list">
+        <div className="flex flex-col gap-3">
           {isSupplementary ? (
             <SupplementaryCurriculum
               course={course}
@@ -456,8 +323,8 @@ function CourseDetail({ courseId, onBack, onOpenActivity }) {
         </div>
       </main>
 
-      {message && <div className="hl-student-toast">{message}</div>}
-    </section>
+      <StudentToast message={message} />
+    </StudentPageContainer>
   )
 }
 

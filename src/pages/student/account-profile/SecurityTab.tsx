@@ -1,25 +1,75 @@
-import { useRef, useState } from 'react'
-import { AlertCircle, CheckCircle2, Circle, Eye, EyeOff, Loader2, LockKeyhole } from 'lucide-react'
-import { getErrorMessage } from '../../../lib/errors'
+import { useState } from 'react'
+import { AlertCircle, CheckCircle2, Circle, Eye, EyeOff, LockKeyhole } from 'lucide-react'
+import {
+  AccountForm,
+  AccountPanel,
+  SaveBar,
+} from '../../../components/student/profile/AccountPanel'
+import { Field, Input } from '../../../components/ui/Field'
+import { useSavedIndicator } from '../../../hooks/useSavedIndicator'
+import { cn } from '../../../lib/cn'
+import { getErrorMessage, getFieldErrors } from '../../../lib/errors'
 import { getPasswordRequirements, validatePassword } from '../../../lib/passwordRules'
 import { showErrorToast } from '../../../lib/toastBus'
 import { changePassword } from '../../../services/userService'
 
 const emptyForm = { oldPassword: '', newPassword: '', confirmPassword: '' }
 
+interface PasswordInputProps {
+  value: string
+  onChange: (value: string) => void
+  autoComplete: string
+  invalid: boolean
+  /** Show / hide state; omit to render a plain (always masked-by-parent) field. */
+  visible: boolean
+  onToggleVisible?: () => void
+}
+
+// Password control with a leading lock icon and an optional show/hide button.
+function PasswordInput({
+  value,
+  onChange,
+  autoComplete,
+  invalid,
+  visible,
+  onToggleVisible,
+}: PasswordInputProps) {
+  return (
+    <span className="relative block">
+      <LockKeyhole size={16} className="absolute top-1/2 left-3 -translate-y-1/2 text-text-muted" />
+      <Input
+        type={visible ? 'text' : 'password'}
+        value={value}
+        autoComplete={autoComplete}
+        onChange={(event) => onChange(event.target.value)}
+        className={cn('pl-9', onToggleVisible && 'pr-10', invalid && 'border-danger')}
+      />
+      {onToggleVisible && (
+        <button
+          type="button"
+          className="absolute top-1/2 right-2.5 grid -translate-y-1/2 cursor-pointer place-items-center text-text-muted hover:text-primary"
+          onClick={onToggleVisible}
+          aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      )}
+    </span>
+  )
+}
+
 function SecurityTab() {
   const [form, setForm] = useState(emptyForm)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const { saved, flash, clear } = useSavedIndicator()
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
-  const savedTimer = useRef<number | undefined>(undefined)
 
   const updateField = (key: keyof typeof emptyForm, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: '' }))
-    setSaved(false)
+    clear()
   }
 
   const requirements = getPasswordRequirements(form.newPassword)
@@ -39,7 +89,7 @@ function SecurityTab() {
     if (Object.keys(nextErrors).length) return
 
     setSaving(true)
-    setSaved(false)
+    clear()
     try {
       await changePassword({
         oldPassword: form.oldPassword,
@@ -47,12 +97,9 @@ function SecurityTab() {
         confirmPassword: form.confirmPassword,
       })
       setForm(emptyForm)
-      setSaved(true)
-      window.clearTimeout(savedTimer.current)
-      savedTimer.current = window.setTimeout(() => setSaved(false), 2600)
+      flash()
     } catch (error) {
-      const fieldErrors =
-        error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      const fieldErrors = getFieldErrors(error)
       setErrors(fieldErrors)
       if (!Object.keys(fieldErrors).length) {
         showErrorToast(getErrorMessage(error) || 'Đổi mật khẩu không thành công.')
@@ -63,103 +110,79 @@ function SecurityTab() {
   }
 
   return (
-    <section className="hl-account-panel-card hl-account-panel-card--narrow">
-      <div className="hl-account-panel-heading hl-account-panel-heading--stacked">
-        <h2>Đổi mật khẩu</h2>
-        <p>Bảo mật tài khoản của bạn</p>
-      </div>
-
-      <div className="hl-account-form hl-account-security-form">
-        <label className="is-full">
-          Mật khẩu hiện tại
-          <span className={`hl-account-password-input ${errors.oldPassword ? 'has-error' : ''}`}>
-            <LockKeyhole size={16} />
-            <input
-              type={showOld ? 'text' : 'password'}
+    <AccountPanel title="Đổi mật khẩu" subtitle="Bảo mật tài khoản của bạn">
+      <div className="max-w-[520px]">
+        <AccountForm>
+          <Field full label="Mật khẩu hiện tại" error={errors.oldPassword}>
+            <PasswordInput
               value={form.oldPassword}
-              onChange={(event) => updateField('oldPassword', event.target.value)}
+              onChange={(value) => updateField('oldPassword', value)}
               autoComplete="current-password"
+              invalid={Boolean(errors.oldPassword)}
+              visible={showOld}
+              onToggleVisible={() => setShowOld((value) => !value)}
             />
-            <button
-              type="button"
-              onClick={() => setShowOld((value) => !value)}
-              aria-label={showOld ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-            >
-              {showOld ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </span>
-          {errors.oldPassword && <small className="hl-form-error">{errors.oldPassword}</small>}
-        </label>
-        <label className="is-full">
-          Mật khẩu mới
-          <span className={`hl-account-password-input ${errors.newPassword ? 'has-error' : ''}`}>
-            <LockKeyhole size={16} />
-            <input
-              type={showNew ? 'text' : 'password'}
+          </Field>
+          <Field full label="Mật khẩu mới" error={errors.newPassword}>
+            <PasswordInput
               value={form.newPassword}
-              onChange={(event) => updateField('newPassword', event.target.value)}
+              onChange={(value) => updateField('newPassword', value)}
               autoComplete="new-password"
+              invalid={Boolean(errors.newPassword)}
+              visible={showNew}
+              onToggleVisible={() => setShowNew((value) => !value)}
             />
-            <button
-              type="button"
-              onClick={() => setShowNew((value) => !value)}
-              aria-label={showNew ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-            >
-              {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </span>
-          {errors.newPassword && <small className="hl-form-error">{errors.newPassword}</small>}
-        </label>
-        <label className="is-full">
-          Xác nhận mật khẩu mới
-          <span
-            className={`hl-account-password-input ${errors.confirmPassword ? 'has-error' : ''}`}
+          </Field>
+          <Field
+            full
+            label="Xác nhận mật khẩu mới"
+            error={errors.confirmPassword}
+            helper={
+              mismatch ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-danger">
+                  <AlertCircle size={13} />
+                  Mật khẩu xác nhận chưa trùng khớp
+                </span>
+              ) : undefined
+            }
           >
-            <LockKeyhole size={16} />
-            <input
-              type={showNew ? 'text' : 'password'}
+            <PasswordInput
               value={form.confirmPassword}
-              onChange={(event) => updateField('confirmPassword', event.target.value)}
+              onChange={(value) => updateField('confirmPassword', value)}
               autoComplete="new-password"
+              invalid={Boolean(errors.confirmPassword)}
+              visible={showNew}
             />
-          </span>
-          {errors.confirmPassword && (
-            <small className="hl-form-error">{errors.confirmPassword}</small>
-          )}
-          {!errors.confirmPassword && mismatch && (
-            <small className="hl-account-mismatch">
-              <AlertCircle size={13} />
-              Mật khẩu xác nhận chưa trùng khớp
-            </small>
-          )}
-        </label>
+          </Field>
 
-        <div className="is-full hl-account-password-rules">
-          <strong>Mật khẩu cần đáp ứng</strong>
-          <ul>
-            {requirements.map((rule) => (
-              <li key={rule.key} className={rule.met ? 'is-met' : ''}>
-                {rule.met ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-                {rule.label}
-              </li>
-            ))}
-          </ul>
-        </div>
+          <div className="col-span-full rounded-xl bg-surface-soft p-3.5">
+            <strong className="text-[13px] text-text-heading">Mật khẩu cần đáp ứng</strong>
+            <ul className="mt-2 grid gap-1.5">
+              {requirements.map((rule) => (
+                <li
+                  key={rule.key}
+                  className={cn(
+                    'flex items-center gap-2 text-[13px]',
+                    rule.met ? 'text-badge-success-text' : 'text-text-muted'
+                  )}
+                >
+                  {rule.met ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                  {rule.label}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="hl-account-form-actions">
-          <button type="button" className="hl-account-primary" onClick={submit} disabled={saving}>
-            {saving && <Loader2 size={14} className="hl-account-spin" />}
-            {saving ? 'Đang lưu...' : 'Đổi mật khẩu'}
-          </button>
-          {saved && (
-            <span className="hl-account-saved-badge" role="status">
-              <CheckCircle2 size={14} />
-              Đã cập nhật mật khẩu
-            </span>
-          )}
-        </div>
+          <SaveBar
+            saving={saving}
+            saved={saved}
+            submitLabel="Đổi mật khẩu"
+            savedLabel="Đã cập nhật mật khẩu"
+            onSubmit={submit}
+          />
+        </AccountForm>
       </div>
-    </section>
+    </AccountPanel>
   )
 }
 

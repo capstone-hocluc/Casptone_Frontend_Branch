@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight } from 'lucide-react'
-import MascotState from '../../components/common/MascotState'
+import { useRef, useState } from 'react'
+import LessonBreadcrumb from '../../components/lesson/LessonBreadcrumb'
 import LessonContent from '../../components/lesson/LessonContent'
+import LessonInfoCard from '../../components/lesson/LessonInfoCard'
+import LessonNavFooter from '../../components/lesson/LessonNavFooter'
 import LessonQuizzes from '../../components/lesson/LessonQuizzes'
-import { getLesson, updateLessonProgress, type LessonDetail } from '../../services/lessonService'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Skeleton from '../../components/ui/Skeleton'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getLesson, updateLessonProgress } from '../../services/lessonService'
 import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
 import { showErrorToast, showSuccessToast } from '../../lib/toastBus'
-import { formatDuration, prettifyEnum } from '../../lib/courseFormat'
-import { getLessonStatusLabel, getLessonStatusTone } from '../../lib/lessonStatus'
 
 interface LessonPageProps {
   courseId: string | null
@@ -19,44 +21,23 @@ interface LessonPageProps {
 }
 
 function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: LessonPageProps) {
-  const [lesson, setLesson] = useState<LessonDetail | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
-    'loading'
-  )
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
   const [completing, setCompleting] = useState(false)
 
-  const videoRef = useRef<HTMLVideoElement | null>(null)
   const watchSecondsRef = useRef(0)
-  const savingRef = useRef(false)
+  const {
+    data: lesson,
+    setData: setLesson,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getLesson(lessonId), [lessonId], {
+    onLoaded: (data) => {
+      watchSecondsRef.current = Math.max(0, data.progress?.watchDurationSeconds ?? 0)
+    },
+  })
 
-  useEffect(() => {
-    let cancelled = false
-    getLesson(lessonId)
-      .then((data) => {
-        if (cancelled) return
-        watchSecondsRef.current = Math.max(0, data.progress?.watchDurationSeconds ?? 0)
-        setLesson(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 403) {
-          setStatus('forbidden')
-          return
-        }
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [lessonId, reloadKey])
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const savingRef = useRef(false)
 
   const clampWatchSeconds = () => {
     let seconds = Math.max(0, Math.floor(watchSecondsRef.current))
@@ -113,167 +94,57 @@ function LessonPage({ lessonId, onBackToStudy, onNavigateLesson, onOpenQuiz }: L
     onBackToStudy()
   }
 
-  const isCompleted = lesson?.progress?.status === 'COMPLETED'
-  const canMarkComplete = Boolean(lesson?.owned) && !isCompleted
-
   return (
-    <section className="hl-student-page hl-lesson-page">
-      <div className="hl-lesson-container">
-        {status === 'loading' && (
-          <div className="hl-lesson-grid">
-            <div className="hl-lesson-skeleton" style={{ height: 24, width: 260 }} />
-            <div className="hl-lesson-skeleton" style={{ height: 360 }} />
-            <div className="hl-lesson-skeleton" style={{ height: 120 }} />
+    <StudentPageContainer width="narrow" className="pb-8">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-6 w-[260px] max-w-full" />
+            <Skeleton className="h-[360px]" />
+            <Skeleton className="h-[120px]" />
           </div>
-        )}
+        }
+        forbidden={{
+          title: 'Chưa thể truy cập bài học',
+          message: 'Bạn chưa có quyền truy cập bài học này.',
+          actionLabel: 'Quay lại khóa học',
+          onAction: onBackToStudy,
+        }}
+        notFound={{
+          title: 'Không tìm thấy bài học',
+          message: 'Bài học này không tồn tại hoặc đã bị gỡ.',
+          actionLabel: 'Quay lại khóa học',
+          onAction: onBackToStudy,
+        }}
+        error={{ title: 'Không thể tải bài học' }}
+      />
 
-        {status === 'forbidden' && (
-          <MascotState
-            title="Chưa thể truy cập bài học"
-            message="Bạn chưa có quyền truy cập bài học này."
-            actionLabel="Quay lại khóa học"
-            onAction={onBackToStudy}
+      {status === 'ready' && lesson && (
+        <div className="flex flex-col gap-4">
+          <LessonBreadcrumb lesson={lesson} onBack={goBackToStudy} />
+          <LessonContent
+            lesson={lesson}
+            videoRef={videoRef}
+            onTimeUpdate={handleTimeUpdate}
+            onPause={handlePause}
           />
-        )}
-
-        {status === 'not-found' && (
-          <MascotState
-            title="Không tìm thấy bài học"
-            message="Bài học này không tồn tại hoặc đã bị gỡ."
-            actionLabel="Quay lại khóa học"
-            onAction={onBackToStudy}
+          <LessonInfoCard
+            lesson={lesson}
+            completing={completing}
+            onMarkComplete={handleMarkComplete}
           />
-        )}
-
-        {status === 'error' && (
-          <MascotState
-            title="Không thể tải bài học"
-            message={errorMessage}
-            actionLabel="Thử lại"
-            onAction={() => {
-              setStatus('loading')
-              setReloadKey((current) => current + 1)
-            }}
+          <LessonQuizzes quizzes={lesson.quizzes} onOpenQuiz={onOpenQuiz} />
+          <LessonNavFooter
+            previousLessonId={lesson.previousLessonId}
+            nextLessonId={lesson.nextLessonId}
+            onNavigate={goToLesson}
           />
-        )}
-
-        {status === 'ready' && lesson && (
-          <div className="hl-lesson-grid">
-            <nav className="hl-lesson-breadcrumb" aria-label="Breadcrumb">
-              <button type="button" onClick={goBackToStudy}>
-                <ArrowLeft size={15} />
-                Khóa học
-              </button>
-              {lesson.sectionCourseTitle && (
-                <>
-                  <ChevronRight size={13} />
-                  <span>{lesson.sectionCourseTitle}</span>
-                </>
-              )}
-              {lesson.chapterTitle && (
-                <>
-                  <ChevronRight size={13} />
-                  <span>{lesson.chapterTitle}</span>
-                </>
-              )}
-              <ChevronRight size={13} />
-              <span className="is-current">{lesson.title}</span>
-            </nav>
-
-            <LessonContent
-              lesson={lesson}
-              videoRef={videoRef}
-              onTimeUpdate={handleTimeUpdate}
-              onPause={handlePause}
-            />
-
-            <section className="hl-lesson-card">
-              <div className="hl-lesson-info-head">
-                <div>
-                  <h1>{lesson.title}</h1>
-                  <span className="hl-lesson-meta-line">
-                    {prettifyEnum(lesson.contentType)}
-                    {Boolean(lesson.durationSeconds) &&
-                      ` · ${formatDuration(lesson.durationSeconds)}`}
-                  </span>
-                </div>
-                <span
-                  className={`hl-lesson-status is-${getLessonStatusTone(lesson.progress?.status || 'NOT_STARTED')}`}
-                >
-                  {getLessonStatusLabel(lesson.progress?.status || 'NOT_STARTED')}
-                </span>
-              </div>
-
-              {lesson.description && <p className="hl-lesson-description">{lesson.description}</p>}
-
-              <div className="hl-lesson-progress-row">
-                <div className="hl-lesson-progress-bar" aria-hidden="true">
-                  <span
-                    style={{
-                      width: `${Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%`,
-                    }}
-                  />
-                </div>
-                <span>
-                  Tiến độ bài học:{' '}
-                  {Math.max(0, Math.min(100, lesson.progress?.progressPercentage ?? 0))}%
-                </span>
-              </div>
-
-              {lesson.progress?.chapterCompleted && (
-                <span className="hl-lesson-chapter-done">
-                  <CheckCircle2 size={14} />
-                  Chương đã hoàn thành
-                </span>
-              )}
-
-              <div className="hl-lesson-actions">
-                {isCompleted ? (
-                  <span className="hl-lesson-completed-tag">
-                    <CheckCircle2 size={15} />
-                    Đã hoàn thành
-                  </span>
-                ) : (
-                  canMarkComplete && (
-                    <button
-                      type="button"
-                      className="hl-lesson-complete-cta"
-                      onClick={handleMarkComplete}
-                      disabled={completing}
-                    >
-                      {completing ? 'Đang lưu...' : 'Đánh dấu hoàn thành'}
-                    </button>
-                  )
-                )}
-              </div>
-            </section>
-
-            <LessonQuizzes quizzes={lesson.quizzes} onOpenQuiz={onOpenQuiz} />
-
-            <div className="hl-lesson-nav-footer">
-              <button
-                type="button"
-                className="hl-lesson-nav-btn"
-                disabled={!lesson.previousLessonId}
-                onClick={() => lesson.previousLessonId && goToLesson(lesson.previousLessonId)}
-              >
-                <ArrowLeft size={16} />
-                Bài trước
-              </button>
-              <button
-                type="button"
-                className="hl-lesson-nav-btn is-primary"
-                disabled={!lesson.nextLessonId}
-                onClick={() => lesson.nextLessonId && goToLesson(lesson.nextLessonId)}
-              >
-                Bài tiếp theo
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </StudentPageContainer>
   )
 }
 

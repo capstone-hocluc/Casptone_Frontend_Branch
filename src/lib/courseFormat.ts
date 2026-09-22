@@ -58,6 +58,18 @@ export function formatDate(value?: string) {
   return date.toLocaleDateString('vi-VN')
 }
 
+export function formatDateTime(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleString('vi-VN')
+}
+
+export function formatTime(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+}
+
 export function formatCoursePrice(price?: number, paid?: boolean) {
   if (paid === false || !price) return 'Miễn phí'
   return `${price.toLocaleString('vi-VN')} ₫`

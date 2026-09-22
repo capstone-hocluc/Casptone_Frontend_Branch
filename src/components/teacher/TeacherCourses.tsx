@@ -285,8 +285,8 @@ function TeacherCourses({ courses, selectedCourse, onOpenCourse, onBack, onActio
     <section className="hl-teacher-courses-page">
       <div className="hl-teacher-title">
         <div>
-          <h1>Lớp học của tôi</h1>
-          <p>Quản lý các lớp học được phân công giảng dạy.</p>
+          <h1>Lớp học</h1>
+          <p>Các lớp được phân công.</p>
         </div>
       </div>
       <section className="hl-teacher-courses-summary">

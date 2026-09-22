@@ -9,7 +9,7 @@ import { cn } from '../../lib/cn'
 // Tailwind utility classes only - no index.css rule, mirrors the reference
 // CRM's Badge (tailgrids/core/badge.tsx).
 const badge = cva(
-  'inline-flex w-fit items-center whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-medium',
+  'inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-full font-medium',
   {
     variants: {
       tone: {
@@ -18,18 +18,29 @@ const badge = cva(
         danger: 'bg-badge-danger-bg text-badge-danger-text',
         info: 'bg-badge-info-bg text-badge-info-text',
         neutral: 'bg-badge-neutral-bg text-badge-neutral-text',
+        // Student learning semantics (see tokens.css)
+        primary: 'bg-primary-soft text-primary',
+        practice: 'bg-practice-soft text-practice',
+        assessment: 'bg-assess-soft text-assess',
+        live: 'bg-live-soft text-live',
+        locked: 'bg-lock-soft text-lock',
+      },
+      size: {
+        md: 'px-2.5 py-1 text-sm',
+        sm: 'px-2 py-0.5 text-[11px]',
       },
     },
     defaultVariants: {
       tone: 'neutral',
+      size: 'md',
     },
   }
 )
 
 type StatusBadgeProps = ComponentProps<'span'> & VariantProps<typeof badge>
 
-function StatusBadge({ tone, className, children }: StatusBadgeProps) {
-  return <span className={cn(badge({ tone }), className)}>{children}</span>
+function StatusBadge({ tone, size, className, children }: StatusBadgeProps) {
+  return <span className={cn(badge({ tone, size }), className)}>{children}</span>
 }
 
 export default StatusBadge

@@ -1,7 +1,14 @@
-import { useRef, useState } from 'react'
-import { CheckCircle2, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import {
+  AccountForm,
+  AccountPanel,
+  FormGroupTitle,
+  SaveBar,
+} from '../../../components/student/profile/AccountPanel'
+import { Field, Input } from '../../../components/ui/Field'
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
-import { getErrorMessage } from '../../../lib/errors'
+import { useSavedIndicator } from '../../../hooks/useSavedIndicator'
+import { getErrorMessage, getFieldErrors } from '../../../lib/errors'
 import { showErrorToast } from '../../../lib/toastBus'
 import { updateStudentProfile } from '../../../services/userService'
 import type { StudentProfile } from '../../../services/userService'
@@ -26,6 +33,34 @@ function buildDraft(studentProfile: StudentProfile | undefined) {
   }
 }
 
+type Draft = ReturnType<typeof buildDraft>
+
+interface FieldConfig {
+  key: keyof Draft
+  label: string
+  type?: 'text' | 'date' | 'number'
+  placeholder?: string
+}
+
+const personalFields: FieldConfig[] = [
+  { key: 'dateOfBirth', label: 'Ngày sinh', type: 'date' },
+  { key: 'gender', label: 'Giới tính', placeholder: 'MALE / FEMALE / ...' },
+  { key: 'province', label: 'Tỉnh/Thành' },
+  { key: 'address', label: 'Địa chỉ' },
+  { key: 'schoolName', label: 'Trường học' },
+  { key: 'grade', label: 'Khối lớp', type: 'number' },
+  { key: 'graduationYear', label: 'Năm tốt nghiệp', type: 'number' },
+  { key: 'academicTrack', label: 'Khối học', placeholder: 'NATURAL_SCIENCES / ...' },
+]
+
+const goalFields: FieldConfig[] = [
+  { key: 'targetExam', label: 'Kỳ thi mục tiêu', placeholder: 'VNUHCM_DGNL / ...' },
+  { key: 'targetExamYear', label: 'Năm thi', type: 'number' },
+  { key: 'targetUniversity', label: 'Trường đại học mục tiêu' },
+  { key: 'targetMajor', label: 'Ngành học mục tiêu' },
+  { key: 'targetScore', label: 'Điểm mục tiêu', type: 'number' },
+]
+
 function toNumberOrUndefined(value: string) {
   if (value.trim() === '') return undefined
   const parsed = Number(value)
@@ -37,20 +72,19 @@ function StudentInfoTab() {
   const studentProfile = profile?.studentProfile
   const [draft, setDraft] = useState(() => buildDraft(studentProfile))
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const { saved, flash, clear } = useSavedIndicator()
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const savedTimer = useRef<number | undefined>(undefined)
 
-  const updateField = (key: keyof ReturnType<typeof buildDraft>, value: string) => {
+  const updateField = (key: keyof Draft, value: string) => {
     setDraft((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: '' }))
-    setSaved(false)
+    clear()
   }
 
   const submit = async () => {
     if (saving) return
     setSaving(true)
-    setSaved(false)
+    clear()
     setErrors({})
     try {
       await updateStudentProfile({
@@ -85,12 +119,9 @@ function StudentInfoTab() {
       // shape, matching the existing CurrentUserContext refresh strategy.
       const refreshed = await loadCurrentUser()
       setDraft(buildDraft(refreshed.studentProfile))
-      setSaved(true)
-      window.clearTimeout(savedTimer.current)
-      savedTimer.current = window.setTimeout(() => setSaved(false), 2600)
+      flash()
     } catch (error) {
-      const fieldErrors =
-        error?.errors && typeof error.errors === 'object' ? error.errors : {}
+      const fieldErrors = getFieldErrors(error)
       setErrors(fieldErrors)
       if (!Object.keys(fieldErrors).length) {
         showErrorToast(getErrorMessage(error) || 'Cập nhật hồ sơ học tập không thành công.')
@@ -100,179 +131,57 @@ function StudentInfoTab() {
     }
   }
 
+  const renderFields = (fields: FieldConfig[]) =>
+    fields.map(({ key, label, type, placeholder }) => (
+      <Field key={key} label={label} error={errors[key]}>
+        <Input
+          type={type}
+          value={draft[key]}
+          placeholder={placeholder}
+          onChange={(event) => updateField(key, event.target.value)}
+        />
+      </Field>
+    ))
+
   return (
-    <section className="hl-account-panel-card">
-      <div className="hl-account-panel-heading">
-        <h2>Hồ sơ học tập</h2>
-      </div>
+    <AccountPanel title="Hồ sơ học tập">
+      <AccountForm>
+        <FormGroupTitle>Thông tin học tập cá nhân</FormGroupTitle>
+        {renderFields(personalFields)}
 
-      <div className="hl-account-form">
-        <div className="is-full hl-account-form-group-title">Thông tin học tập cá nhân</div>
-        <label>
-          Ngày sinh
-          <input
-            type="date"
-            value={draft.dateOfBirth}
-            onChange={(event) => updateField('dateOfBirth', event.target.value)}
-          />
-          {errors.dateOfBirth && <small className="hl-form-error">{errors.dateOfBirth}</small>}
-        </label>
-        <label>
-          Giới tính
-          <input
-            value={draft.gender}
-            placeholder="MALE / FEMALE / ..."
-            onChange={(event) => updateField('gender', event.target.value)}
-          />
-          {errors.gender && <small className="hl-form-error">{errors.gender}</small>}
-        </label>
-        <label>
-          Tỉnh/Thành
-          <input
-            value={draft.province}
-            onChange={(event) => updateField('province', event.target.value)}
-          />
-          {errors.province && <small className="hl-form-error">{errors.province}</small>}
-        </label>
-        <label>
-          Địa chỉ
-          <input
-            value={draft.address}
-            onChange={(event) => updateField('address', event.target.value)}
-          />
-          {errors.address && <small className="hl-form-error">{errors.address}</small>}
-        </label>
-        <label>
-          Trường học
-          <input
-            value={draft.schoolName}
-            onChange={(event) => updateField('schoolName', event.target.value)}
-          />
-          {errors.schoolName && <small className="hl-form-error">{errors.schoolName}</small>}
-        </label>
-        <label>
-          Khối lớp
-          <input
-            type="number"
-            value={draft.grade}
-            onChange={(event) => updateField('grade', event.target.value)}
-          />
-          {errors.grade && <small className="hl-form-error">{errors.grade}</small>}
-        </label>
-        <label>
-          Năm tốt nghiệp
-          <input
-            type="number"
-            value={draft.graduationYear}
-            onChange={(event) => updateField('graduationYear', event.target.value)}
-          />
-          {errors.graduationYear && (
-            <small className="hl-form-error">{errors.graduationYear}</small>
-          )}
-        </label>
-        <label>
-          Khối học
-          <input
-            value={draft.academicTrack}
-            placeholder="NATURAL_SCIENCES / ..."
-            onChange={(event) => updateField('academicTrack', event.target.value)}
-          />
-          {errors.academicTrack && (
-            <small className="hl-form-error">{errors.academicTrack}</small>
-          )}
-        </label>
-
-        <div className="is-full hl-account-form-group-title">Mục tiêu học tập</div>
-        <label>
-          Kỳ thi mục tiêu
-          <input
-            value={draft.targetExam}
-            placeholder="VNUHCM_DGNL / ..."
-            onChange={(event) => updateField('targetExam', event.target.value)}
-          />
-          {errors.targetExam && <small className="hl-form-error">{errors.targetExam}</small>}
-        </label>
-        <label>
-          Năm thi
-          <input
-            type="number"
-            value={draft.targetExamYear}
-            onChange={(event) => updateField('targetExamYear', event.target.value)}
-          />
-          {errors.targetExamYear && (
-            <small className="hl-form-error">{errors.targetExamYear}</small>
-          )}
-        </label>
-        <label>
-          Trường đại học mục tiêu
-          <input
-            value={draft.targetUniversity}
-            onChange={(event) => updateField('targetUniversity', event.target.value)}
-          />
-          {errors.targetUniversity && (
-            <small className="hl-form-error">{errors.targetUniversity}</small>
-          )}
-        </label>
-        <label>
-          Ngành học mục tiêu
-          <input
-            value={draft.targetMajor}
-            onChange={(event) => updateField('targetMajor', event.target.value)}
-          />
-          {errors.targetMajor && <small className="hl-form-error">{errors.targetMajor}</small>}
-        </label>
-        <label>
-          Điểm mục tiêu
-          <input
-            type="number"
-            value={draft.targetScore}
-            onChange={(event) => updateField('targetScore', event.target.value)}
-          />
-          {errors.targetScore && <small className="hl-form-error">{errors.targetScore}</small>}
-        </label>
+        <FormGroupTitle>Mục tiêu học tập</FormGroupTitle>
+        {renderFields(goalFields)}
 
         {(studentProfile?.selfReportedWeakCategoryName ||
           studentProfile?.selfReportedStrongCategoryName) && (
           <>
-            <div className="is-full hl-account-form-group-title">
-              Điểm mạnh và điểm cần cải thiện
-            </div>
-            <label>
-              Điểm mạnh
-              <input value={studentProfile?.selfReportedStrongCategoryName || ''} readOnly disabled />
-            </label>
-            <label>
-              Điểm cần cải thiện
-              <input value={studentProfile?.selfReportedWeakCategoryName || ''} readOnly disabled />
-            </label>
-            <div className="is-full hl-account-readonly-note">
-              <small>
-                Điểm mạnh/điểm cần cải thiện hiện chưa thể chỉnh sửa tại đây - dữ liệu được giữ
-                nguyên khi lưu.
-              </small>
-            </div>
+            <FormGroupTitle>Điểm mạnh và điểm cần cải thiện</FormGroupTitle>
+            <Field label="Điểm mạnh">
+              <Input
+                value={studentProfile?.selfReportedStrongCategoryName || ''}
+                readOnly
+                disabled
+              />
+            </Field>
+            <Field label="Điểm cần cải thiện">
+              <Input value={studentProfile?.selfReportedWeakCategoryName || ''} readOnly disabled />
+            </Field>
+            <p className="col-span-full text-xs text-text-muted">
+              Điểm mạnh/điểm cần cải thiện hiện chưa thể chỉnh sửa tại đây - dữ liệu được giữ nguyên
+              khi lưu.
+            </p>
           </>
         )}
 
-        <div className="hl-account-form-actions">
-          <button
-            type="button"
-            className="hl-account-primary"
-            onClick={submit}
-            disabled={saving}
-          >
-            {saving && <Loader2 size={14} className="hl-account-spin" />}
-            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-          </button>
-          {saved && (
-            <span className="hl-account-saved-badge" role="status">
-              <CheckCircle2 size={14} />
-              Đã lưu thay đổi
-            </span>
-          )}
-        </div>
-      </div>
-    </section>
+        <SaveBar
+          saving={saving}
+          saved={saved}
+          submitLabel="Lưu thay đổi"
+          savedLabel="Đã lưu thay đổi"
+          onSubmit={submit}
+        />
+      </AccountForm>
+    </AccountPanel>
   )
 }
 

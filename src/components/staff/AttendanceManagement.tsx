@@ -102,8 +102,8 @@ function AttendanceManagement({ batches, students }) {
   return (
     <>
       <PageHeading
-        title="Quản lý điểm danh"
-        subtitle="Kiểm tra và cập nhật tình trạng tham gia theo buổi học."
+        title="Điểm danh"
+        subtitle="Tình trạng tham gia lớp học."
       />
           {notice && (
             <div className="hl-staff-toast">

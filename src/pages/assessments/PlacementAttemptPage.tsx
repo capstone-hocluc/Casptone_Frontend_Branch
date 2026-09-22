@@ -1,22 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowLeft, ArrowRight, SearchX } from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import QuizTimer from '../../components/assessment/QuizTimer'
-import QuestionNavigator from '../../components/assessment/QuestionNavigator'
-import QuizQuestionCard from '../../components/assessment/QuizQuestionCard'
-import SubmitQuizDialog from '../../components/assessment/SubmitQuizDialog'
-import {
-  getAttempt,
-  getPlacementTest,
-  saveAnswer,
-  submitAttempt,
-  type PlacementTest,
-  type QuizAttemptDetail,
-} from '../../services/assessmentService'
-import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
-import { showErrorToast } from '../../lib/toastBus'
+import AttemptWorkspace from '../../components/assessment/AttemptWorkspace'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Skeleton from '../../components/ui/Skeleton'
+import { useAttemptSession } from '../../hooks/useAttemptSession'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getAttempt, getPlacementTest } from '../../services/assessmentService'
+import { bySequence } from '../../lib/sequence'
 
 interface PlacementAttemptPageProps {
   attemptId: string
@@ -24,281 +13,44 @@ interface PlacementAttemptPageProps {
   onSubmitted: () => void
 }
 
-function bySequence<T extends { sequence: number }>(items: T[]) {
-  return [...items].sort((a, b) => a.sequence - b.sequence)
-}
-
-// Mirrors QuizAttemptPage's orchestration (timer/answer-save/submit
-// guarding) exactly, adapted only for the placement-specific data source
-// (a single test definition instead of a per-quiz lookup). Kept as a
-// separate page rather than a shared generic component so the working
-// Course Quiz attempt flow can't be affected by this change.
+// Taking the placement test: same attempt session + workspace as a course
+// quiz; only the data source differs (one test definition, no per-quiz lookup).
 function PlacementAttemptPage({ attemptId, onExit, onSubmitted }: PlacementAttemptPageProps) {
-  const [test, setTest] = useState<PlacementTest | null>(null)
-  const [attempt, setAttempt] = useState<QuizAttemptDetail | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({})
-  const [savingQuestionIds, setSavingQuestionIds] = useState<Set<string>>(new Set())
-  const [failedQuestionIds, setFailedQuestionIds] = useState<Set<string>>(new Set())
-  const [showSubmitDialog, setShowSubmitDialog] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [expired, setExpired] = useState(false)
-
-  const submitInFlightRef = useRef(false)
-  const requestSeqRef = useRef<Map<string, number>>(new Map())
-  const pendingSavesRef = useRef<Map<string, Promise<void>>>(new Map())
-
-  useEffect(() => {
-    let cancelled = false
-    Promise.all([getPlacementTest(), getAttempt(attemptId)])
-      .then(([testData, attemptData]) => {
-        if (cancelled) return
-        setTest(testData)
-        setAttempt(attemptData)
-        const restored: Record<string, string> = {}
-        attemptData.answers.forEach((answer) => {
-          restored[answer.questionId] = answer.selectedOptionId
-        })
-        setSelectedAnswers(restored)
-        setCurrentIndex(0)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [attemptId, reloadKey])
-
-  const questions = test ? bySequence(test.questions) : []
-  const currentQuestion = questions[currentIndex] || null
-  const answeredCount = Object.keys(selectedAnswers).length
-  const isActive = attempt?.status === 'IN_PROGRESS' && !expired
-  const inputsDisabled = !isActive || submitting
-
-  const selectOption = (questionId: string, optionId: string) => {
-    if (!attempt || inputsDisabled) return
-    if (selectedAnswers[questionId] === optionId) return
-
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: optionId }))
-    setFailedQuestionIds((prev) => {
-      const next = new Set(prev)
-      next.delete(questionId)
-      return next
-    })
-
-    const seq = (requestSeqRef.current.get(questionId) ?? 0) + 1
-    requestSeqRef.current.set(questionId, seq)
-    setSavingQuestionIds((prev) => new Set(prev).add(questionId))
-
-    const savePromise = saveAnswer(attempt.attemptId, { questionId, selectedOptionId: optionId })
-      .then(() => {
-        if (requestSeqRef.current.get(questionId) !== seq) return
-        setSavingQuestionIds((prev) => {
-          const next = new Set(prev)
-          next.delete(questionId)
-          return next
-        })
-      })
-      .catch((error) => {
-        if (requestSeqRef.current.get(questionId) !== seq) return
-        setSavingQuestionIds((prev) => {
-          const next = new Set(prev)
-          next.delete(questionId)
-          return next
-        })
-        setFailedQuestionIds((prev) => new Set(prev).add(questionId))
-        showErrorToast(getErrorMessage(error))
-      })
-
-    pendingSavesRef.current.set(questionId, savePromise)
-  }
-
-  const performSubmit = async () => {
-    if (submitInFlightRef.current || !attempt) return
-    submitInFlightRef.current = true
-    setSubmitting(true)
-    try {
-      await Promise.allSettled(Array.from(pendingSavesRef.current.values()))
-      await submitAttempt(attempt.attemptId)
-      onSubmitted()
-    } catch (error) {
-      showErrorToast(getErrorMessage(error))
-      setSubmitting(false)
-      submitInFlightRef.current = false
-    }
-  }
-
-  const handleExpire = () => {
-    if (submitInFlightRef.current) return
-    setExpired(true)
-    void performSubmit()
-  }
-
-  const handleConfirmSubmit = () => {
-    setShowSubmitDialog(false)
-    void performSubmit()
-  }
+  const session = useAttemptSession(() => onSubmitted())
+  const { data, status, errorMessage, reload } = usePageResource(
+    async () => {
+      const [test, attempt] = await Promise.all([getPlacementTest(), getAttempt(attemptId)])
+      return { test, attempt }
+    },
+    [attemptId],
+    { forbidden: false, onLoaded: ({ attempt }) => session.hydrate(attempt) }
+  )
 
   return (
-    <div className="hl-quiz-page">
-      <Navbar />
-      <main className="hl-quiz-main-wrap">
-        <div className="hl-quiz-container">
-          {status === 'loading' && (
-            <div className="hl-quiz-attempt-grid">
-              <div className="hl-quiz-skeleton" style={{ height: 320 }} />
-              <div className="hl-quiz-skeleton" style={{ height: 220 }} />
-            </div>
-          )}
+    <StudentPageContainer width="reading" spacing="stack">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <>
+            <Skeleton className="h-80 rounded-2xl" />
+            <Skeleton className="h-[220px] rounded-2xl" />
+          </>
+        }
+        notFound={{ title: 'Không tìm thấy bài làm.', actionLabel: 'Quay lại', onAction: onExit }}
+        error={{ title: 'Không thể tải bài làm.' }}
+      />
 
-          {status === 'not-found' && (
-            <div className="hl-quiz-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy bài làm.</p>
-              <button type="button" onClick={onExit}>
-                Quay lại
-              </button>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="hl-quiz-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải bài làm.'}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
-              >
-                Thử lại
-              </button>
-            </div>
-          )}
-
-          {status === 'ready' && test && attempt && currentQuestion && (
-            <>
-              <button type="button" className="hl-quiz-exit" onClick={onExit}>
-                <ArrowLeft size={15} />
-                Thoát bài kiểm tra
-              </button>
-
-              {attempt.status !== 'IN_PROGRESS' && (
-                <div className="hl-quiz-banner">
-                  <span>Bài làm này đã được nộp.</span>
-                  <button type="button" onClick={onSubmitted}>
-                    Xem kết quả
-                  </button>
-                </div>
-              )}
-
-              <div className="hl-quiz-attempt-grid">
-                <div className="hl-quiz-attempt-main">
-                  <QuizQuestionCard
-                    question={currentQuestion}
-                    index={currentIndex}
-                    total={questions.length}
-                    selectedOptionId={selectedAnswers[currentQuestion.id] || null}
-                    saving={savingQuestionIds.has(currentQuestion.id)}
-                    saveFailed={failedQuestionIds.has(currentQuestion.id)}
-                    disabled={inputsDisabled}
-                    onSelectOption={(optionId) => selectOption(currentQuestion.id, optionId)}
-                  />
-
-                  <div className="hl-quiz-nav-footer">
-                    <button
-                      type="button"
-                      className="hl-quiz-nav-btn"
-                      disabled={currentIndex === 0}
-                      onClick={() => setCurrentIndex((current) => Math.max(0, current - 1))}
-                    >
-                      <ArrowLeft size={16} />
-                      Câu trước
-                    </button>
-
-                    {currentIndex === questions.length - 1 ? (
-                      <button
-                        type="button"
-                        className="hl-quiz-nav-btn is-primary"
-                        disabled={inputsDisabled}
-                        onClick={() => setShowSubmitDialog(true)}
-                      >
-                        Nộp bài
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="hl-quiz-nav-btn is-primary"
-                        onClick={() =>
-                          setCurrentIndex((current) => Math.min(questions.length - 1, current + 1))
-                        }
-                      >
-                        Câu tiếp theo
-                        <ArrowRight size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <aside className="hl-quiz-attempt-aside">
-                  {isActive && (
-                    <QuizTimer deadlineAt={attempt.deadlineAt} onExpire={handleExpire} />
-                  )}
-
-                  <div className="hl-quiz-answered-count">
-                    Đã trả lời {answeredCount}/{questions.length} câu
-                  </div>
-
-                  <QuestionNavigator
-                    questions={questions}
-                    currentQuestionId={currentQuestion.id}
-                    answeredQuestionIds={new Set(Object.keys(selectedAnswers))}
-                    disabled={submitting}
-                    onSelect={(questionId) => {
-                      const index = questions.findIndex((question) => question.id === questionId)
-                      if (index >= 0) setCurrentIndex(index)
-                    }}
-                  />
-
-                  <button
-                    type="button"
-                    className="hl-quiz-submit-cta"
-                    disabled={inputsDisabled}
-                    onClick={() => setShowSubmitDialog(true)}
-                  >
-                    Nộp bài
-                  </button>
-                </aside>
-              </div>
-
-              {showSubmitDialog && (
-                <SubmitQuizDialog
-                  answeredCount={answeredCount}
-                  totalQuestions={questions.length}
-                  submitting={submitting}
-                  onCancel={() => setShowSubmitDialog(false)}
-                  onConfirm={handleConfirmSubmit}
-                />
-              )}
-            </>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+      {status === 'ready' && data && (
+        <AttemptWorkspace
+          session={session}
+          questions={bySequence(data.test.questions)}
+          onExit={onExit}
+          onViewResult={onSubmitted}
+        />
+      )}
+    </StudentPageContainer>
   )
 }
 

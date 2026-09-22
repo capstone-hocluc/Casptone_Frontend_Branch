@@ -1,117 +1,68 @@
-import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowLeft, SearchX } from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import Chatbot from '../../components/landing/Chatbot'
 import QuizReviewQuestionCard from '../../components/assessment/QuizReviewQuestionCard'
-import { getAttemptReview, type QuizReview } from '../../services/assessmentService'
-import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
+import BackLink from '../../components/student/common/BackLink'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Card, { CardTitle } from '../../components/ui/Card'
+import Skeleton from '../../components/ui/Skeleton'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getAttemptReview } from '../../services/assessmentService'
+import { bySequence } from '../../lib/sequence'
 
 interface PlacementReviewPageProps {
   attemptId: string
   onBack: () => void
 }
 
-function bySequence<T extends { sequence: number }>(items: T[]) {
-  return [...items].sort((a, b) => a.sequence - b.sequence)
-}
-
 // The placement test definition has no showAnswers-style flag (unlike a
 // course quiz), so unlike QuizReviewPage this never gates the per-question
 // breakdown behind a lookup - it's always shown once the review loads.
 function PlacementReviewPage({ attemptId, onBack }: PlacementReviewPageProps) {
-  const [review, setReview] = useState<QuizReview | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-
-  useEffect(() => {
-    let cancelled = false
-    getAttemptReview(attemptId)
-      .then((data) => {
-        if (cancelled) return
-        setReview(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [attemptId, reloadKey])
+  const {
+    data: review,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getAttemptReview(attemptId), [attemptId], { forbidden: false })
 
   return (
-    <div className="hl-quiz-page">
-      <Navbar />
-      <main className="hl-quiz-main-wrap">
-        <div className="hl-quiz-container">
-          {status === 'loading' && (
-            <div className="hl-quiz-attempt-grid">
-              <div className="hl-quiz-skeleton" style={{ height: 160 }} />
-              <div className="hl-quiz-skeleton" style={{ height: 320 }} />
-            </div>
-          )}
+    <StudentPageContainer width="reading" spacing="stack">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <>
+            <Skeleton className="h-40 rounded-2xl" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </>
+        }
+        notFound={{
+          title: 'Không tìm thấy kết quả bài làm.',
+          actionLabel: 'Quay lại',
+          onAction: onBack,
+        }}
+        error={{ title: 'Không thể tải kết quả bài làm.' }}
+      />
 
-          {status === 'not-found' && (
-            <div className="hl-quiz-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy kết quả bài làm.</p>
-              <button type="button" onClick={onBack}>
-                Quay lại
-              </button>
-            </div>
-          )}
+      {status === 'ready' && review && (
+        <>
+          <BackLink onClick={onBack}>Quay lại kết quả</BackLink>
 
-          {status === 'error' && (
-            <div className="hl-quiz-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải kết quả bài làm.'}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
-              >
-                Thử lại
-              </button>
+          <Card as="section" padding="none" radius="lg" className="border-border-subtle p-[22px]">
+            <CardTitle className="mb-3.5 text-base">Xem lại đáp án</CardTitle>
+            <div className="flex flex-col gap-3.5">
+              {bySequence(review.questions).map((question, index) => (
+                <QuizReviewQuestionCard
+                  key={question.questionId}
+                  question={question}
+                  index={index}
+                />
+              ))}
             </div>
-          )}
-
-          {status === 'ready' && review && (
-            <div className="hl-quiz-grid">
-              <button type="button" className="hl-quiz-exit" onClick={onBack}>
-                <ArrowLeft size={15} />
-                Quay lại kết quả
-              </button>
-
-              <section className="hl-quiz-card">
-                <h2>Xem lại đáp án</h2>
-                <div className="hl-quiz-review-list">
-                  {bySequence(review.questions).map((question, index) => (
-                    <QuizReviewQuestionCard
-                      key={question.questionId}
-                      question={question}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Chatbot />
-    </div>
+          </Card>
+        </>
+      )}
+    </StudentPageContainer>
   )
 }
 

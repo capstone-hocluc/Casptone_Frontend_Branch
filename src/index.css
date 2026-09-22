@@ -17,7 +17,6 @@
 @import './styles/components/shared.css';
 
 /* New styles added after the split above go here. */
-@import './styles/student/account-profile.css';
 @import './styles/landing/header-auth.css';
 @import './styles/landing/course-catalog.css';
 @import './styles/landing/course-detail.css';
@@ -25,8 +24,4 @@
 @import './styles/landing/checkout.css';
 @import './styles/landing/orders.css';
 @import './styles/landing/payment-result.css';
-@import './styles/landing/study-placeholder.css';
-@import './styles/landing/course-study.css';
-@import './styles/landing/lesson-learning.css';
-@import './styles/landing/assessment.css';
 @import './styles/landing/payment-instructions.css';

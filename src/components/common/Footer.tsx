@@ -3,7 +3,7 @@ import { footerCols } from '../../data/content'
 
 function Footer() {
   return (
-    <footer style={{ background: '#1230A6', color: '#fff', padding: '60px 0 26px' }}>
+    <footer style={{ background: 'var(--color-primary-dark)', color: '#fff', padding: '60px 0 26px' }}>
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px' }}>
         <div
           className="hl-footer-grid"
