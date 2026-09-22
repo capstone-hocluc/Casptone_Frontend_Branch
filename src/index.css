@@ -25,3 +25,4 @@
 @import './styles/landing/orders.css';
 @import './styles/landing/payment-result.css';
 @import './styles/landing/payment-instructions.css';
+@import './styles/base/theme-overrides.css';

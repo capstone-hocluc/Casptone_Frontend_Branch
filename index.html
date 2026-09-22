@@ -11,6 +11,22 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (() => {
+        const path = window.location.pathname
+        const isAdminSurface = path === '/management/login' || path.startsWith('/admin/')
+        let theme = 'light'
+        try {
+          if (isAdminSurface && window.localStorage.getItem('hocluc.theme') === 'dark') {
+            theme = 'dark'
+          }
+        } catch {
+          // The Admin ThemeProvider handles storage failures after mount.
+        }
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+      })()
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

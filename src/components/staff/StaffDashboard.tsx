@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   Mail,
   Menu,
-  Moon,
   Phone,
   Plus,
   RefreshCw,
@@ -43,6 +42,7 @@ import AttendanceManagement from './AttendanceManagement'
 import TuitionManagement from './TuitionManagement'
 import InvoiceManagement from './InvoiceManagement'
 import PaymentManagement from './PaymentManagement'
+import ThemeToggle from '../ui/ThemeToggle'
 
 const toDropdownOptions = (values) => values.map((value) => ({ id: value, label: value }))
 
@@ -581,14 +581,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack, adminArea = fa
               <RefreshCw size={16} />
               <span>Làm mới</span>
             </button>
-            <button
-              type="button"
-              className="hl-staff-icon-button"
-              onClick={() => action('Đã chuyển chế độ giao diện.')}
-              aria-label="Chế độ tối"
-            >
-              <Moon size={17} />
-            </button>
+            <ThemeToggle className="hl-staff-icon-button" />
             <button
               type="button"
               className="hl-staff-icon-button"

@@ -1573,7 +1573,7 @@
 }
 .hl-batch-dev-menu button:hover {
   background: var(--color-primary);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 @media (max-width: 1000px) {
   .hl-batch-grid {
