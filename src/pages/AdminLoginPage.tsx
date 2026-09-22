@@ -7,6 +7,7 @@ import { clearTokens } from '../lib/api'
 import { getErrorMessage } from '../lib/errors'
 import { login as loginAccount } from '../services/authService'
 import type { UserProfile, UserRole } from '../services/userService'
+import ThemeToggle from '../components/ui/ThemeToggle'
 
 interface AdminLoginPageProps {
   onBack: () => void
@@ -67,7 +68,8 @@ function AdminLoginPage({
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-surface-soft px-4 py-8">
+    <main className="relative grid min-h-screen place-items-center bg-surface-soft px-4 py-8">
+      <ThemeToggle className="absolute top-4 right-4 border border-border-primary bg-surface text-primary-text" />
       <section
         className="w-full max-w-[420px] rounded-2xl border border-border-primary bg-surface p-8 shadow-[0_24px_60px_-36px_rgba(24,48,68,0.35)] sm:p-9"
         aria-labelledby="admin-login-title"

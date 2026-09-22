@@ -34,7 +34,7 @@ const button = cva(
       {
         variant: 'primary',
         appearance: 'fill',
-        className: 'bg-primary text-surface hover:bg-primary-dark',
+        className: 'bg-primary text-white hover:bg-primary-dark',
       },
       {
         variant: 'primary',
@@ -49,7 +49,7 @@ const button = cva(
       {
         variant: 'danger',
         appearance: 'fill',
-        className: 'bg-danger text-surface hover:bg-badge-danger-text',
+        className: 'bg-danger text-white hover:bg-badge-danger-text',
       },
       {
         variant: 'danger',
@@ -64,7 +64,7 @@ const button = cva(
       {
         variant: 'success',
         appearance: 'fill',
-        className: 'bg-success text-surface hover:bg-badge-success-text',
+        className: 'bg-success text-white hover:bg-badge-success-text',
       },
       {
         variant: 'success',

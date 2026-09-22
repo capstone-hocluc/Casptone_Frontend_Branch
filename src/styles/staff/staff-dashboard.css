@@ -177,7 +177,7 @@
   padding: 0 16px;
   height: 40px;
   background: var(--color-primary);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
   font: inherit;
   font-size: 14px;
   font-weight: 500;
@@ -754,7 +754,7 @@
 .hl-staff-pagination button.is-active {
   border-color: var(--color-primary);
   background: var(--color-primary);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 .hl-staff-pagination button:disabled {
   opacity: 0.4;

@@ -60,7 +60,7 @@ function Sidebar({ open, onClose, brand, roleLabel, children, user, onUserClick,
                 onClick={onUserClick}
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-black/5"
               >
-                <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-primary text-sm font-semibold text-surface">
+                <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-primary text-sm font-semibold text-white">
                   {user.initials}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -78,7 +78,7 @@ function Sidebar({ open, onClose, brand, roleLabel, children, user, onUserClick,
           type="button"
           aria-label="Đóng menu"
           onClick={onClose}
-          className="fixed inset-0 z-20 bg-[rgba(11,18,43,0.34)] lg:hidden"
+          className="fixed inset-0 z-20 bg-surface-overlay lg:hidden"
         />
       )}
     </>

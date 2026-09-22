@@ -22,6 +22,7 @@ import { useCurrentUser } from './hooks/useCurrentUser'
 import { logout } from './services/authService.ts'
 import type { UserProfile } from './services/userService'
 import { parseStudentRoute, studentRoutes, toStudentPath } from './lib/studentRoutes'
+import ThemeProvider from './components/common/ThemeProvider'
 
 function App() {
   const { clearCurrentUser } = useCurrentUser()
@@ -302,30 +303,34 @@ function App() {
     return renderManagement('MENTOR', authMode.replace('mentor-', ''), 'mentor')
   if (authMode === 'admin-dashboard' || authMode === 'admin-users')
     return (
-      <ManagementRouteGuard
-        allowedRoles={['ADMINISTRATOR']}
-        onLogin={() => navigateTo('/management/login')}
-        onExit={handleLogout}
-      >
-        <StaffDashboard
-          page={authMode.replace('admin-', '')}
-          onNavigate={(nextPage) => navigateManagement('admin', nextPage)}
-          onBack={backToLanding}
-          adminArea
-        />
-      </ManagementRouteGuard>
+      <ThemeProvider>
+        <ManagementRouteGuard
+          allowedRoles={['ADMINISTRATOR']}
+          onLogin={() => navigateTo('/management/login')}
+          onExit={handleLogout}
+        >
+          <StaffDashboard
+            page={authMode.replace('admin-', '')}
+            onNavigate={(nextPage) => navigateManagement('admin', nextPage)}
+            onBack={backToLanding}
+            adminArea
+          />
+        </ManagementRouteGuard>
+      </ThemeProvider>
     )
   if (authMode === 'management-login')
     return (
-      <AdminLoginPage
-        onBack={backToLanding}
-        onSuccess={goAfterManagementLogin}
-        allowedRoles={['ADMINISTRATOR', 'MANAGER', 'STAFF', 'TEACHER']}
-        eyebrow="KHU VỰC QUẢN LÝ"
-        title="Đăng nhập vận hành"
-        description="Đăng nhập bằng tài khoản quản trị hoặc đội ngũ vận hành để tiếp tục."
-        rejectedRoleMessage="Tài khoản này không có quyền truy cập khu vực quản lý."
-      />
+      <ThemeProvider>
+        <AdminLoginPage
+          onBack={backToLanding}
+          onSuccess={goAfterManagementLogin}
+          allowedRoles={['ADMINISTRATOR', 'MANAGER', 'STAFF', 'TEACHER']}
+          eyebrow="KHU VỰC QUẢN LÝ"
+          title="Đăng nhập vận hành"
+          description="Đăng nhập bằng tài khoản quản trị hoặc đội ngũ vận hành để tiếp tục."
+          rejectedRoleMessage="Tài khoản này không có quyền truy cập khu vực quản lý."
+        />
+      </ThemeProvider>
     )
   if (authMode?.startsWith('teacher-'))
     return (
