@@ -212,6 +212,13 @@ export async function getUserById(id: string): Promise<UserProfile> {
   return requireResponseData(response, 'Không thể tải thông tin người dùng.')
 }
 
+export async function deleteUser(id: string): Promise<void> {
+  await request<void>(`/api/v1/users/${id}`, {
+    method: 'DELETE',
+    auth: true,
+  })
+}
+
 export async function updateUserStatus(id: string, status: UserStatus): Promise<UserProfile> {
   const response = await request<UserProfile>(`/api/v1/users/${id}/status`, {
     method: 'PATCH',
