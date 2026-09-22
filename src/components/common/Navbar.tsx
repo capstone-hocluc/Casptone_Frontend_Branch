@@ -8,15 +8,16 @@ const navLinkStyle = {
   textDecoration: 'none',
   color: '#2A3354',
   fontWeight: 600,
-  fontSize: 14,
-  letterSpacing: '.4px',
-  textTransform: 'uppercase' as const,
+  fontSize: 14.5,
   whiteSpace: 'nowrap' as const,
   background: 'none',
   border: 'none',
   cursor: 'pointer',
   fontFamily: 'inherit',
-  padding: 0,
+  padding: '9px 16px',
+  borderRadius: 999,
+  display: 'inline-flex',
+  alignItems: 'center',
 }
 
 function navigateTo(path: string) {
@@ -75,35 +76,52 @@ function Navbar() {
     >
       <div
         style={{
+          width: '100%',
           maxWidth: 1240,
           margin: '0 auto',
-          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
-          gap: 28,
+          justifyContent: 'space-between',
+          gap: 16,
         }}
       >
-        <a href="/#top" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <Logo />
-        </a>
+        <div
+          style={{
+            height: 52,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 28,
+            padding: '0 24px',
+            borderRadius: 999,
+            background: '#fff',
+            boxShadow: scrolled
+              ? '0 10px 30px -12px rgba(17,24,58,.22)'
+              : '0 8px 24px -14px rgba(17,24,58,.16)',
+            transition: 'box-shadow .35s',
+          }}
+        >
+          <a href="/#top" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <Logo size={34} />
+          </a>
 
-        <nav style={{ display: 'flex', gap: 34, marginLeft: 'auto' }} className="hl-desktop-nav">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="hl-nav" style={navLinkStyle}>
-              {link.label}
-            </a>
-          ))}
-          <button
-            type="button"
-            className="hl-nav"
-            style={navLinkStyle}
-            onClick={() => navigateTo('/courses')}
-          >
-            Khóa học
-          </button>
-        </nav>
+          <nav style={{ display: 'flex', gap: 4 }} className="hl-desktop-nav">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="hl-nav" style={navLinkStyle}>
+                {link.label}
+              </a>
+            ))}
+            <button
+              type="button"
+              className="hl-nav"
+              style={navLinkStyle}
+              onClick={() => navigateTo('/courses')}
+            >
+              Khóa học
+            </button>
+          </nav>
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           {profile ? (
             <>
               <button

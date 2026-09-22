@@ -1,15 +1,15 @@
-function Logo({ light = false, monochrome = false }) {
+function Logo({ light = false, monochrome = false, size = 56 }) {
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <img
         src="/logo.png"
         alt="HocLuc.com"
         style={{
-          width: 56,
-          height: 56,
+          width: size,
+          height: size,
           objectFit: 'contain',
           flexShrink: 0,
-          marginTop: -6,
+          marginTop: Math.round((-6 * size) / 56),
         }}
       />
       <span

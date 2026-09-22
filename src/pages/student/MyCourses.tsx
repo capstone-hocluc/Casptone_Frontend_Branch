@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
-import MyCourseCard from '../../components/student/MyCourseCard'
-import { getErrorMessage } from '../../lib/errors'
+import { useMemo, useState } from 'react'
+import MascotState from '../../components/common/MascotState'
+import MyCourseCard from '../../components/student/course/MyCourseCard'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import StudentPageHeader from '../../components/student/layout/StudentPageHeader'
+import Card from '../../components/ui/Card'
+import SearchInput from '../../components/ui/SearchInput'
+import Skeleton from '../../components/ui/Skeleton'
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/Tabs'
+import { usePageResource } from '../../hooks/usePageResource'
 import { getMyCourses } from '../../services/courseService'
 import type { MyCourseEnrollment } from '../../services/courseService'
 
@@ -10,34 +16,21 @@ interface MyCoursesProps {
   onBrowseCourses: () => void
 }
 
+type CourseTab = 'main' | 'support'
+
+const courseGrid =
+  'grid grid-cols-3 items-stretch gap-4 max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1'
+
 function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
   const [query, setQuery] = useState('')
-  const [enrollments, setEnrollments] = useState<MyCourseEnrollment[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function load() {
-      try {
-        const response = await getMyCourses()
-        if (cancelled) return
-        setEnrollments(response.data || [])
-        setStatus('ready')
-      } catch (error) {
-        if (cancelled) return
-        setErrorMessage(getErrorMessage(error) || 'Không thể tải khóa học của bạn')
-        setStatus('error')
-      }
-    }
-
-    load()
-    return () => {
-      cancelled = true
-    }
-  }, [reloadKey])
+  const [tab, setTab] = useState<CourseTab>('main')
+  const {
+    data: response,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getMyCourses(), [], { forbidden: false, notFound: false })
+  const enrollments = useMemo<MyCourseEnrollment[]>(() => response?.data || [], [response])
 
   const visibleEnrollments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -47,91 +40,99 @@ function MyCourses({ onOpenCourse, onBrowseCourses }: MyCoursesProps) {
     )
   }, [enrollments, query])
 
+  const isMain = tab === 'main'
+
   return (
-    <section className="hl-student-page hl-my-courses-page">
-      <header className="hl-my-courses-header">
-        <div>
-          <h1>Khóa học của tôi</h1>
-          <p>Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký.</p>
-        </div>
-      </header>
+    <StudentPageContainer>
+      <StudentPageHeader
+        title="Khóa học của tôi"
+        description="Quản lý và tiếp tục học các khóa học ĐGNL bạn đã đăng ký."
+      />
 
-      <article className="hl-my-courses-panel">
-        <div className="hl-my-courses-toolbar">
-          <label className="hl-my-courses-search">
-            <Search size={17} />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Tìm kiếm khóa học"
-            />
-          </label>
+      <div className="mb-3.5 flex flex-wrap items-center gap-3">
+        <Tabs value={tab} onValueChange={(value) => setTab(value as CourseTab)}>
+          <TabsList aria-label="Loại khóa học">
+            <TabsTrigger value="main">Khóa học chính</TabsTrigger>
+            <TabsTrigger value="support">Khóa học bổ trợ</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <SearchInput
+          className="ml-auto max-[640px]:ml-0"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Tìm kiếm khóa học"
+        />
+      </div>
+
+      <Card variant="panel" radius="xl">
+        <div className="mb-3.5">
+          <h2 className="text-xl font-black text-text-heading">
+            {isMain ? 'Khóa học chính' : 'Khóa học bổ trợ'}
+          </h2>
+          {isMain && status === 'ready' && (
+            <span className="text-[13px] font-extrabold text-text-secondary">
+              {visibleEnrollments.length} khóa học
+            </span>
+          )}
         </div>
 
-        <div className="hl-my-courses-group-head">
-          <div>
-            <h2>Khóa học của tôi</h2>
-            <span>{enrollments.length} khóa học</span>
-          </div>
-        </div>
+        {!isMain && (
+          <MascotState
+            title="Khóa học bổ trợ sắp ra mắt"
+            message="Các khóa học bổ trợ sẽ sớm có mặt tại đây."
+          />
+        )}
 
-        {status === 'loading' && (
-          <div className="hl-my-courses-grid">
+        {isMain && status === 'loading' && (
+          <div className={courseGrid}>
             {Array.from({ length: 3 }).map((_, index) => (
-              <div className="hl-my-course-skeleton" key={index} aria-hidden="true" />
+              <Skeleton key={index} className="h-80 rounded-[18px]" />
             ))}
           </div>
         )}
 
-        {status === 'error' && (
-          <div className="hl-my-courses-empty">
-            <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
-            <strong>Không thể tải khóa học của bạn</strong>
-            <p>{errorMessage}</p>
-            <button
-              type="button"
-              className="hl-my-courses-empty-cta"
-              onClick={() => {
-                setStatus('loading')
-                setReloadKey((current) => current + 1)
-              }}
-            >
-              Thử lại
-            </button>
-          </div>
+        {isMain && status === 'error' && (
+          <MascotState
+            title="Không thể tải khóa học của bạn"
+            message={errorMessage}
+            actionLabel="Thử lại"
+            onAction={reload}
+          />
         )}
 
-        {status === 'ready' &&
-          (enrollments.length ? (
-            <div className="hl-my-courses-grid">
-              {visibleEnrollments.map((enrollment) => (
-                <MyCourseCard
-                  key={enrollment.course.id}
-                  enrollment={enrollment}
-                  onOpen={onOpenCourse}
-                />
-              ))}
-              {!visibleEnrollments.length && (
-                <div className="hl-my-courses-empty">
-                  <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
-                  <strong>Không tìm thấy khóa học</strong>
-                  <p>Thử thay đổi từ khóa tìm kiếm của bạn.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="hl-my-courses-empty">
-              <img src="/owl-error-confused.png" alt="" aria-hidden="true" />
-              <strong>Bạn chưa có khóa học nào</strong>
-              <p>Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn.</p>
-              <button type="button" className="hl-my-courses-empty-cta" onClick={onBrowseCourses}>
-                Khám phá khóa học
-              </button>
-            </div>
-          ))}
-      </article>
-    </section>
+        {isMain && status === 'ready' && enrollments.length === 0 && (
+          <MascotState
+            title="Bạn chưa có khóa học nào"
+            message="Khám phá các khóa học phù hợp để bắt đầu hành trình học tập của bạn."
+            actionLabel="Khám phá khóa học"
+            onAction={onBrowseCourses}
+          />
+        )}
+
+        {isMain &&
+          status === 'ready' &&
+          enrollments.length > 0 &&
+          visibleEnrollments.length === 0 && (
+            <MascotState
+              title="Không tìm thấy khóa học"
+              message="Thử thay đổi từ khóa tìm kiếm của bạn."
+            />
+          )}
+
+        {isMain && status === 'ready' && visibleEnrollments.length > 0 && (
+          <div className={courseGrid}>
+            {visibleEnrollments.map((enrollment) => (
+              <MyCourseCard
+                key={enrollment.course.id}
+                enrollment={enrollment}
+                onOpen={onOpenCourse}
+              />
+            ))}
+          </div>
+        )}
+      </Card>
+    </StudentPageContainer>
   )
 }
 

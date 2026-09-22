@@ -1,6 +1,6 @@
 import { ArrowRight, BookOpen, CheckCircle2, Sparkles } from 'lucide-react'
 import type { Course } from '../../services/courseService'
-import { formatCoursePrice, formatDate, prettifyEnum } from '../../lib/courseFormat'
+import { formatCoursePrice, formatDate, formatExamLabel, prettifyEnum } from '../../lib/courseFormat'
 
 interface CourseCardProps {
   course: Course
@@ -8,7 +8,7 @@ interface CourseCardProps {
 }
 
 function CourseCard({ course, onOpen }: CourseCardProps) {
-  const badgeLabel = prettifyEnum(course.targetExam) || prettifyEnum(course.track) || 'Khóa học'
+  const badgeLabel = formatExamLabel(course.targetExam) || prettifyEnum(course.track) || 'Khóa học'
   const startLabel = formatDate(course.startDate)
 
   return (
@@ -20,8 +20,8 @@ function CourseCard({ course, onOpen }: CourseCardProps) {
             Đề xuất
           </span>
         )}
+        <span className="hl-catalog-cover-badge">{badgeLabel}</span>
         <BookOpen size={34} />
-        <span>{badgeLabel}</span>
       </div>
 
       <div className="hl-catalog-body">

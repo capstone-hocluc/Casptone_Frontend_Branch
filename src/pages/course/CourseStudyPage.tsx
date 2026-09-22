@@ -1,23 +1,21 @@
-import { useEffect, useState } from 'react'
-import { AlertTriangle, Lock, SearchX } from 'lucide-react'
-import Navbar from '../../components/common/Navbar'
-import Footer from '../../components/common/Footer'
-import Chatbot from '../../components/landing/Chatbot'
-import StudyHeader from '../../components/study/StudyHeader'
-import StudyProgressCard from '../../components/study/StudyProgressCard'
-import ContinueLearningCard from '../../components/study/ContinueLearningCard'
-import NextLiveClassCard from '../../components/study/NextLiveClassCard'
-import StudyGroupCard from '../../components/study/StudyGroupCard'
-import StudyCurriculum from '../../components/study/StudyCurriculum'
-import StudyLiveClassesTab from '../../components/study/StudyLiveClassesTab'
-import StudyEnrollmentPlanTab from '../../components/study/StudyEnrollmentPlanTab'
-import { getCourseStudy, type Course, type CourseStudy } from '../../services/courseService'
-import { getErrorMessage } from '../../lib/errors'
-import { ApiError } from '../../lib/api'
+import { useState } from 'react'
+import CourseOverview from '../../components/student/course/CourseOverview'
+import NextLiveClassCard from '../../components/student/course/NextLiveClassCard'
+import StudyGroupCard from '../../components/student/course/StudyGroupCard'
+import StudyCurriculum from '../../components/student/course/StudyCurriculum'
+import CourseLiveClassesTab from '../../components/student/course/CourseLiveClassesTab'
+import CourseEnrollmentPlanTab from '../../components/student/course/CourseEnrollmentPlanTab'
+import ResourceState from '../../components/student/common/ResourceState'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Skeleton from '../../components/ui/Skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/Tabs'
+import { usePageResource } from '../../hooks/usePageResource'
+import { getCourseStudy, type Course } from '../../services/courseService'
 
 interface CourseStudyPageProps {
   courseId: string
-  onBackToCourseDetail: () => void
+  onBackToMyCourses: () => void
+  onViewCourseInfo: () => void
   onOpenLesson: (lessonId: string) => void
   onOpenQuiz: (quizId: string) => void
   onOpenCourse: (course: Course) => void
@@ -31,143 +29,92 @@ const TABS: { key: StudyTab; label: string }[] = [
   { key: 'plan', label: 'Lộ trình học' },
 ]
 
+// Rendered inside StudentLayout (header + sidebar come from the layout).
 function CourseStudyPage({
   courseId,
-  onBackToCourseDetail,
+  onBackToMyCourses,
+  onViewCourseInfo,
   onOpenLesson,
   onOpenQuiz,
   onOpenCourse,
 }: CourseStudyPageProps) {
-  const [study, setStudy] = useState<CourseStudy | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'forbidden' | 'not-found'>(
-    'loading'
-  )
-  const [errorMessage, setErrorMessage] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
+  const {
+    data: study,
+    status,
+    errorMessage,
+    reload,
+  } = usePageResource(() => getCourseStudy(courseId), [courseId])
   const [activeTab, setActiveTab] = useState<StudyTab>('content')
 
-  useEffect(() => {
-    let cancelled = false
-    getCourseStudy(courseId)
-      .then((data) => {
-        if (cancelled) return
-        setStudy(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (cancelled) return
-        if (error instanceof ApiError && error.status === 403) {
-          setStatus('forbidden')
-          return
-        }
-        if (error instanceof ApiError && error.status === 404) {
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(getErrorMessage(error))
-        setStatus('error')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [courseId, reloadKey])
-
   return (
-    <div className="hl-study-page">
-      <Navbar />
-      <main className="hl-study-main-wrap">
-        <div className="hl-study-container">
-          {status === 'loading' && (
-            <div className="hl-study-grid">
-              <div className="hl-study-skeleton" style={{ height: 100 }} />
-              <div className="hl-study-skeleton" style={{ height: 80 }} />
-              <div className="hl-study-skeleton" style={{ height: 320 }} />
-            </div>
-          )}
+    <StudentPageContainer className="pb-8">
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={
+          <div className="flex flex-col gap-5">
+            <Skeleton className="h-[150px]" />
+            <Skeleton className="h-10 w-[420px] max-w-full" />
+            <Skeleton className="h-80" />
+          </div>
+        }
+        forbidden={{
+          title: 'Chưa thể truy cập khóa học',
+          message: 'Bạn chưa có quyền truy cập khóa học này.',
+          actionLabel: 'Xem thông tin khóa học',
+          onAction: onViewCourseInfo,
+        }}
+        notFound={{
+          title: 'Không tìm thấy khóa học',
+          message: 'Khóa học này không tồn tại hoặc đã bị gỡ.',
+          actionLabel: 'Quay lại Khóa học của tôi',
+          onAction: onBackToMyCourses,
+        }}
+        error={{ title: 'Không thể tải nội dung khóa học' }}
+      />
 
-          {status === 'forbidden' && (
-            <div className="hl-study-state">
-              <Lock size={30} />
-              <p>Bạn chưa có quyền truy cập khóa học này.</p>
-              <button type="button" onClick={onBackToCourseDetail}>
-                Xem thông tin khóa học
-              </button>
-            </div>
-          )}
+      {status === 'ready' && study && (
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as StudyTab)}
+          className="flex flex-col gap-5"
+        >
+          <CourseOverview study={study} onBack={onBackToMyCourses} onOpenLesson={onOpenLesson} />
 
-          {status === 'not-found' && (
-            <div className="hl-study-state">
-              <SearchX size={30} />
-              <p>Không tìm thấy khóa học.</p>
-              <button type="button" onClick={onBackToCourseDetail}>
-                Xem thông tin khóa học
-              </button>
-            </div>
-          )}
+          <TabsList>
+            {TABS.map((tab) => (
+              <TabsTrigger key={tab.key} value={tab.key}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-          {status === 'error' && (
-            <div className="hl-study-state">
-              <AlertTriangle size={30} />
-              <p>{errorMessage || 'Không thể tải nội dung khóa học.'}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatus('loading')
-                  setReloadKey((current) => current + 1)
-                }}
-              >
-                Thử lại
-              </button>
-            </div>
-          )}
-
-          {status === 'ready' && study && (
-            <div className="hl-study-grid">
-              <StudyHeader study={study} />
-              <StudyProgressCard study={study} />
-
-              <div className="hl-study-tabs" role="tablist">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTab === tab.key}
-                    className={`hl-study-tab-btn${activeTab === tab.key ? ' is-active' : ''}`}
-                    onClick={() => setActiveTab(tab.key)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+          <TabsContent value="content" className="flex flex-col gap-5">
+            {(study.nextLiveClass || study.activeStudyGroupName) && (
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
+                {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
+                {study.activeStudyGroupName && <StudyGroupCard name={study.activeStudyGroupName} />}
               </div>
+            )}
+            <StudyCurriculum
+              phases={study.phases}
+              currentLessonId={study.continueLessonId}
+              onOpenLesson={onOpenLesson}
+              onOpenQuiz={onOpenQuiz}
+            />
+          </TabsContent>
 
-              {activeTab === 'content' && (
-                <>
-                  <ContinueLearningCard study={study} onOpenLesson={onOpenLesson} />
-                  {study.nextLiveClass && <NextLiveClassCard liveClass={study.nextLiveClass} />}
-                  {study.activeStudyGroupName && (
-                    <StudyGroupCard name={study.activeStudyGroupName} />
-                  )}
-                  <StudyCurriculum
-                    phases={study.phases}
-                    onOpenLesson={onOpenLesson}
-                    onOpenQuiz={onOpenQuiz}
-                  />
-                </>
-              )}
+          <TabsContent value="live">
+            <CourseLiveClassesTab courseId={courseId} />
+          </TabsContent>
 
-              {activeTab === 'live' && <StudyLiveClassesTab courseId={courseId} />}
-
-              {activeTab === 'plan' && (
-                <StudyEnrollmentPlanTab courseId={courseId} onOpenCourse={onOpenCourse} />
-              )}
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <Chatbot />
-    </div>
+          <TabsContent value="plan">
+            <CourseEnrollmentPlanTab courseId={courseId} onOpenCourse={onOpenCourse} />
+          </TabsContent>
+        </Tabs>
+      )}
+    </StudentPageContainer>
   )
 }
 
