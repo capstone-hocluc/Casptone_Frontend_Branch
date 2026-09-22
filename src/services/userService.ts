@@ -82,6 +82,16 @@ export interface UserListPage {
   last: boolean
 }
 
+export interface CreateUserRequest {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  displayName?: string
+  phone?: string
+  role: UserRole
+}
+
 export async function getCurrentProfile() {
   return request<UserProfile>('/api/v1/users/profiles', { auth: true })
 }
@@ -186,6 +196,15 @@ export async function getUsers(query: UserListQuery = {}): Promise<UserListPage>
 
   const response = await request<UserListPage>(`/api/v1/users?${params.toString()}`, { auth: true })
   return requireResponseData(response, 'Không thể tải danh sách người dùng.')
+}
+
+export async function createUser(payload: CreateUserRequest): Promise<UserProfile> {
+  const response = await request<UserProfile>('/api/v1/users', {
+    method: 'POST',
+    auth: true,
+    body: payload,
+  })
+  return requireResponseData(response, 'Không thể tạo tài khoản người dùng.')
 }
 
 export async function getUserById(id: string): Promise<UserProfile> {
