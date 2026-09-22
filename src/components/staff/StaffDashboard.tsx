@@ -668,7 +668,7 @@ function StaffDashboard({ page = 'dashboard', onNavigate, onBack, adminArea = fa
               action={action}
             />
           )}
-          {page === 'users' && <UserManagement />}
+          {page === 'users' && <UserManagement canCreateUsers={adminArea} />}
         </div>
        </div>
       </section>

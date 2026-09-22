@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   AlertCircle,
@@ -7,15 +7,18 @@ import {
   ChevronRight,
   Eye,
   LoaderCircle,
+  Plus,
   RefreshCw,
 } from 'lucide-react'
 import {
+  createUser,
   getUserById,
   getUsers,
   updateUserRole,
   updateUserStatus,
   USER_ROLES,
   USER_STATUSES,
+  type CreateUserRequest,
   type UserListPage,
   type UserProfile,
   type UserRole,
@@ -74,6 +77,24 @@ const ROLE_BY_FILTER_LABEL = Object.fromEntries(
   USER_ROLES.map((role) => [ROLE_LABELS[role], role])
 ) as Record<string, UserRole | undefined>
 
+const CREATE_USER_INPUT_CLASS =
+  'h-10 w-full rounded-lg border border-border-primary bg-surface-soft px-3 text-sm text-text-heading outline-none transition-colors placeholder:text-text-subtle focus:border-primary focus:ring-3 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60'
+
+type CreateUserForm = Required<Pick<CreateUserRequest, 'email' | 'password' | 'firstName' | 'lastName' | 'role'>> & {
+  displayName: string
+  phone: string
+}
+
+const EMPTY_CREATE_USER_FORM: CreateUserForm = {
+  email: '',
+  password: '',
+  firstName: '',
+  lastName: '',
+  displayName: '',
+  phone: '',
+  role: 'STUDENT',
+}
+
 function emptyPage(): UserListPage {
   return {
     content: [],
@@ -121,9 +142,10 @@ function getErrorMessage(error: unknown) {
 
 interface UserManagementProps {
   readOnly?: boolean
+  canCreateUsers?: boolean
 }
 
-function UserManagement({ readOnly = false }: UserManagementProps) {
+function UserManagement({ readOnly = false, canCreateUsers = false }: UserManagementProps) {
   const [page, setPage] = useState(0)
   const [roleFilter, setRoleFilter] = useState<UserRole | 'ALL'>('ALL')
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>('ALL')
@@ -136,6 +158,10 @@ function UserManagement({ readOnly = false }: UserManagementProps) {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [createUserOpen, setCreateUserOpen] = useState(false)
+  const [createUserForm, setCreateUserForm] = useState<CreateUserForm>(EMPTY_CREATE_USER_FORM)
+  const [createUserLoading, setCreateUserLoading] = useState(false)
+  const [createUserError, setCreateUserError] = useState('')
 
   useEffect(() => {
     let ignore = false
@@ -273,6 +299,37 @@ function UserManagement({ readOnly = false }: UserManagementProps) {
     }
   }, [])
 
+  const openCreateUser = useCallback(() => {
+    setCreateUserForm(EMPTY_CREATE_USER_FORM)
+    setCreateUserError('')
+    setCreateUserOpen(true)
+  }, [])
+
+  const handleCreateUser = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      setCreateUserLoading(true)
+      setCreateUserError('')
+
+      try {
+        await createUser({
+          ...createUserForm,
+          displayName: createUserForm.displayName.trim() || undefined,
+          phone: createUserForm.phone.trim() || undefined,
+        })
+        setCreateUserOpen(false)
+        setCreateUserForm(EMPTY_CREATE_USER_FORM)
+        setFeedback('Đã tạo tài khoản người dùng.')
+        setReloadKey((current) => current + 1)
+      } catch (requestError: unknown) {
+        setCreateUserError(getErrorMessage(requestError))
+      } finally {
+        setCreateUserLoading(false)
+      }
+    },
+    [createUserForm]
+  )
+
   const columns = useMemo<ColumnDef<UserSummary>[]>(
     () => [
       {
@@ -381,16 +438,24 @@ function UserManagement({ readOnly = false }: UserManagementProps) {
         <div>
           <h2 className="text-lg font-semibold text-text-heading">Danh sách</h2>
         </div>
-        <Button
-          variant="primary"
-          appearance="outline"
-          size="sm"
-          onClick={() => setReloadKey((current) => current + 1)}
-          disabled={loading}
-        >
-          <RefreshCw size={15} className={loading ? 'animate-spin' : undefined} />
-          Làm mới
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {canCreateUsers && !readOnly && (
+            <Button variant="primary" size="sm" onClick={openCreateUser}>
+              <Plus size={15} />
+              Tạo tài khoản
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            appearance="outline"
+            size="sm"
+            onClick={() => setReloadKey((current) => current + 1)}
+            disabled={loading}
+          >
+            <RefreshCw size={15} className={loading ? 'animate-spin' : undefined} />
+            Làm mới
+          </Button>
+        </div>
       </div>
 
       <SearchFilterBar
@@ -495,6 +560,141 @@ function UserManagement({ readOnly = false }: UserManagementProps) {
           </Button>
         </div>
       </div>
+
+      <Modal
+        open={createUserOpen}
+        onClose={() => {
+          if (!createUserLoading) setCreateUserOpen(false)
+        }}
+        title="Tạo tài khoản"
+        description="Tài khoản được tạo từ khu vực quản trị sẽ hoạt động ngay."
+        maxWidth={680}
+      >
+        <form className="space-y-4" onSubmit={handleCreateUser}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-last-name">
+              Họ <span className="text-danger">*</span>
+              <input
+                id="create-user-last-name"
+                required
+                value={createUserForm.lastName}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, lastName: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="family-name"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-first-name">
+              Tên <span className="text-danger">*</span>
+              <input
+                id="create-user-first-name"
+                required
+                value={createUserForm.firstName}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, firstName: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="given-name"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-email">
+              Email <span className="text-danger">*</span>
+              <input
+                id="create-user-email"
+                required
+                type="email"
+                value={createUserForm.email}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, email: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="username"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-password">
+              Mật khẩu <span className="text-danger">*</span>
+              <input
+                id="create-user-password"
+                required
+                type="password"
+                value={createUserForm.password}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, password: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="new-password"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-display-name">
+              Tên hiển thị
+              <input
+                id="create-user-display-name"
+                value={createUserForm.displayName}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, displayName: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="nickname"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-text-strong" htmlFor="create-user-phone">
+              Số điện thoại
+              <input
+                id="create-user-phone"
+                type="tel"
+                value={createUserForm.phone}
+                onChange={(event) =>
+                  setCreateUserForm((current) => ({ ...current, phone: event.target.value }))
+                }
+                className={CREATE_USER_INPUT_CLASS}
+                autoComplete="tel"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-1.5 text-sm font-medium text-text-strong">
+            <span>
+              Vai trò <span className="text-danger">*</span>
+            </span>
+            <DropdownField
+              ariaLabel="Vai trò tài khoản mới"
+              options={ROLE_OPTIONS}
+              value={createUserForm.role}
+              isDisabled={createUserLoading}
+              triggerClassName="h-10 w-full justify-between px-3 text-sm"
+              onChange={(value) => {
+                if (value) {
+                  setCreateUserForm((current) => ({ ...current, role: value as UserRole }))
+                }
+              }}
+            />
+          </div>
+
+          {createUserError && (
+            <div className="flex items-center gap-2 rounded-lg bg-badge-danger-bg px-3 py-2 text-sm text-badge-danger-text" role="alert">
+              <AlertCircle size={16} />
+              {createUserError}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 border-t border-border-subtle pt-4">
+            <Button
+              variant="primary"
+              appearance="outline"
+              size="sm"
+              onClick={() => setCreateUserOpen(false)}
+              disabled={createUserLoading}
+            >
+              Hủy
+            </Button>
+            <Button type="submit" variant="primary" size="sm" disabled={createUserLoading}>
+              {createUserLoading && <LoaderCircle size={15} className="animate-spin" />}
+              {createUserLoading ? 'Đang tạo...' : 'Tạo tài khoản'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <Modal
         open={Boolean(selectedUser)}
