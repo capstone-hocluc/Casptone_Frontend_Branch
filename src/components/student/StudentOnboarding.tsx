@@ -1,32 +1,17 @@
-import { useEffect, useState } from 'react'
-import {
-  ArrowLeft,
-  BookOpen,
-  Check,
-  GraduationCap,
-  Target,
-  TrendingUp,
-} from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, Check, GraduationCap, Target, TrendingUp } from 'lucide-react'
 import Logo from '../common/Logo'
-import DropdownField from '../ui/DropdownField'
-
-const subjectGroups = [
-  {
-    label: 'Tư duy & Ngôn ngữ',
-    description: 'Bao gồm Toán, Logic & Phân tích số liệu',
-    subjects: ['Toán học', 'Ngữ văn', 'Tiếng Anh'],
-  },
-  {
-    label: 'Khoa học tự nhiên',
-    description: 'Khám phá và lý giải thế giới',
-    subjects: ['Vật lý', 'Hóa học', 'Sinh học'],
-  },
-  {
-    label: 'Khoa học xã hội',
-    description: 'Hiểu người và xã hội',
-    subjects: ['Lịch sử', 'Địa lý'],
-  },
-]
+import Button from '../ui/Button'
+import Card from '../ui/Card'
+import {
+  FieldError,
+  FieldLabel,
+  OnboardingField,
+  SearchSelect,
+  SubjectChoice,
+} from './onboarding/OnboardingFields'
+import OnboardingRail from './onboarding/OnboardingRail'
+import ScoreLimitDialog from './onboarding/ScoreLimitDialog'
 
 const universities = [
   'Trường Đại học Bách khoa (VNUHCM-UT)',
@@ -48,84 +33,10 @@ const majors = [
   'Khác',
 ]
 
-function SearchSelect({ label, placeholder, options, value, onChange, icon: Icon, error }) {
-  return (
-    <div className="hl-onboard-field">
-      <span className="hl-onboard-label">
-        <Icon size={16} />
-        {label}
-      </span>
-      <DropdownField
-        ariaLabel={label}
-        contentClassName="hl-onboard-dropdown-content"
-        emptyMessage="Không tìm thấy kết quả phù hợp"
-        isInvalid={Boolean(error)}
-        isSearchable
-        options={options.map((option) => ({ id: option, label: option }))}
-        placeholder={placeholder}
-        renderValue={(option) => (
-          <span className="hl-onboard-dropdown-value">
-            <Icon size={17} aria-hidden="true" />
-            <span>{option?.label || placeholder}</span>
-          </span>
-        )}
-        triggerClassName="hl-onboard-search"
-        value={value || null}
-        onChange={(nextValue) => onChange(nextValue ?? '')}
-      />
-      {error && <small className="hl-onboard-error">{error}</small>}
-    </div>
-  )
-}
+const highlights = ['3 phút hoàn thành', 'Cá nhân hóa ngay từ đầu', 'Có thể cập nhật sau']
 
-function SubjectChoice({ label, hint, selected, onChange, error }) {
-  const toggleSubject = (subject) => {
-    if (selected.includes(subject)) {
-      onChange(selected.filter((item) => item !== subject))
-      return
-    }
-    onChange([...selected, subject])
-  }
-
-  return (
-    <div className="hl-onboard-field">
-      <span className="hl-onboard-label">
-        <BookOpen size={16} />
-        {label}
-        <strong>{selected.length} môn đã chọn</strong>
-      </span>
-      <span className="hl-onboard-hint">{hint}</span>
-      <div className="hl-onboard-subject-groups">
-        {subjectGroups.map((group) => (
-          <div className="hl-onboard-subject-group" key={group.label}>
-            <div className="hl-onboard-subject-group-heading">
-              <strong>{group.label}</strong>
-              <span>{group.description}</span>
-            </div>
-            <div className="hl-onboard-subjects">
-              {group.subjects.map((subject) => {
-                const isSelected = selected.includes(subject)
-                return (
-                  <button
-                    type="button"
-                    key={subject}
-                    aria-pressed={isSelected}
-                    className={isSelected ? 'is-selected' : ''}
-                    onClick={() => toggleSubject(subject)}
-                  >
-                    {isSelected && <Check size={14} />}
-                    {subject}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-      {error && <small className="hl-onboard-error">{error}</small>}
-    </div>
-  )
-}
+const textInput =
+  'border-[#dce5f7] bg-white/95 text-[13px] text-text-heading outline-0 focus:border-primary focus:shadow-[0_0_0_4px_rgba(27,77,228,0.1)]'
 
 function StudentOnboarding({ onBack }) {
   const [form, setForm] = useState({
@@ -138,17 +49,6 @@ function StudentOnboarding({ onBack }) {
   const [otherMajor, setOtherMajor] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [scoreLimitOpen, setScoreLimitOpen] = useState(false)
-
-  useEffect(() => {
-    if (!scoreLimitOpen) return undefined
-
-    const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setScoreLimitOpen(false)
-    }
-
-    window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [scoreLimitOpen])
 
   const update = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -182,43 +82,68 @@ function StudentOnboarding({ onBack }) {
   }
 
   return (
-    <main className="hl-onboard-page">
-      <header className="hl-onboard-top">
-        <button type="button" onClick={onBack} aria-label="Quay lại">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_7%_8%,rgba(27,77,228,0.16)_0,transparent_24%),radial-gradient(circle_at_92%_12%,rgba(251,195,79,0.18)_0,transparent_18%),radial-gradient(circle_at_85%_90%,rgba(27,77,228,0.08)_0,transparent_26%),linear-gradient(180deg,#f8faff_0%,#f3f7ff_100%)] px-6 pt-6 pb-[58px] text-text-heading before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px)] before:bg-[length:84px_84px] before:opacity-[0.22] before:content-[''] before:[mask-image:linear-gradient(180deg,rgba(0,0,0,0.9),transparent_88%)] max-[701px]:px-3.5 max-[701px]:pt-4 max-[701px]:pb-7">
+      <header className="relative z-1 mx-auto mb-6 flex w-[min(1180px,100%)] items-center justify-between max-[701px]:mb-[18px]">
+        <Button
+          appearance="outline"
+          className="size-[42px] rounded-full border-[rgba(223,230,247,0.9)] bg-white/90 p-0 shadow-[0_10px_24px_rgba(27,77,228,0.08)] backdrop-blur-[10px] hover:bg-white/90 [&>svg]:size-[18px]"
+          onClick={onBack}
+          aria-label="Quay lại"
+        >
           <ArrowLeft size={18} />
-        </button>
-        <span className="hl-onboard-logo">
+        </Button>
+        <span className="absolute left-1/2 flex -translate-x-1/2 items-center">
           <Logo />
         </span>
-        <span />
+        <span className="w-[42px]" />
       </header>
-      <section className="hl-onboard-card">
-        <div className="hl-onboard-layout">
-          <div className="hl-onboard-main">
-            <div className="hl-onboard-intro">
-              <span className="hl-onboard-kicker">BƯỚC 1 / 1 · HỒ SƠ HỌC TẬP</span>
-              <h1>Cùng thiết lập mục tiêu học tập của bạn</h1>
-              <p>
+      <Card
+        as="section"
+        padding="none"
+        className="relative z-1 mx-auto w-[min(1180px,100%)] rounded-[32px] border-[rgba(213,223,246,0.95)] bg-white/82 p-7 shadow-[0_34px_80px_rgba(27,77,228,0.12)] backdrop-blur-[14px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(135deg,rgba(27,77,228,0.16),rgba(251,195,79,0.26),rgba(27,77,228,0.08))] before:p-px before:content-[''] before:[mask-image:linear-gradient(var(--color-surface)_0_0),linear-gradient(var(--color-surface)_0_0)] before:[mask-origin:content-box,padding-box] before:[mask-clip:content-box,border-box] before:[mask-composite:exclude] max-[701px]:rounded-[22px] max-[701px]:p-[18px]"
+      >
+        <div className="relative z-1 grid grid-cols-[minmax(0,1.4fr)_minmax(290px,0.78fr)] gap-6 max-[701px]:grid-cols-1 max-[701px]:gap-[18px]">
+          <div className="min-w-0">
+            <div className="mb-[22px] max-w-[720px] max-[701px]:mb-[18px]">
+              <span className="text-[11px] font-black tracking-[1.5px] text-primary">
+                BƯỚC 1 / 1 · HỒ SƠ HỌC TẬP
+              </span>
+              <h1 className="my-2.5 max-w-[12ch] text-[length:clamp(29px,3.2vw,42px)] leading-[1.1] tracking-[-0.9px] max-[701px]:max-w-none max-[701px]:text-[length:clamp(26px,8vw,34px)]">
+                Cùng thiết lập mục tiêu học tập của bạn
+              </h1>
+              <p className="max-w-[60ch] text-[14px] leading-[1.7] text-text-body">
                 Cho chúng mình biết một chút về mục tiêu và điểm mạnh, điểm yếu của bạn để cá nhân
                 hóa lộ trình học phù hợp hơn.
               </p>
-              <div className="hl-onboard-meta" aria-label="Điểm nổi bật của onboarding">
-                <span>3 phút hoàn thành</span>
-                <span>Cá nhân hóa ngay từ đầu</span>
-                <span>Có thể cập nhật sau</span>
+              <div
+                className="mt-[18px] flex flex-wrap gap-2.5 max-[701px]:gap-2"
+                aria-label="Điểm nổi bật của onboarding"
+              >
+                {highlights.map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex min-h-[34px] items-center rounded-full border border-[#dce5f7] bg-white/90 px-3 text-[12px] font-bold text-text-heading-muted shadow-[0_10px_20px_rgba(27,77,228,0.06)] max-[701px]:min-h-8 max-[701px]:text-[11px]"
+                  >
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
-            <div className="hl-onboard-exam">
-              <span className="hl-onboard-icon">
+            <div className="mb-6 flex items-center gap-[13px] rounded-[18px] border border-[#c8d7ff] bg-[linear-gradient(100deg,#eef3ff,#f8faff)] px-[18px] py-4 shadow-[0_10px_22px_rgba(27,77,228,0.07)] max-[701px]:items-start">
+              <span className="grid size-11 place-items-center rounded-[14px] bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-dark))] text-surface shadow-[0_12px_22px_rgba(27,77,228,0.22)]">
                 <GraduationCap size={22} />
               </span>
-              <div>
-                <small>Kỳ thi đang ôn luyện</small>
-                <strong>Đánh giá năng lực ĐHQG TP.HCM</strong>
+              <div className="flex flex-1 flex-col gap-1">
+                <small className="text-[11px] tracking-[0.8px] text-text-body uppercase">
+                  Kỳ thi đang ôn luyện
+                </small>
+                <strong className="text-[14px] leading-[1.4] text-text-heading">
+                  Đánh giá năng lực ĐHQG TP.HCM
+                </strong>
               </div>
-              <Check size={20} />
+              <Check size={20} className="text-primary" />
             </div>
-            <div className="hl-onboard-grid">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-6 max-[701px]:grid-cols-1 max-[701px]:gap-[18px]">
               <SearchSelect
                 label="Trường đại học mục tiêu"
                 placeholder="Tìm hoặc chọn trường đại học"
@@ -228,7 +153,7 @@ function StudentOnboarding({ onBack }) {
                 icon={GraduationCap}
                 error={errors.university}
               />
-              <div className="hl-onboard-major-wrap">
+              <div className="min-w-0">
                 <SearchSelect
                   label="Ngành học mục tiêu"
                   placeholder="Tìm hoặc chọn ngành học"
@@ -242,28 +167,26 @@ function StudentOnboarding({ onBack }) {
                   error={otherMajor ? '' : errors.major}
                 />
                 {otherMajor && (
-                  <label className="hl-onboard-other-major">
+                  <label className="mt-2.5 flex flex-col gap-[7px] text-[11px] font-bold text-text-body">
                     <span>Tên ngành học của bạn</span>
                     <input
+                      className={`h-11 rounded-[11px] border-[1.5px] px-[13px] placeholder:text-[#aab2c8] ${textInput}`}
                       value={form.major}
                       placeholder="Nhập tên ngành học"
                       onChange={(event) => update('major', event.target.value)}
                     />
-                    {errors.major && <small className="hl-onboard-error">{errors.major}</small>}
+                    {errors.major && <FieldError>{errors.major}</FieldError>}
                   </label>
                 )}
               </div>
-              <div className="hl-onboard-field hl-score-field">
-                <span className="hl-onboard-label">
-                  <TrendingUp size={16} />
-                  Điểm ĐGNL mục tiêu
-                </span>
-                <div className="hl-score-value">
-                  <strong>{form.score}</strong>
-                  <span>/ 1200 điểm</span>
+              <OnboardingField className="col-span-full self-start rounded-[18px] border border-line-shell bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,250,255,0.96))] p-[18px] shadow-[0_14px_30px_rgba(17,24,58,0.05)]">
+                <FieldLabel icon={TrendingUp}>Điểm ĐGNL mục tiêu</FieldLabel>
+                <div className="mt-px mb-2.5 flex items-baseline gap-[7px]">
+                  <strong className="text-[30px] leading-none text-primary">{form.score}</strong>
+                  <span className="text-[12px] text-[#8791ae]">/ 1200 điểm</span>
                 </div>
                 <input
-                  className="hl-score-range"
+                  className="w-full cursor-pointer accent-primary"
                   type="range"
                   min="0"
                   max="1200"
@@ -271,8 +194,9 @@ function StudentOnboarding({ onBack }) {
                   value={form.score}
                   onChange={(event) => update('score', Number(event.target.value))}
                 />
-                <div className="hl-score-input">
+                <div className="mt-2.5 flex items-center gap-[7px] text-[12px] text-[#8791ae]">
                   <input
+                    className="w-[88px] rounded-[10px] border border-[#dfe6f7] bg-surface px-[9px] py-[7px] text-text-heading outline-0 focus:border-primary focus:shadow-[0_0_0_4px_rgba(27,77,228,0.1)]"
                     type="number"
                     min="0"
                     max="1200"
@@ -281,7 +205,7 @@ function StudentOnboarding({ onBack }) {
                   />
                   <span>điểm</span>
                 </div>
-              </div>
+              </OnboardingField>
               <SubjectChoice
                 label="Môn học cần cải thiện"
                 hint="Chọn tất cả môn bạn muốn ưu tiên cải thiện"
@@ -297,87 +221,25 @@ function StudentOnboarding({ onBack }) {
                 error={errors.strongest}
               />
             </div>
-            <div className="hl-onboard-actions">
-              <span>
-                <span className="hl-onboard-dot" />
+            <div className="mt-7 flex items-center justify-between gap-[18px] border-t border-[#eef1f8] pt-[22px] max-[701px]:flex-col-reverse max-[701px]:items-stretch">
+              <span className="flex items-center gap-2 text-[11.5px] text-[#8791ae] max-[701px]:justify-center">
+                <span className="size-2 rounded-full bg-[#36b37e] shadow-[0_0_0_6px_rgba(54,179,126,0.12)]" />
                 Thông tin này có thể cập nhật sau
               </span>
-              <button
-                type="button"
-                className="hl-onboard-continue"
+              <Button
+                className="inline-block h-auto rounded-[10px] border-0 whitespace-normal px-5 py-3.5 text-[14px] font-medium max-[701px]:w-full"
                 onClick={() => {
                   if (validate()) alert('Thông tin đã được ghi nhận!')
                 }}
               >
-                Tiếp tục làm bài đánh giá đầu vào <span>→</span>
-              </button>
+                Tiếp tục làm bài đánh giá đầu vào <span className="ml-2.5 text-[18px]">→</span>
+              </Button>
             </div>
           </div>
-          <aside className="hl-onboard-rail" aria-label="Tóm tắt cá nhân hóa">
-            <div className="hl-onboard-rail-card hl-onboard-rail-highlight">
-              <span className="hl-onboard-rail-kicker">Lộ trình tinh gọn</span>
-              <h2>Hồ sơ này giúp hệ thống hiểu bạn nhanh hơn.</h2>
-              <p>
-                Chỉ vài thông tin cốt lõi, nhưng đủ để đề xuất bài tập, môn học và nhịp ôn luyện phù
-                hợp với mục tiêu của bạn.
-              </p>
-            </div>
-            <div className="hl-onboard-rail-card">
-              <span className="hl-onboard-rail-title">Bạn sẽ nhận được</span>
-              <ul className="hl-onboard-checklist">
-                <li>
-                  <Check size={14} />
-                  Gợi ý môn học nên ưu tiên
-                </li>
-                <li>
-                  <Check size={14} />
-                  Mốc điểm mục tiêu rõ ràng hơn
-                </li>
-                <li>
-                  <Check size={14} />
-                  Lộ trình ôn luyện bám sát ngành học
-                </li>
-              </ul>
-            </div>
-            <div className="hl-onboard-rail-card hl-onboard-rail-note">
-              <span className="hl-onboard-rail-title">Gợi ý nhỏ</span>
-              <p>
-                Hãy chọn trường và ngành gần nhất với mục tiêu thật của bạn. Những chi tiết này làm
-                cho phần gợi ý sau đó trông “đúng người” hơn rất nhiều.
-              </p>
-            </div>
-          </aside>
+          <OnboardingRail />
         </div>
-      </section>
-      {scoreLimitOpen && (
-        <div
-          className="hl-score-modal-backdrop"
-          role="presentation"
-          onClick={() => setScoreLimitOpen(false)}
-        >
-          <div
-            className="hl-score-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="hl-score-modal-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="hl-score-modal-icon">!</div>
-            <h2 id="hl-score-modal-title">Điểm tối đa đã đạt tới</h2>
-            <p>
-              Điểm tối đa của kỳ thi đánh giá năng lực do <strong>Đại học Quốc gia TP. HCM</strong>{' '}
-              tổ chức là <strong>1.200 điểm.</strong> Bạn vui lòng chọn lại nhé.
-            </p>
-            <button
-              type="button"
-              className="hl-score-modal-button"
-              onClick={() => setScoreLimitOpen(false)}
-            >
-              Đã hiểu
-            </button>
-          </div>
-        </div>
-      )}
+      </Card>
+      <ScoreLimitDialog open={scoreLimitOpen} onClose={() => setScoreLimitOpen(false)} />
     </main>
   )
 }

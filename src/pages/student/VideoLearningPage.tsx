@@ -1,310 +1,79 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  ArrowLeft,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Circle,
-  ClipboardList,
-  Expand,
-  Lock,
-  Pause,
-  Play,
-  Send,
-  Volume2,
-  X,
-} from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
 import {
   findCourseActivity,
   getActivityRouteType,
   getAdjacentUnlockedActivities,
   getCourseActivityContexts,
 } from '../../data/courseLookup'
+import { usePageResource } from '../../hooks/usePageResource'
 import { useTransientMessage } from '../../hooks/useTransientMessage'
-import StudentToast from '../../components/student/common/StudentToast'
+import { cn } from '../../lib/cn'
+import { buildRealVideoSource } from '../../lib/studentViewModel'
+import { getCourseStudy } from '../../services/courseService'
+import { getLesson } from '../../services/lessonService'
 import MascotState from '../../components/common/MascotState'
+import StudentToast from '../../components/student/common/StudentToast'
 import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import LessonDrawer from '../../components/student/video/LessonDrawer'
+import LessonNavBar from '../../components/student/video/LessonNavBar'
+import { TeacherAiButton, TeacherAiPanel } from '../../components/student/video/TeacherAi'
+import { getMockAiResponse, type AiMessage } from '../../components/student/video/teacherAiMock'
+import type { VideoActivity, VideoContext } from '../../components/student/video/types'
+import VideoPlayer from '../../components/student/video/VideoPlayer'
 import Card from '../../components/ui/Card'
+import Skeleton from '../../components/ui/Skeleton'
 
-const quickActions = ['Tóm tắt bài học', 'Giải thích dễ hiểu', 'Cho ví dụ', 'Gợi ý làm bài']
-
-function formatDuration(duration = '18 phút') {
-  const minutes = Number.parseInt(String(duration).match(/\d+/)?.[0] || '', 10) || 18
-  return `${String(minutes).padStart(2, '0')}:00`
+interface VideoLearningPageProps {
+  courseId: string
+  activityId: string
+  onBackCourse: () => void
+  onCourses: () => void
+  onNavigateActivity: (courseId: string, routeType: string, activityId: string) => void
 }
 
-function statusIcon(status) {
-  if (status === 'completed') return <CheckCircle2 size={14} />
-  if (status === 'locked') return <Lock size={14} />
-  if (status === 'in-progress') return <Play size={14} />
-  return <Circle size={14} />
-}
-
-function getMockAiResponse(prompt, lessonTitle) {
-  if (prompt.includes('Tóm tắt')) {
-    return `Bài học "${lessonTitle}" tập trung vào cách nhận diện ý chính, lọc thông tin quan trọng và tránh các chi tiết gây nhiễu khi làm bài ĐGNL.`
-  }
-  if (prompt.includes('Giải thích')) {
-    return 'Bạn có thể hiểu đơn giản là: trước khi chọn đáp án, hãy xác định câu hỏi đang cần ý chính, chi tiết hay suy luận từ văn bản.'
-  }
-  if (prompt.includes('ví dụ')) {
-    return 'Ví dụ: nếu đoạn văn lặp lại nhiều lần một quan điểm, đó thường là tín hiệu cho ý chính thay vì một chi tiết phụ.'
-  }
-  if (prompt.includes('Gợi ý')) {
-    return 'Hãy đọc câu hỏi trước, gạch ý chính từng đoạn, sau đó loại đáp án quá hẹp hoặc quá xa nội dung văn bản.'
-  }
-  return 'Mình đã ghi nhận câu hỏi của bạn. Với bản mock frontend này, mình sẽ gợi ý ngắn gọn: hãy tập trung vào mục tiêu chính của bài và thử áp dụng ngay vào câu hỏi luyện tập.'
-}
-
-function LessonNavBar({
-  context,
-  previous,
-  next,
-  onOpenDrawer,
+// Video lesson screen inside the Student shell: lesson nav bar, 16:9 player, Teacher AI
+// chat (prototype) and the course lesson drawer. Prototype ids resolve from the mock
+// course data; any other id is a real lesson, loaded from GET /lessons/{id}
+// (+ /courses/{id}/study for the drawer and previous / next lesson).
+function VideoLearningPage({
+  courseId,
+  activityId,
+  onBackCourse,
   onCourses,
   onNavigateActivity,
-  onComplete,
-}) {
-  return (
-    <div className="hl-video-lesson-nav">
-      <button type="button" className="hl-video-list-button" onClick={onOpenDrawer}>
-        <ClipboardList size={17} />
-        Danh sách bài học
-      </button>
-      <div className="hl-video-breadcrumb">
-        <button type="button" onClick={onCourses}>
-          Khóa học của tôi
-        </button>
-        <ChevronRight size={13} />
-        <span>{context.course.title}</span>
-        <ChevronRight size={13} />
-        <span>{context.subjectTitle}</span>
-        <ChevronRight size={13} />
-        <span>{context.chapterTitle}</span>
-        <ChevronRight size={13} />
-        <strong>{context.activity.title}</strong>
-      </div>
-      <div className="hl-video-nav-actions">
-        <button
-          type="button"
-          disabled={!previous}
-          onClick={() => previous && onNavigateActivity(previous.activity)}
-        >
-          <ChevronLeft size={16} />
-          Bài trước
-        </button>
-        <button
-          type="button"
-          onClick={() => (next ? onNavigateActivity(next.activity) : onComplete())}
-        >
-          {next ? 'Bài tiếp' : 'Hoàn thành'}
-          {next && <ChevronRight size={16} />}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function CourseLessonDrawer({ open, context, lessons, onClose, onAction, onNavigateActivity }) {
-  const grouped = useMemo(() => {
-    const groups = new Map()
-    lessons.forEach((item) => {
-      const key = item.chapterTitle || 'Nội dung học'
-      if (!groups.has(key)) groups.set(key, [])
-      groups.get(key).push(item)
-    })
-    return Array.from(groups.entries())
-  }, [lessons])
-
-  if (!open) return null
-
-  return (
-    <div className="hl-video-drawer-layer">
-      <button
-        type="button"
-        className="hl-video-drawer-scrim"
-        aria-label="Đóng danh sách bài học"
-        onClick={onClose}
-      />
-      <aside className="hl-video-drawer">
-        <div className="hl-video-drawer-head">
-          <h2>Nội dung khóa học</h2>
-          <button type="button" aria-label="Đóng danh sách bài học" onClick={onClose}>
-            <X size={18} />
-          </button>
-        </div>
-        <div className="hl-video-drawer-list">
-          {grouped.map(([chapterTitle, items]) => (
-            <section key={chapterTitle}>
-              <strong>{chapterTitle}</strong>
-              {items.map((item) => {
-                const isCurrent = item.activity.id === context.activity.id
-                const locked = item.activity.status === 'locked'
-                return (
-                  <button
-                    key={item.activity.id}
-                    type="button"
-                    className={`${isCurrent ? 'is-current' : ''} ${locked ? 'is-locked' : ''}`}
-                    onClick={() => {
-                      if (locked) {
-                        onAction('Bạn cần hoàn thành nội dung trước đó để mở khóa.')
-                        return
-                      }
-                      if (onNavigateActivity(item.activity)) onClose()
-                    }}
-                  >
-                    {statusIcon(item.activity.status)}
-                    <span>
-                      {item.activity.type} · {item.activity.title}
-                    </span>
-                  </button>
-                )
-              })}
-            </section>
-          ))}
-        </div>
-      </aside>
-    </div>
-  )
-}
-
-function VideoPlayerMock({ activity }) {
-  const [playing, setPlaying] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-  const playerRef = useRef(null)
-
-  const toggleFullscreen = () => {
-    if (playerRef.current?.requestFullscreen) {
-      playerRef.current.requestFullscreen()
-      return
-    }
-    setExpanded((current) => !current)
-  }
-
-  return (
-    <div ref={playerRef} className={`hl-video-player ${expanded ? 'is-expanded' : ''}`}>
-      <div className="hl-video-player-label">
-        <span>
-          {activity.type === 'Buổi giải đề' ? 'Buổi giải đề' : 'Video'} · {activity.title}
-        </span>
-      </div>
-      <button
-        type="button"
-        className="hl-video-play-big"
-        aria-label={playing ? 'Tạm dừng video' : 'Phát video'}
-        onClick={() => setPlaying((current) => !current)}
-      >
-        {playing ? <Pause size={42} /> : <Play size={46} />}
-      </button>
-      <div className="hl-video-controls">
-        <button
-          type="button"
-          aria-label={playing ? 'Tạm dừng' : 'Phát'}
-          onClick={() => setPlaying((current) => !current)}
-        >
-          {playing ? <Pause size={18} /> : <Play size={18} />}
-        </button>
-        <span>
-          {playing ? '03:24' : '00:00'} / {formatDuration(activity.duration)}
-        </span>
-        <div>
-          <i style={{ width: playing ? '22%' : '0%' }} />
-        </div>
-        <Volume2 size={17} />
-        <button type="button" aria-label="Phóng to video" onClick={toggleFullscreen}>
-          <Expand size={17} />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function TeacherAIButton({ state, onToggle }) {
-  if (state !== 'closed') return null
-
-  return (
-    <button
-      type="button"
-      className="hl-video-ai-button"
-      aria-label="Mở Teacher AI"
-      onClick={onToggle}
-    >
-      <img src="/owl-mascot5.png" alt="" aria-hidden="true" />
-    </button>
-  )
-}
-
-function TeacherAIPanel({
-  state,
-  lessonTitle,
-  messages,
-  input,
-  onInput,
-  onClose,
-  onSend,
-  onQuickAction,
-}) {
-  if (state === 'closed') return null
-
-  return (
-    <aside className="hl-video-ai-panel is-chat">
-      <div className="hl-video-ai-chat-head">
-        <img src="/owl-mascot5.png" alt="" aria-hidden="true" />
-        <div>
-          <strong>Trợ lý AI HocLuc</strong>
-          <span>
-            <i /> Đang hoạt động
-          </span>
-          <small>Đang hỗ trợ: {lessonTitle}</small>
-        </div>
-        <button type="button" aria-label="Đóng Teacher AI" onClick={onClose}>
-          <X size={18} />
-        </button>
-      </div>
-      <div className="hl-video-ai-messages">
-        {messages.map((message) => (
-          <p key={message.id} className={`is-${message.role}`}>
-            {message.text}
-          </p>
-        ))}
-      </div>
-      <div className="hl-video-ai-quick">
-        {quickActions.map((action) => (
-          <button key={action} type="button" onClick={() => onQuickAction(action)}>
-            {action}
-          </button>
-        ))}
-      </div>
-      <form className="hl-video-ai-input" onSubmit={onSend}>
-        <input
-          value={input}
-          onChange={(event) => onInput(event.target.value)}
-          placeholder="Hỏi trợ lý AI..."
-        />
-        <button type="submit" aria-label="Gửi câu hỏi">
-          <Send size={16} />
-        </button>
-      </form>
-    </aside>
-  )
-}
-
-function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNavigateActivity }) {
+}: VideoLearningPageProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [teacherAIState, setTeacherAIState] = useState('closed')
+  const [aiOpen, setAiOpen] = useState(false)
   const { message, show: showMessage } = useTransientMessage(2400)
   const [input, setInput] = useState('')
-  const context = findCourseActivity(courseId, activityId)
-  const lessons = getCourseActivityContexts(courseId)
-  const adjacent = getAdjacentUnlockedActivities(courseId, activityId)
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<AiMessage[]>([])
 
+  const mockContext = findCourseActivity(courseId, activityId)
+  const real = usePageResource(
+    async () => {
+      if (mockContext) return null
+      const [lesson, study] = await Promise.all([getLesson(activityId), getCourseStudy(courseId)])
+      return buildRealVideoSource(lesson, study)
+    },
+    [courseId, activityId],
+    { forbidden: false, notFound: false }
+  )
+  const source = mockContext
+    ? {
+        context: mockContext,
+        lessons: getCourseActivityContexts(courseId),
+        adjacent: getAdjacentUnlockedActivities(courseId, activityId),
+      }
+    : real.data
+  const context: VideoContext | null = source?.context ?? null
+  const lessons = source?.lessons ?? []
+  const adjacent = source?.adjacent ?? { previous: null, next: null }
 
   useEffect(() => {
-    const closeFloating = (event) => {
+    const closeFloating = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setDrawerOpen(false)
-        setTeacherAIState('closed')
+        setAiOpen(false)
       }
     }
     window.addEventListener('keydown', closeFloating)
@@ -322,7 +91,7 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
     ])
   }, [context?.activity.id])
 
-  const navigateActivity = (activity) => {
+  const navigateActivity = (activity: VideoActivity) => {
     const routeType = getActivityRouteType(activity)
     if (!routeType) {
       showMessage('Nội dung này đang được phát triển.')
@@ -332,7 +101,7 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
     return true
   }
 
-  const sendMessage = (event, forcedText) => {
+  const sendMessage = (event: FormEvent | null, forcedText?: string) => {
     event?.preventDefault()
     const text = (forcedText || input).trim()
     if (!text || !context) return
@@ -343,6 +112,10 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
       { id: `ai-${Date.now()}`, role: 'ai', text: getMockAiResponse(text, context.activity.title) },
     ])
     setInput('')
+  }
+
+  if (!mockContext && real.status === 'loading') {
+    return <Skeleton className="h-[520px] rounded-[18px]" />
   }
 
   if (!context || !['Video', 'Buổi giải đề'].includes(context.activity.type)) {
@@ -361,7 +134,7 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
   }
 
   return (
-    <section className="hl-video-learning-page">
+    <section className="flex h-[calc(100vh-156px)] min-h-[520px] flex-col overflow-hidden rounded-[18px] border border-line-card bg-surface-brand text-text-heading max-[760px]:h-auto max-[760px]:min-h-[calc(100dvh-130px)]">
       <LessonNavBar
         context={context}
         previous={adjacent.previous}
@@ -371,26 +144,34 @@ function VideoLearningPage({ courseId, activityId, onBackCourse, onCourses, onNa
         onNavigateActivity={navigateActivity}
         onComplete={() => showMessage('Tiến độ bài học đã được cập nhật mô phỏng.')}
       />
-      <main className={`hl-video-stage ${teacherAIState !== 'closed' ? 'is-ai-open' : ''}`}>
-        <VideoPlayerMock activity={context.activity} />
-        <TeacherAIButton state={teacherAIState} onToggle={() => setTeacherAIState('chat')} />
-        <TeacherAIPanel
-          state={teacherAIState}
-          lessonTitle={context.activity.title}
-          messages={messages}
-          input={input}
-          onInput={setInput}
-          onClose={() => setTeacherAIState('closed')}
-          onSend={sendMessage}
-          onQuickAction={(action) => sendMessage(null, action)}
-        />
-      </main>
-      <CourseLessonDrawer
+      <div
+        className={cn(
+          'relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-surface-brand bg-[linear-gradient(rgba(190,216,255,0.34)_1px,transparent_1px),linear-gradient(90deg,rgba(190,216,255,0.34)_1px,transparent_1px),radial-gradient(circle_at_80%_10%,rgba(251,195,79,0.18),transparent_30%)] bg-[length:42px_42px,42px_42px,auto] p-[22px] max-[760px]:p-3',
+          aiOpen &&
+            'grid-cols-[minmax(0,1fr)_minmax(340px,390px)] gap-[18px] [place-items:center_stretch] max-[760px]:grid-cols-1'
+        )}
+      >
+        <VideoPlayer activity={context.activity} />
+        {aiOpen ? (
+          <TeacherAiPanel
+            lessonTitle={context.activity.title}
+            messages={messages}
+            input={input}
+            onInput={setInput}
+            onClose={() => setAiOpen(false)}
+            onSend={sendMessage}
+            onQuickAction={(action) => sendMessage(null, action)}
+          />
+        ) : (
+          <TeacherAiButton onOpen={() => setAiOpen(true)} />
+        )}
+      </div>
+      <LessonDrawer
         open={drawerOpen}
         context={context}
         lessons={lessons}
         onClose={() => setDrawerOpen(false)}
-        onAction={showMessage}
+        onLockedClick={showMessage}
         onNavigateActivity={navigateActivity}
       />
       <StudentToast message={message} />

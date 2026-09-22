@@ -26,3 +26,11 @@ export function getErrorMessage(error) {
     return DEFAULT_ERROR_MESSAGES[error.status]
   return DEFAULT_ERROR_MESSAGES.NETWORK
 }
+
+/**
+ * Per-field validation messages the backend returns in `errors`
+ * ({ fieldName: message }); empty when the error has none.
+ */
+export function getFieldErrors(error): Record<string, string> {
+  return error?.errors && typeof error.errors === 'object' ? error.errors : {}
+}

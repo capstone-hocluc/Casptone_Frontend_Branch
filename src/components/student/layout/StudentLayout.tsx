@@ -1,10 +1,11 @@
 import { type ReactNode, useState } from 'react'
 import StudentSidebar from './StudentSidebar'
 import StudentTopbar from './StudentTopbar'
-import { useCurrentUser } from '../../../hooks/useCurrentUser'
-import { dashboardSummary } from '../../../data/studentDashboard'
+import { useCurrentUser, useHydrateCurrentUser } from '../../../hooks/useCurrentUser'
 import { useTransientMessage } from '../../../hooks/useTransientMessage'
 import StudentToast from '../common/StudentToast'
+import { dashboardSummary } from '../../../data/studentDashboard'
+import { getAccessToken } from '../../../lib/api'
 import { getStudentNavKeyForPath } from '../../../lib/studentNav'
 import { studentRoutes } from '../../../lib/studentRoutes'
 import { cn } from '../../../lib/cn'
@@ -30,16 +31,9 @@ function StudentLayout({
 }: StudentLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const { message, show: notify } = useTransientMessage()
-  const { profile } = useCurrentUser()
-  const displayName =
-    profile?.displayName ||
-    [profile?.lastName, profile?.firstName].filter(Boolean).join(' ') ||
-    dashboardSummary.studentName
-  const student = {
-    ...dashboardSummary,
-    studentName: displayName,
-    avatar: profile?.avatarUrl || dashboardSummary.avatar,
-  }
+  // The one place that restores the signed-in user after F5; the topbar only reads it.
+  useHydrateCurrentUser()
+  const { profile, status } = useCurrentUser()
 
   return (
     <div
@@ -50,7 +44,11 @@ function StudentLayout({
       )}
     >
       <StudentTopbar
-        student={student}
+        profile={profile}
+        // MOCK: backend has no streak / notification endpoint yet.
+        streak={dashboardSummary.currentStreak}
+        notificationCount={dashboardSummary.notificationCount}
+        profileLoading={status === 'loading' || (status === 'idle' && Boolean(getAccessToken()))}
         onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
         onNavigateHome={() => onNavigate(studentRoutes.dashboard())}
         onNavigateLearningProfile={() => onNavigate(studentRoutes.learningProfile())}

@@ -1,17 +1,15 @@
+// MOCK - backend has no endpoint for daily goal, study plan, practice-test list, streak,
+// study time, activity frequency, tests-done count or best score.
+// Fields the API does provide (courses, progress, recent lesson, competency, lessons
+// completed) are overlaid in lib/studentViewModel.ts (buildDashboardViewModel).
+// TODO API: replace the remaining fields here as backend endpoints appear.
+// The signed-in user's name/avatar come from the API (useCurrentUser), never from here.
 export const dashboardSummary = {
-  studentName: 'Quỳnh Như',
-  weeklyTarget: '5 bài học',
-  overallProgress: 58,
   studyTime: '34 phút',
-  completedLessons: 12,
-  completedCourses: 2,
-  completedTopics: 10,
   completedTests: 4,
   bestScore: 842,
-  targetScore: 950,
   currentStreak: 6,
   notificationCount: 0,
-  avatar: '/avatar-minhanh.jpg',
 }
 
 export const learningProfile = {
@@ -63,41 +61,6 @@ export const studyPlan = {
   description:
     'Kế hoạch cá nhân hóa sẽ giúp bạn biết nên học chuyên đề nào trước và luyện đề theo nhịp phù hợp.',
 }
-
-export const myCourses = [
-  {
-    id: 'dgnl-foundation',
-    title: 'Toán ĐGNL - Nền tảng',
-    category: 'Toán học',
-    progress: 'Đã học 4/12 chuyên đề',
-    score: '18/20 câu',
-    state: 'active',
-  },
-  {
-    id: 'reading-critical-thinking',
-    title: 'Ngôn ngữ và Đọc hiểu',
-    category: 'Ngôn ngữ',
-    progress: 'Đã học 3/10 chuyên đề',
-    score: '15/18 câu',
-    state: 'active',
-  },
-  {
-    id: 'science-review',
-    title: 'Tư duy khoa học',
-    category: 'Khoa học',
-    progress: 'Chưa học',
-    score: '0/16 câu',
-    state: 'new',
-  },
-  {
-    id: 'math-logic-boost',
-    title: 'Luyện đề ĐGNL tổng hợp',
-    category: 'Luyện đề',
-    progress: 'Đã làm 1/8 đề',
-    score: '842 điểm',
-    state: 'active',
-  },
-]
 
 export const testPractice = [
   {
@@ -151,33 +114,3 @@ export const testPractice = [
     tone: 'green',
   },
 ]
-
-export const activityFrequency = {
-  months: ['Thg 6', 'Thg 7', 'Thg 8', 'Thg 9'],
-  days: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-  totals: Array.from({ length: 15 }, () => 0),
-  activeCell: { row: 2, column: 14 },
-}
-
-export const upcomingSchedule = [
-  {
-    id: 'schedule-1',
-    course: 'Toán ĐGNL - Nền tảng',
-    lesson: 'Luyện tập Hàm số và đồ thị',
-    date: 'Hôm nay',
-    time: '19:30',
-    status: 'Lớp học trực tiếp',
-  },
-]
-
-export const pendingTasks = [
-  {
-    id: 'task-1',
-    type: 'Mini Test',
-    title: 'Mini Test - Toán định lượng',
-    course: 'Toán ĐGNL - Nền tảng',
-    deadline: 'Hạn nộp tối nay',
-  },
-]
-
-export const recommendedCourses = ['science-review', 'reading-critical-thinking']

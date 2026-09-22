@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
 import { cn } from '../../lib/cn'
 
@@ -6,13 +6,16 @@ interface AvatarProps extends ComponentProps<typeof AvatarPrimitive.Root> {
   src?: string
   alt?: string
   /** Shown while the image loads or when it fails (e.g. initials). */
-  fallback?: string
+  fallback?: ReactNode
 }
 
 function Avatar({ src, alt = '', fallback, className, ...props }: AvatarProps) {
   return (
     <AvatarPrimitive.Root
-      className={cn('relative inline-flex size-10 shrink-0 overflow-hidden rounded-full', className)}
+      className={cn(
+        'relative inline-flex size-10 shrink-0 overflow-hidden rounded-full',
+        className
+      )}
       {...props}
     >
       <AvatarPrimitive.Image src={src} alt={alt} className="size-full object-cover" />

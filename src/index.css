@@ -17,7 +17,6 @@
 @import './styles/components/shared.css';
 
 /* New styles added after the split above go here. */
-@import './styles/student/account-profile.css';
 @import './styles/landing/header-auth.css';
 @import './styles/landing/course-catalog.css';
 @import './styles/landing/course-detail.css';
