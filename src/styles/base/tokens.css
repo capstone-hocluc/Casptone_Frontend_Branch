@@ -118,6 +118,11 @@
       transform: translateY(-7px) scale(1.04);
     }
   }
+  --color-skeleton-highlight: #f4f6fb;
+  --color-scrollbar-track: #eef4ff;
+  --color-scrollbar-thumb: #afc3ea;
+  --color-nav-bg: rgba(255, 255, 255, 0.6);
+  --color-nav-bg-scrolled: rgba(255, 255, 255, 0.92);
   --animate-shimmer: hl-shimmer 1.4s ease-in-out infinite;
   @keyframes hl-shimmer {
     0% {
