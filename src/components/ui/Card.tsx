@@ -29,7 +29,7 @@ const card = cva('min-w-0 border', {
 type CardProps = ComponentProps<'div'> &
   VariantProps<typeof card> & {
     /** Element to render; use `section` / `article` for semantic cards. */
-    as?: 'div' | 'section' | 'article'
+    as?: 'div' | 'section' | 'article' | 'nav' | 'aside' | 'header'
   }
 
 function Card({ as: Tag = 'div', variant, padding, radius, className, ...props }: CardProps) {
@@ -52,5 +52,7 @@ export function CardEyebrow({ className, ...props }: ComponentProps<'span'>) {
 }
 
 export function CardTitle({ className, ...props }: ComponentProps<'h2'>) {
-  return <h2 className={cn('mb-2 text-[15px] font-semibold text-text-heading', className)} {...props} />
+  return (
+    <h2 className={cn('mb-2 text-[15px] font-semibold text-text-heading', className)} {...props} />
+  )
 }

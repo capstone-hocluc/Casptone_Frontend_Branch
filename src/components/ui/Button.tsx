@@ -24,6 +24,7 @@ const button = cva(
         sm: 'h-8.5 gap-1.5 px-3 text-sm [&>svg]:size-4',
         md: 'h-10 px-4 text-sm [&>svg]:size-[17px]',
         lg: 'h-11 px-4 text-[13px] font-black rounded-xl [&>svg]:size-[15px]',
+        icon: 'size-9 rounded-xl p-0 [&>svg]:size-[18px]',
       },
       shape: {
         default: '',

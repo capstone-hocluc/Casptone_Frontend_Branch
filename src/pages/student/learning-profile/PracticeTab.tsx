@@ -1,41 +1,49 @@
 import { useMemo, useState } from 'react'
-import { Bot, CheckCircle2, ClipboardCheck, GraduationCap, Maximize2, Target } from 'lucide-react'
+import { Bot, ClipboardCheck, GraduationCap, Maximize2 } from 'lucide-react'
 import ScrollableModal from '../../../components/student/common/ScrollableModal'
+import { SegmentedTabs } from '../../../components/student/learning-profile/controls'
+import { InsightCard, InsightList } from '../../../components/student/learning-profile/insights'
+import {
+  IconMetricCard,
+  MetricGrid,
+  ProfileCard,
+  ProfileHeading,
+  TextButton,
+} from '../../../components/student/learning-profile/primitives'
+import { thinScrollbar } from '../../../components/student/learning-profile/styles'
+import Button from '../../../components/ui/Button'
 import DropdownField from '../../../components/ui/DropdownField'
-import { learningProfilePage } from '../../../data/learningProfile'
+import type { LearningProfileData } from '../../../data/learningProfile'
+import { cn } from '../../../lib/cn'
+import { useLearningProfileData } from './learningProfileContext'
 import { componentColors, practiceFilters, practiceOverviewIcons, practiceStatIcons } from './icons'
-import { ProfileSectionHeading } from './shared'
 import ScoreChart from './ScoreChart'
 
-function PracticeMetricCard({ metric, iconMap }) {
-  const Icon = iconMap[metric.key] || ClipboardCheck
-
-  return (
-    <div className={`hl-profile-metric-card hl-profile-practice-metric-card is-${metric.tone}`}>
-      <span className="hl-profile-practice-metric-icon">
-        <Icon size={18} />
-      </span>
-      <span>{metric.label}</span>
-      <strong>{metric.value}</strong>
-    </div>
-  )
-}
+const detailBox = 'rounded-[14px] border border-line-shell bg-[#f8faff] p-3.5'
 
 function PracticeAiDetailModal({ analysis, isOpen, onClose }) {
   return (
     <ScrollableModal title="Phân tích luyện đề" isOpen={isOpen} onClose={onClose} maxWidth={720}>
-      <div className="hl-profile-practice-ai-detail">
-        <span>{analysis.basedOn}</span>
-        <p>{analysis.summary}</p>
-        <div className="hl-profile-practice-ai-detail-list">
+      <div>
+        <span className="block text-[12px] font-black text-text-secondary">{analysis.basedOn}</span>
+        <p className="mt-[7px] mb-4 text-[13px] leading-[1.65] font-[750] text-text-heading-muted">
+          {analysis.summary}
+        </p>
+        <div className="flex flex-col gap-3">
           {analysis.recommendations.map((item) => (
-            <article key={item.title}>
-              <div>
-                <strong>{item.title}</strong>
-                <b>{item.accuracy}% chính xác</b>
+            <article key={item.title} className={detailBox}>
+              <div className="flex items-center justify-between gap-3 max-[760px]:items-start">
+                <strong className="text-[14px] font-black text-text-heading">{item.title}</strong>
+                <b className="text-[12px] font-black whitespace-nowrap text-primary">
+                  {item.accuracy}% chính xác
+                </b>
               </div>
-              <p>{item.explanation}</p>
-              <small>Ưu tiên: {item.priority}</small>
+              <p className="my-2 text-[12px] leading-[1.55] font-[750] text-text-heading-muted">
+                {item.explanation}
+              </p>
+              <small className="text-[12px] font-black text-warning">
+                Ưu tiên: {item.priority}
+              </small>
             </article>
           ))}
         </div>
@@ -52,14 +60,19 @@ function PracticeAiHistoryModal({ analysis, isOpen, onClose }) {
       onClose={onClose}
       maxWidth={680}
     >
-      <div className="hl-profile-history-list">
+      <div className="flex flex-col gap-3">
         {analysis.history.map((item) => (
-          <article key={item.id} className="hl-profile-history-item">
-            <div>
-              <strong>{item.createdAt}</strong>
-              <span>{item.basedOn}</span>
+          <article
+            key={item.id}
+            className="rounded-2xl border border-line-shell bg-[#f8faff] p-3.5"
+          >
+            <div className="mb-2 flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-start max-[760px]:gap-1">
+              <strong className="text-[13px] font-black text-text-heading">{item.createdAt}</strong>
+              <span className="text-[12px] font-extrabold text-text-secondary">{item.basedOn}</span>
             </div>
-            <p>{item.summary}</p>
+            <p className="text-[12px] leading-[1.55] font-[750] text-text-heading-muted">
+              {item.summary}
+            </p>
           </article>
         ))}
       </div>
@@ -74,6 +87,10 @@ function formatFeedbackDate(date) {
   return day && month && year ? `${day}/${month}/${year}` : date
 }
 
+const metaLine = 'mt-[3px] block text-[12px] font-extrabold text-text-secondary'
+const detailSection = 'rounded-2xl border border-line-shell bg-surface p-3.5'
+const detailTitle = 'mb-2.5 text-[14px] font-black text-text-heading'
+
 function TeacherFeedbackDetailModal({ feedback, isOpen, onClose }) {
   if (!feedback) return null
 
@@ -84,52 +101,51 @@ function TeacherFeedbackDetailModal({ feedback, isOpen, onClose }) {
       onClose={onClose}
       maxWidth={760}
     >
-      <div className="hl-profile-teacher-detail">
-        <div className="hl-profile-teacher-detail-head">
-          <span className="hl-profile-teacher-avatar" aria-hidden="true">
+      <div className="flex flex-col gap-3.5">
+        <div className="flex items-center gap-3 rounded-2xl border border-line-shell bg-[#f8faff] p-3.5 max-[760px]:items-start">
+          <span
+            className="grid size-11 flex-none place-items-center overflow-hidden rounded-[14px] bg-primary-soft text-primary"
+            aria-hidden="true"
+          >
             {feedback.teacher.avatar ? (
-              <img src={feedback.teacher.avatar} alt="" />
+              <img className="size-full object-cover" src={feedback.teacher.avatar} alt="" />
             ) : (
               <GraduationCap size={20} />
             )}
           </span>
           <div>
-            <strong>{feedback.teacher.name}</strong>
-            <span>
+            <strong className="block text-[14px] font-black text-text-heading">
+              {feedback.teacher.name}
+            </strong>
+            <span className={metaLine}>
               {feedback.teacher.role} · {feedback.teacher.subject}
             </span>
-            <time>{formatFeedbackDate(feedback.createdAt)}</time>
+            <time className={metaLine}>{formatFeedbackDate(feedback.createdAt)}</time>
           </div>
         </div>
 
-        <div className="hl-profile-teacher-detail-grid">
-          <section>
-            <h3>Điểm làm tốt</h3>
-            <ul className="hl-profile-insight-list">
-              {feedback.strengths.map((item) => (
-                <li key={item}>
-                  <CheckCircle2 size={15} />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="grid grid-cols-2 gap-3 max-[760px]:grid-cols-1">
+          <section className={detailSection}>
+            <h3 className={detailTitle}>Điểm làm tốt</h3>
+            <InsightList
+              tone="strength"
+              items={feedback.strengths.map((item) => ({ key: item, text: item }))}
+            />
           </section>
-          <section>
-            <h3>Nội dung cần cải thiện</h3>
-            <ul className="hl-profile-insight-list is-warning">
-              {feedback.improvements.map((item) => (
-                <li key={item}>
-                  <Target size={15} />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+          <section className={detailSection}>
+            <h3 className={detailTitle}>Nội dung cần cải thiện</h3>
+            <InsightList
+              tone="improvement"
+              items={feedback.improvements.map((item) => ({ key: item, text: item }))}
+            />
           </section>
         </div>
 
-        <section className="hl-profile-teacher-comment">
-          <h3>Lời khuyên</h3>
-          <p>{feedback.comment}</p>
+        <section className={detailSection}>
+          <h3 className={detailTitle}>Lời khuyên</h3>
+          <p className="text-[13px] leading-[1.6] font-[750] text-text-heading-muted">
+            {feedback.comment}
+          </p>
         </section>
       </div>
     </ScrollableModal>
@@ -140,8 +156,8 @@ function TeacherFeedbackPanel({
   feedbackList,
   onOpenDetail,
 }: {
-  feedbackList: (typeof learningProfilePage)['teacherFeedback']
-  onOpenDetail: (feedback: (typeof learningProfilePage)['teacherFeedback'][number]) => void
+  feedbackList: LearningProfileData['teacherFeedback']
+  onOpenDetail: (feedback: LearningProfileData['teacherFeedback'][number]) => void
 }) {
   const [selectedDate, setSelectedDate] = useState('all')
   const feedbackDates = [...new Set(feedbackList.map((item) => item.createdAt))]
@@ -152,10 +168,12 @@ function TeacherFeedbackPanel({
 
   if (!feedbackList.length) {
     return (
-      <div className="hl-profile-teacher-empty">
+      <div className="grid min-h-36 place-items-center content-center gap-2 rounded-2xl border border-dashed border-[#cfe0ff] bg-[#f8faff] p-5 text-center [&>svg]:text-primary">
         <GraduationCap size={28} />
-        <strong>Chưa có nhận xét từ giáo viên</strong>
-        <p>
+        <strong className="text-[14px] font-black text-text-heading">
+          Chưa có nhận xét từ giáo viên
+        </strong>
+        <p className="max-w-[460px] text-[12px] leading-[1.55] font-[750] text-text-secondary">
           Nhận xét từ giáo viên hoặc mentor sẽ xuất hiện tại đây sau khi họ đánh giá quá trình học
           tập của bạn.
         </p>
@@ -164,12 +182,13 @@ function TeacherFeedbackPanel({
   }
 
   return (
-    <div className="hl-profile-teacher-panel">
-      <div className="hl-profile-teacher-filter">
-        <span>Lọc theo ngày</span>
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-stretch">
+        <span className="text-[12px] font-[850] text-text-secondary">Lọc theo ngày</span>
         <DropdownField
           ariaLabel="Lọc nhận xét theo ngày"
           className="w-auto"
+          triggerClassName="min-h-[34px] rounded-[10px] border-line-blue bg-surface px-3 text-[12px] font-[850] text-text-emphasis outline-0"
           options={[
             { id: 'all', label: 'Tất cả nhận xét' },
             ...feedbackDates.map((date) => ({ id: date, label: formatFeedbackDate(date) })),
@@ -181,23 +200,31 @@ function TeacherFeedbackPanel({
         />
       </div>
 
-      <div className="hl-profile-teacher-comment-list">
+      <div
+        className={cn('flex max-h-[260px] flex-col gap-2.5 overflow-y-auto pr-1.5', thinScrollbar)}
+      >
         {visibleFeedback.map((item) => (
           <button
             key={item.id}
             type="button"
-            className="hl-profile-teacher-comment-card"
+            className="grid min-h-[92px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_18px] items-start gap-3 rounded-2xl border border-[#cfe0ff] bg-[#f3f8ff] p-[13px] text-left transition hover:-translate-y-px hover:border-line-brand hover:bg-[#eaf3ff] max-[760px]:grid-cols-[minmax(0,1fr)] [&>svg]:mt-1 [&>svg]:text-[#8a95af] max-[760px]:[&>svg]:hidden"
             onClick={() => onOpenDetail(item)}
           >
             <div>
-              <div className="hl-profile-teacher-comment-head">
-                <strong>{item.teacher.name}</strong>
-                <time>{formatFeedbackDate(item.createdAt)}</time>
+              <div className="flex items-center justify-between gap-2.5 max-[760px]:flex-col max-[760px]:items-start max-[760px]:gap-[3px]">
+                <strong className="text-[13px] font-[850] text-text-heading">
+                  {item.teacher.name}
+                </strong>
+                <time className="text-[12px] font-[650] text-text-secondary">
+                  {formatFeedbackDate(item.createdAt)}
+                </time>
               </div>
-              <span>
+              <span className="text-[12px] font-[650] text-text-secondary">
                 {item.teacher.role} · {item.teacher.subject}
               </span>
-              <p>{item.comment}</p>
+              <p className="mt-[7px] line-clamp-2 text-[12px] leading-[1.45] font-medium text-text-heading-muted">
+                {item.comment}
+              </p>
             </div>
             <Maximize2 size={14} />
           </button>
@@ -207,7 +234,13 @@ function TeacherFeedbackPanel({
   )
 }
 
+const sources = [
+  { key: 'ai', label: 'AI phân tích', icon: <Bot size={15} /> },
+  { key: 'teacher', label: 'Nhận xét giáo viên', icon: <GraduationCap size={15} /> },
+]
+
 function PracticeAiRecommendations({ onAction }) {
+  const learningProfilePage = useLearningProfileData()
   const [analysis, setAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -216,8 +249,6 @@ function PracticeAiRecommendations({ onAction }) {
   const [feedbackDetail, setFeedbackDetail] = useState(null)
   const activeAnalysis = analysis
   const teacherFeedback = learningProfilePage.teacherFeedback || []
-  const hasActiveContent =
-    activeSource === 'ai' ? Boolean(activeAnalysis) : teacherFeedback.length > 0
   const practiceStrengths = learningProfilePage.strengths.slice(0, 3)
   const practiceImprovements = activeAnalysis?.recommendations.slice(0, 3) || []
 
@@ -233,41 +264,24 @@ function PracticeAiRecommendations({ onAction }) {
   }
 
   return (
-    <article
-      className={`hl-profile-card hl-profile-practice-ai-card ${hasActiveContent ? 'is-expanded' : 'is-compact'}`}
-    >
-      <ProfileSectionHeading
+    <ProfileCard as="article" className="p-5">
+      <ProfileHeading
         title="Nội dung cần cải thiện"
         subtitle="Phân tích và nhận xét giúp bạn xác định nội dung cần ưu tiên cải thiện."
+        className="mb-3"
       />
 
-      <div className="hl-profile-feedback-head">
-        <div className="hl-profile-feedback-tabs" role="tablist" aria-label="Nguồn đánh giá">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeSource === 'ai'}
-            className={activeSource === 'ai' ? 'is-active' : ''}
-            onClick={() => setActiveSource('ai')}
-          >
-            <Bot size={15} />
-            AI phân tích
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeSource === 'teacher'}
-            className={activeSource === 'teacher' ? 'is-active' : ''}
-            onClick={() => setActiveSource('teacher')}
-          >
-            <GraduationCap size={15} />
-            Nhận xét giáo viên
-          </button>
-        </div>
+      <div className="mb-3 flex items-center justify-between gap-3 max-[760px]:flex-col max-[760px]:items-stretch">
+        <SegmentedTabs
+          variant="source"
+          ariaLabel="Nguồn đánh giá"
+          tabs={sources}
+          active={activeSource}
+          onChange={setActiveSource}
+        />
         {activeSource === 'ai' && (
-          <button
-            type="button"
-            className="hl-profile-practice-update-button"
+          <Button
+            className="h-auto min-h-[38px] flex-none rounded-lg border-0 px-4 text-[14px] font-medium whitespace-nowrap hover:bg-primary-dark disabled:cursor-progress disabled:opacity-[0.72] max-[760px]:w-full"
             onClick={runPracticeAnalysis}
             disabled={isAnalyzing}
           >
@@ -276,72 +290,59 @@ function PracticeAiRecommendations({ onAction }) {
               : activeAnalysis
                 ? 'Cập nhật phân tích'
                 : 'Phân tích ngay'}
-          </button>
+          </Button>
         )}
       </div>
 
       {activeSource === 'ai' ? (
         <>
           {!activeAnalysis && (
-            <p className="hl-profile-practice-ai-empty">Hiện tại chưa có nội dung phân tích.</p>
+            <p className="mt-3.5 mb-0.5 text-center text-[12px] leading-[1.55] font-[650] text-[#8a95af]">
+              Hiện tại chưa có nội dung phân tích.
+            </p>
           )}
 
           {activeAnalysis ? (
             <>
-              <div className="hl-profile-practice-ai-insight-grid">
-                <article className="hl-profile-card hl-profile-practice-insight-card is-strength">
-                  <div className="hl-profile-practice-insight-head">
-                    <strong>Điểm mạnh</strong>
-                    <div>
-                      <button type="button" onClick={() => setDetailOpen(true)}>
-                        <Maximize2 size={14} />
-                        Xem chi tiết
-                      </button>
-                    </div>
-                  </div>
-                  <div className="hl-profile-practice-insight-body">
-                    <ul className="hl-profile-insight-list">
-                      {practiceStrengths.map((item) => (
-                        <li key={item}>
-                          <CheckCircle2 size={15} />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
+              <div className="grid grid-cols-2 gap-3 max-[760px]:grid-cols-1">
+                <InsightCard
+                  tone="strength"
+                  size="lg"
+                  title="Điểm mạnh"
+                  onDetail={() => setDetailOpen(true)}
+                >
+                  <InsightList
+                    tone="strength"
+                    dense
+                    items={practiceStrengths.map((item) => ({ key: item, text: item }))}
+                  />
+                </InsightCard>
 
-                <article className="hl-profile-card hl-profile-practice-insight-card is-improvement">
-                  <div className="hl-profile-practice-insight-head">
-                    <strong>Cần cải thiện</strong>
-                    <div>
-                      <button type="button" onClick={() => setDetailOpen(true)}>
-                        <Maximize2 size={14} />
-                        Xem chi tiết
-                      </button>
-                    </div>
-                  </div>
-                  <div className="hl-profile-practice-insight-body">
-                    <ul className="hl-profile-insight-list is-warning">
-                      {practiceImprovements.map((item) => (
-                        <li key={item.title}>
-                          <Target size={15} />
-                          <span>{item.title}</span>
-                          <small>{item.accuracy}%</small>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
+                <InsightCard
+                  tone="improvement"
+                  size="lg"
+                  title="Cần cải thiện"
+                  onDetail={() => setDetailOpen(true)}
+                >
+                  <InsightList
+                    tone="improvement"
+                    dense
+                    items={practiceImprovements.map((item) => ({
+                      key: item.title,
+                      text: item.title,
+                      extra: (
+                        <small className="ml-auto text-[12px] font-black whitespace-nowrap text-warning">
+                          {item.accuracy}%
+                        </small>
+                      ),
+                    }))}
+                  />
+                </InsightCard>
               </div>
 
-              <button
-                type="button"
-                className="hl-profile-practice-ai-history-button"
-                onClick={() => setHistoryOpen(true)}
-              >
+              <TextButton className="mt-3 text-primary" onClick={() => setHistoryOpen(true)}>
                 Xem lại phân tích cũ
-              </button>
+              </TextButton>
             </>
           ) : null}
         </>
@@ -368,11 +369,12 @@ function PracticeAiRecommendations({ onAction }) {
         isOpen={Boolean(feedbackDetail)}
         onClose={() => setFeedbackDetail(null)}
       />
-    </article>
+    </ProfileCard>
   )
 }
 
 function PracticeTab({ onAction, panelId, labelledBy }) {
+  const learningProfilePage = useLearningProfileData()
   const [filter, setFilter] = useState('Tất cả')
   const [selectedComponents, setSelectedComponents] = useState(() =>
     learningProfilePage.components.map((item) => item.key)
@@ -407,38 +409,44 @@ function PracticeTab({ onAction, panelId, labelledBy }) {
   }
 
   return (
-    <div className="hl-profile-tab-panel" role="tabpanel" id={panelId} aria-labelledby={labelledBy}>
-      <div className="hl-profile-metric-grid is-four">
+    <div
+      className="flex flex-col gap-[18px]"
+      role="tabpanel"
+      id={panelId}
+      aria-labelledby={labelledBy}
+    >
+      <MetricGrid four>
         {learningProfilePage.practiceOverview.map((metric) => (
-          <PracticeMetricCard key={metric.key} metric={metric} iconMap={practiceOverviewIcons} />
+          <IconMetricCard
+            key={metric.key}
+            icon={practiceOverviewIcons[metric.key] || ClipboardCheck}
+            tone={metric.tone}
+            label={metric.label}
+            value={metric.value}
+          />
         ))}
-      </div>
+      </MetricGrid>
 
-      <section className="hl-profile-practice-chart-grid">
+      <section className="grid grid-cols-2 items-stretch gap-[18px] max-[1181px]:grid-cols-1">
         <ScoreChart
+          className="h-full"
           title="Theo dõi điểm số"
           subtitle="Dựa trên các bài thi thử gần nhất"
           points={attempts}
           filterLabel={null}
           toolbar={
-            <div className="hl-profile-filter-row" role="tablist" aria-label="Lọc bài luyện đề">
-              {practiceFilters.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  role="tab"
-                  aria-selected={filter === item}
-                  className={filter === item ? 'is-active' : ''}
-                  onClick={() => setFilter(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs
+              variant="chip"
+              ariaLabel="Lọc bài luyện đề"
+              tabs={practiceFilters.map((item) => ({ key: item, label: item }))}
+              active={filter}
+              onChange={setFilter}
+            />
           }
         />
 
         <ScoreChart
+          className="h-full"
           title="Kết quả theo thành phần"
           points={componentPoints}
           series={componentSeries}
@@ -447,11 +455,15 @@ function PracticeTab({ onAction, panelId, labelledBy }) {
           componentMode
           filterLabel={null}
           toolbar={
-            <div className="hl-profile-toggle-row">
+            <div className="mb-3 flex flex-wrap gap-2">
               {learningProfilePage.components.map((component) => (
-                <label key={component.key}>
+                <label
+                  key={component.key}
+                  className="inline-flex min-h-[34px] cursor-pointer items-center gap-2 rounded-full border border-[#d9e4f4] bg-surface px-3 text-[12px] font-black text-text-emphasis"
+                >
                   <input
                     type="checkbox"
+                    className="size-3.5 accent-primary"
                     checked={selectedComponents.includes(component.key)}
                     onChange={() => toggleComponent(component.key)}
                   />
@@ -464,12 +476,18 @@ function PracticeTab({ onAction, panelId, labelledBy }) {
       </section>
 
       <section>
-        <ProfileSectionHeading title="Hiệu suất luyện đề" />
-        <div className="hl-profile-metric-grid is-four">
+        <ProfileHeading title="Hiệu suất luyện đề" />
+        <MetricGrid four>
           {learningProfilePage.practiceStats.map((metric) => (
-            <PracticeMetricCard key={metric.key} metric={metric} iconMap={practiceStatIcons} />
+            <IconMetricCard
+              key={metric.key}
+              icon={practiceStatIcons[metric.key] || ClipboardCheck}
+              tone={metric.tone}
+              label={metric.label}
+              value={metric.value}
+            />
           ))}
-        </div>
+        </MetricGrid>
       </section>
 
       <PracticeAiRecommendations onAction={onAction} />

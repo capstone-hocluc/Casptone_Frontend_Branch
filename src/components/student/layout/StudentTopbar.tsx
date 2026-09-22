@@ -1,6 +1,7 @@
 import { Bell, Flame, LogOut, Menu, Settings, User, UserRound } from 'lucide-react'
 import Logo from '../../common/Logo'
 import Avatar from '../../ui/Avatar'
+import Skeleton from '../../ui/Skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +9,17 @@ import {
   DropdownMenuTrigger,
 } from '../../ui/DropdownMenu'
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/Popover'
-import { dashboardSummary } from '../../../data/studentDashboard'
+import type { UserProfile } from '../../../services/userService'
+import { getUserDisplayName, getUserInitials } from '../../../lib/userDisplay'
 import { cn } from '../../../lib/cn'
 
 interface StudentTopbarProps {
-  student: typeof dashboardSummary
+  /** Signed-in user from useCurrentUser(); null until it has loaded. */
+  profile: UserProfile | null
+  profileLoading?: boolean
+  /** Consecutive learning days (mock until the backend has a streak endpoint). */
+  streak?: number
+  notificationCount?: number
   onToggleSidebar?: () => void
   onNavigateHome?: () => void
   onNavigateLearningProfile?: () => void
@@ -26,7 +33,10 @@ const iconButton =
   'relative grid size-12 flex-none cursor-pointer place-items-center rounded-[15px] bg-surface text-primary shadow-[0_10px_22px_rgba(17,24,58,0.04)] max-[760px]:size-11'
 
 function StudentTopbar({
-  student,
+  profile,
+  profileLoading = false,
+  streak = 0,
+  notificationCount = 0,
   onToggleSidebar,
   onNavigateHome,
   onNavigateLearningProfile,
@@ -59,8 +69,8 @@ function StudentTopbar({
       <div className="flex min-w-0 flex-1 items-center justify-end gap-3.5 max-[760px]:w-full max-[760px]:flex-[1_1_100%] max-[760px]:gap-2">
         <button
           type="button"
-          aria-label={`Chuỗi ${student.currentStreak} ngày`}
-          onClick={() => onNotify?.(`Bạn đang giữ chuỗi học tập ${student.currentStreak} ngày.`)}
+          aria-label={`Chuỗi ${streak} ngày`}
+          onClick={() => onNotify?.(`Bạn đang giữ chuỗi học tập ${streak} ngày.`)}
           className="inline-flex h-[42px] cursor-pointer items-center gap-2 rounded-full bg-streak-soft px-[18px] text-streak max-[760px]:size-11 max-[760px]:justify-center max-[760px]:p-0"
         >
           <Flame size={17} />
@@ -78,9 +88,9 @@ function StudentTopbar({
               )}
             >
               <Bell size={18} />
-              {student.notificationCount > 0 && (
+              {notificationCount > 0 && (
                 <span className="absolute -top-1 -right-[3px] grid h-5 min-w-5 place-items-center rounded-full border-2 border-surface bg-danger px-[5px] text-[10px] leading-none font-black text-surface">
-                  {student.notificationCount}
+                  {notificationCount}
                 </span>
               )}
             </button>
@@ -100,11 +110,16 @@ function StudentTopbar({
               aria-label="Mở menu hồ sơ"
               className={cn(iconButton, 'overflow-hidden border border-line-blue p-0')}
             >
-              <Avatar
-                src={student.avatar || '/avatar-minhanh.jpg'}
-                alt={student.studentName}
-                className="size-full rounded-none"
-              />
+              {profileLoading ? (
+                <Skeleton className="size-full rounded-none" />
+              ) : (
+                <Avatar
+                  src={profile?.avatarUrl}
+                  alt={getUserDisplayName(profile)}
+                  fallback={getUserInitials(profile) || <User size={18} />}
+                  className="size-full rounded-none"
+                />
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

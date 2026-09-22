@@ -1,3 +1,8 @@
+// MOCK - backend has no endpoint for most of this (score trends, weekly accuracy, teacher
+// feedback, AI analysis, achievements, activity heatmap, learning history...).
+// Fields the API does provide are overlaid in lib/studentViewModel.ts
+// (buildLearningProfileViewModel); everything else keeps showing this data.
+// TODO API: replace the remaining fields here as backend endpoints appear.
 export const learningProfilePage = {
   studentName: 'Quỳnh Như',
   exam: 'Đánh giá năng lực ĐHQG TP.HCM',
@@ -394,3 +399,5 @@ export const learningProfilePage = {
     totals: [0, 5, 8, 0, 12, 18, 24, 40, 55, 35, 62, 80, 44, 70, 96],
   },
 }
+
+export type LearningProfileData = typeof learningProfilePage

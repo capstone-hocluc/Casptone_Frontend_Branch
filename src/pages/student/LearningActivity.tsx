@@ -1,17 +1,27 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  RotateCcw,
-} from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2, Play } from 'lucide-react'
 import { findCourseActivity, getActivityRouteType } from '../../data/courseLookup'
 import { useTransientMessage } from '../../hooks/useTransientMessage'
 import StudentToast from '../../components/student/common/StudentToast'
 import MascotState from '../../components/common/MascotState'
+import ActivityButton from '../../components/student/activity/ActivityButton'
+import {
+  ActivityCard,
+  ActivityCardTitle,
+  ActivityHeader,
+} from '../../components/student/activity/ActivityCard'
+import {
+  FilterPills,
+  LessonActions,
+  PageNav,
+  SubmitConfirmModal,
+} from '../../components/student/activity/ActivityParts'
+import ActivityShell from '../../components/student/activity/ActivityShell'
+import { getAnswerState } from '../../components/student/activity/answerState'
+import { QuestionCard, ReviewQuestionCard } from '../../components/student/activity/QuestionCards'
+import QuestionTracker from '../../components/student/activity/QuestionTracker'
+import ResultSummaryCard, { AttemptHistory } from '../../components/student/activity/ResultSummary'
+import type { ActivityAttempt, ActivityQuestion } from '../../components/student/activity/types'
 import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
 import Card from '../../components/ui/Card'
 
@@ -31,71 +41,45 @@ const reviewFilters = [
   { key: 'unanswered', label: 'Chưa trả lời' },
 ]
 
-function LearningShell({ context, onBack, children }) {
-  return (
-    <section className="hl-student-page hl-activity-page">
-      <button type="button" className="hl-activity-back" onClick={onBack}>
-        <ArrowLeft size={17} />
-        Quay lại khóa học
-      </button>
-      <div className="hl-activity-crumb">
-        <span>{context.course.title}</span>
-        <ChevronRight size={14} />
-        <span>{context.subjectTitle}</span>
-        <ChevronRight size={14} />
-        <strong>{context.chapterTitle}</strong>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function ActivityHeader({ activity, label }) {
-  const meta = [
+function getActivityMeta(activity) {
+  return [
     activity.questionCount ? `${activity.questionCount} câu` : '',
     activity.duration || '',
     activity.deadline ? `Hạn ${activity.deadline}` : '',
   ].filter(Boolean)
-
-  return (
-    <header className="hl-activity-header-card">
-      <span>{label}</span>
-      <h1>{activity.title}</h1>
-      {meta.length > 0 && <p>{meta.join(' · ')}</p>}
-    </header>
-  )
 }
 
 function VideoScreen({ activity, onAction }) {
   return (
     <>
       <ActivityHeader
-        activity={activity}
         label={activity.type === 'Buổi giải đề' ? 'Buổi giải đề' : 'Video'}
+        title={activity.title}
+        meta={getActivityMeta(activity).join(' · ')}
       />
-      <div className="hl-activity-two-column">
-        <article className="hl-activity-card">
-          <div className="hl-activity-video-frame">
+      <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)] gap-3.5 max-[760px]:grid-cols-1">
+        <ActivityCard>
+          <div className="grid aspect-video place-items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#eaf1ff,#f8fbff)] text-primary">
             <Play size={40} />
-            <span>Video bài học</span>
+            <span className="text-[13px] font-bold">Video bài học</span>
           </div>
-          <p className="hl-activity-duration">{activity.duration}</p>
-        </article>
-        <article className="hl-activity-card">
-          <h2>Mục tiêu bài học</h2>
-          <ul className="hl-activity-goals">
+          <p className="mt-2.5 text-[12px] font-medium text-text-secondary">{activity.duration}</p>
+        </ActivityCard>
+        <ActivityCard>
+          <ActivityCardTitle>Mục tiêu bài học</ActivityCardTitle>
+          <ul className="grid gap-2 pl-[18px] text-[13px] leading-[1.5] font-medium text-text-dim">
             <li>Xác định được ý chính của nội dung học.</li>
             <li>Nhận diện thông tin quan trọng trong câu hỏi ĐGNL.</li>
             <li>Áp dụng kiến thức vào bài luyện tập tiếp theo.</li>
           </ul>
-        </article>
+        </ActivityCard>
       </div>
       <LearningActions primaryLabel="Đánh dấu hoàn thành" onAction={onAction} />
     </>
   )
 }
 
-function createQuestions(activity, total) {
+function createQuestions(activity, total): ActivityQuestion[] {
   return Array.from({ length: total }, (_, index) => {
     const correctAnswer = ['A', 'B', 'C', 'D'][index % 4]
 
@@ -124,7 +108,7 @@ function formatClock(totalSeconds) {
   return parts.map((part) => String(part).padStart(2, '0')).join(':')
 }
 
-function createSeedAttempt(activity, questions) {
+function createSeedAttempt(activity, questions): ActivityAttempt[] {
   if (activity.status !== 'completed') return []
 
   const answers = questions.reduce((result, question, index) => {
@@ -216,19 +200,8 @@ function saveStoredAttempts(activityId, attempts) {
   }
 }
 
-function ResultSummary({
-  activity,
-  label,
-  questions,
-  attempt,
-  onReview,
-  onRetry,
-  onBack,
-  history = [],
-  onOpenAttempt,
-}) {
+function ResultView({ activity, label, attempt, onReview, onRetry, history = [], onOpenAttempt }) {
   const bestAttempt = getBestAttempt(history, attempt)
-  const scoreTone = getScoreTone(bestAttempt.percentage)
   const meta = [
     activity.questionCount ? `${activity.questionCount} câu` : '',
     activity.duration || '',
@@ -236,163 +209,39 @@ function ResultSummary({
 
   return (
     <>
-      <article className={`hl-activity-card hl-activity-result-card is-${scoreTone}`}>
-        <div className="hl-activity-result-main">
-          <span>{label}</span>
-          <h1>
-            {label} · {activity.title}
-          </h1>
-          {meta.length > 0 && <p>{meta.join(' · ')}</p>}
-          <div className="hl-activity-result-meta-line">
-            <span>
-              Lần làm <b className="is-attempt">{attempt.attemptNumber}</b>
-            </span>
-            <i />
-            <span>
-              Thời gian <b className="is-duration">{attempt.duration}</b>
-            </span>
-            <i />
-            <span>
-              Ngày nộp <b className="is-date">{formatShortDate(attempt.submittedAt)}</b>
-            </span>
-          </div>
-          <div className="hl-activity-result-actions">
-            <button type="button" className="is-primary" onClick={() => onReview(attempt)}>
-              Xem lại bài làm
-            </button>
-            <button type="button" className="is-secondary" onClick={onRetry}>
-              <RotateCcw size={15} />
-              Làm lại
-            </button>
-          </div>
-        </div>
-
-        <div className="hl-activity-result-score">
-          <div className="hl-activity-result-bubble">
-            Điểm được cập nhật
-            <br />
-            theo kết quả cao nhất
-          </div>
-          <img src="/owl-success-celebrate.png" alt="" aria-hidden="true" />
-          <div className="hl-activity-result-score-panel">
-            <span>Điểm cao nhất</span>
-            <h2>
-              <b>{bestAttempt.score}</b> <small>/ {bestAttempt.totalQuestions}</small>
-            </h2>
-          </div>
-        </div>
-      </article>
+      <ResultSummaryCard
+        label={label}
+        title={activity.title}
+        meta={meta.join(' · ')}
+        attempt={attempt}
+        bestScore={bestAttempt.score}
+        bestTotal={bestAttempt.totalQuestions}
+        scoreTone={getScoreTone(bestAttempt.percentage)}
+        submittedDate={formatShortDate(attempt.submittedAt)}
+        onReview={() => onReview(attempt)}
+        onRetry={onRetry}
+      />
 
       {history.length > 0 && (
-        <section className="hl-activity-attempt-history">
-          <h2>Lịch sử làm bài</h2>
-          <div>
-            {history.map((item) => (
-              <article key={item.id} className="hl-activity-attempt-row">
-                <div>
-                  <strong>Lần {item.attemptNumber}</strong>
-                  <span>
-                    {item.score}/{item.totalQuestions} · {item.percentage}%
-                  </span>
-                </div>
-                <span>{item.duration}</span>
-                <time>{formatSubmittedAt(item.submittedAt)}</time>
-                <button type="button" onClick={() => onOpenAttempt(item)}>
-                  Xem lại
-                </button>
-              </article>
-            ))}
-          </div>
-        </section>
+        <AttemptHistory
+          items={history.map((item) => ({
+            ...item,
+            submittedLabel: formatSubmittedAt(item.submittedAt),
+          }))}
+          onOpen={onOpenAttempt}
+        />
       )}
     </>
-  )
-}
-
-function ReviewQuestion({ question, attempt }) {
-  const selectedAnswer = attempt.answers[question.id]
-  const selectedOption = question.options.find((option) => option.id === selectedAnswer)
-  const correctOption = question.options.find((option) => option.id === question.correctAnswer)
-  const state = !selectedAnswer
-    ? 'unanswered'
-    : selectedAnswer === question.correctAnswer
-      ? 'correct'
-      : 'incorrect'
-  const stateLabel = state === 'correct' ? 'Đúng' : state === 'incorrect' ? 'Sai' : 'Chưa trả lời'
-
-  return (
-    <article
-      id={`review-question-${question.number}`}
-      className={`hl-activity-card hl-activity-question-item hl-activity-review-question is-${state}`}
-    >
-      <div className="hl-activity-question-top">
-        <span>Câu {question.number}</span>
-        <small>{stateLabel}</small>
-      </div>
-      <h2>{question.content}</h2>
-      <div className="hl-activity-review-options">
-        {question.options.map((option) => {
-          const isSelected = option.id === selectedAnswer
-          const isCorrect = option.id === question.correctAnswer
-          return (
-            <p
-              key={option.id}
-              className={`${isSelected ? 'is-student' : ''} ${isCorrect ? 'is-correct' : ''}`}
-            >
-              <b>{option.id}</b>
-              <span>{option.text}</span>
-            </p>
-          )
-        })}
-      </div>
-      <div className="hl-activity-review-answer">
-        <p>
-          <span>Đáp án của bạn:</span>
-          <strong>
-            {selectedOption ? `${selectedOption.id}. ${selectedOption.text}` : 'Chưa trả lời'}
-          </strong>
-        </p>
-        <p>
-          <span>Đáp án đúng:</span>
-          <strong>
-            {correctOption.id}. {correctOption.text}
-          </strong>
-        </p>
-      </div>
-      <div className="hl-activity-review-explain">
-        <strong>Giải thích</strong>
-        <p>{question.explanation}</p>
-      </div>
-    </article>
   )
 }
 
 function ReviewMode({ activity, label, questions, attempt, onBackResult }) {
   const [filter, setFilter] = useState('all')
   const [page, setPage] = useState(1)
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      questions.filter((question) => {
-        const answer = attempt.answers[question.id]
-        const state = !answer
-          ? 'unanswered'
-          : answer === question.correctAnswer
-            ? 'correct'
-            : 'incorrect'
-        return filter === 'all' || filter === state
-      }).length / pageSize
-    )
+  const filteredQuestions = questions.filter(
+    (question) => filter === 'all' || filter === getAnswerState(question, attempt)
   )
-  const filteredQuestions = questions.filter((question) => {
-    const answer = attempt.answers[question.id]
-    const state = !answer
-      ? 'unanswered'
-      : answer === question.correctAnswer
-        ? 'correct'
-        : 'incorrect'
-    return filter === 'all' || filter === state
-  })
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize))
   const visibleQuestions = filteredQuestions.slice((page - 1) * pageSize, page * pageSize)
   const breakdown = getAttemptBreakdown(questions, attempt)
 
@@ -413,115 +262,78 @@ function ReviewMode({ activity, label, questions, attempt, onBackResult }) {
 
   return (
     <>
-      <ActivityHeader activity={activity} label={`${label} · Xem lại`} />
-      <div className="hl-activity-review-filters">
-        {reviewFilters.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className={filter === item.key ? 'is-active' : ''}
-            onClick={() => setReviewFilter(item.key)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      <div className="hl-activity-test-layout">
-        <main className="hl-activity-question-stack">
-          {visibleQuestions.map((question) => (
-            <ReviewQuestion key={question.id} question={question} attempt={attempt} />
-          ))}
-          {visibleQuestions.length === 0 && (
-            <article className="hl-activity-card hl-activity-review-empty">
-              Không có câu hỏi phù hợp với bộ lọc này.
-            </article>
-          )}
-          <div className="hl-activity-bottom-nav">
-            <button
-              type="button"
-              disabled={page === 1}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-            >
-              <ChevronLeft size={15} />
-              Trang trước
-            </button>
-            <span>
-              Trang {page}/{totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={page === totalPages}
-              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-            >
-              Trang sau
-              <ChevronRight size={15} />
-            </button>
-          </div>
-        </main>
-
-        <aside className="hl-activity-card hl-activity-question-nav">
-          <h2>Xem lại lần {attempt.attemptNumber}</h2>
-          <div className="hl-activity-tracker-stat">
-            <p>
-              <span>Điểm</span>
-              <strong>
-                {attempt.score}/{attempt.totalQuestions}
-              </strong>
-            </p>
-            <p>
-              <span>Tỷ lệ</span>
-              <strong>{attempt.percentage}%</strong>
-            </p>
-            <p>
-              <span>Sai</span>
-              <strong>{breakdown.incorrect}</strong>
-            </p>
-            <p>
-              <span>Chưa trả lời</span>
-              <strong>{breakdown.unanswered}</strong>
-            </p>
-          </div>
-          <div className="hl-activity-question-number-grid">
-            {questions.map((question) => {
-              const answer = attempt.answers[question.id]
-              const state = !answer
-                ? 'unanswered'
-                : answer === question.correctAnswer
-                  ? 'correct'
-                  : 'incorrect'
-              return (
-                <button
-                  key={question.id}
-                  type="button"
-                  className={`is-review-${state}`}
-                  onClick={() => jumpToQuestion(question.number)}
-                >
-                  {question.number}
-                </button>
-              )
+      <ActivityHeader
+        label={`${label} · Xem lại`}
+        title={activity.title}
+        meta={getActivityMeta(activity).join(' · ')}
+      />
+      <FilterPills items={reviewFilters} active={filter} onChange={setReviewFilter} />
+      <TestLayout
+        main={
+          <>
+            {visibleQuestions.map((question) => (
+              <ReviewQuestionCard key={question.id} question={question} attempt={attempt} />
+            ))}
+            {visibleQuestions.length === 0 && (
+              <ActivityCard className="text-center text-[13px] text-text-secondary">
+                Không có câu hỏi phù hợp với bộ lọc này.
+              </ActivityCard>
+            )}
+            <PageNav
+              page={page}
+              totalPages={totalPages}
+              onPrevious={() => setPage((value) => Math.max(1, value - 1))}
+              onNext={() => setPage((value) => Math.min(totalPages, value + 1))}
+            />
+          </>
+        }
+        aside={
+          <QuestionTracker
+            title={`Xem lại lần ${attempt.attemptNumber}`}
+            stats={[
+              { label: 'Điểm', value: `${attempt.score}/${attempt.totalQuestions}` },
+              { label: 'Tỷ lệ', value: `${attempt.percentage}%` },
+              { label: 'Sai', value: breakdown.incorrect },
+              { label: 'Chưa trả lời', value: breakdown.unanswered },
+            ]}
+            numbers={questions.map((question) => {
+              const state = getAnswerState(question, attempt)
+              return {
+                number: question.number,
+                state:
+                  state === 'correct'
+                    ? 'reviewCorrect'
+                    : state === 'incorrect'
+                      ? 'reviewIncorrect'
+                      : 'reviewUnanswered',
+                onClick: () => jumpToQuestion(question.number),
+              }
             })}
-          </div>
-          <div className="hl-activity-tracker-legend">
-            <span>
-              <i className="is-correct" /> Đúng
-            </span>
-            <span>
-              <i className="is-incorrect" /> Sai
-            </span>
-            <span>
-              <i className="is-unanswered" /> Chưa trả lời
-            </span>
-          </div>
-          <button type="button" className="hl-activity-submit-button" onClick={onBackResult}>
-            Quay lại kết quả
-          </button>
-        </aside>
-      </div>
+            legend={[
+              { label: 'Đúng', dot: 'correct' },
+              { label: 'Sai', dot: 'incorrect' },
+              { label: 'Chưa trả lời', dot: 'unanswered' },
+            ]}
+            actionLabel="Quay lại kết quả"
+            onAction={onBackResult}
+          />
+        }
+      />
     </>
   )
 }
 
-function QuestionTakingScreen({ activity, mode, onBack }) {
+// Questions on the left, sticky tracker on the right (stacked on mobile).
+function TestLayout({ main, aside }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_300px] items-start gap-3.5 max-[760px]:grid-cols-1">
+      <main className="grid gap-3">{main}</main>
+      {aside}
+    </div>
+  )
+}
+
+function QuestionTakingScreen({ activity, mode }) {
   const totalQuestions =
     activity.questionCount || (mode === 'mock-test' ? 120 : mode === 'mini-test' ? 20 : 10)
   const questions = useMemo(
@@ -613,132 +425,82 @@ function QuestionTakingScreen({ activity, mode, onBack }) {
   }
 
   if (view === 'result' && activeAttempt) {
+    const openAttempt = (attempt) => {
+      setActiveAttempt(attempt)
+      setView('review')
+    }
+
     return (
-      <ResultSummary
+      <ResultView
         activity={activity}
         label={label}
-        questions={questions}
         attempt={activeAttempt}
         history={attempts}
-        onReview={(attempt) => {
-          setActiveAttempt(attempt)
-          setView('review')
-        }}
-        onOpenAttempt={(attempt) => {
-          setActiveAttempt(attempt)
-          setView('review')
-        }}
+        onReview={openAttempt}
+        onOpenAttempt={openAttempt}
         onRetry={startAttempt}
-        onBack={onBack}
       />
     )
   }
 
   return (
     <>
-      <ActivityHeader activity={activity} label={label} />
-      <div className="hl-activity-test-layout">
-        <main className="hl-activity-question-stack">
-          {visibleQuestions.map((question) => (
-            <article key={question.id} className="hl-activity-card hl-activity-question-item">
-              <div className="hl-activity-question-top">
-                <span>Câu {question.number}</span>
-                <small>{question.type === 'single-choice' ? 'Chọn 1 đáp án' : question.type}</small>
-              </div>
-              <h2>{question.content}</h2>
-              <div className="hl-activity-answer-list">
-                {question.options.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={answers[question.id] === option.id ? 'is-selected' : ''}
-                    onClick={() => chooseAnswer(question.id, option.id)}
-                  >
-                    <b>{option.id}</b>
-                    <span>{option.text}</span>
-                  </button>
-                ))}
-              </div>
-            </article>
-          ))}
-          <div className="hl-activity-bottom-nav">
-            <button
-              type="button"
-              disabled={page === 1}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-            >
-              <ChevronLeft size={15} />
-              Trang trước
-            </button>
-            <span>
-              Trang {page}/{totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={page === totalPages}
-              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-            >
-              Trang sau
-              <ChevronRight size={15} />
-            </button>
-          </div>
-        </main>
-
-        <aside className="hl-activity-card hl-activity-question-nav">
-          <h2>Theo dõi bài làm</h2>
-          <div className="hl-activity-tracker-stat">
-            <p>
-              <span>{mode === 'exercise' ? 'Thời gian' : 'Còn lại'}</span>
-              <strong>{timerText}</strong>
-            </p>
-            <p>
-              <span>Đã làm</span>
-              <strong>
-                {answeredCount}/{totalQuestions}
-              </strong>
-            </p>
-          </div>
-          <div className="hl-activity-question-number-grid">
-            {questions.map((question) => (
-              <button
+      <ActivityHeader
+        label={label}
+        title={activity.title}
+        meta={getActivityMeta(activity).join(' · ')}
+      />
+      <TestLayout
+        main={
+          <>
+            {visibleQuestions.map((question) => (
+              <QuestionCard
                 key={question.id}
-                type="button"
-                className={`${visibleQuestions.some((item) => item.id === question.id) ? 'is-active' : ''} ${answers[question.id] ? 'is-answered' : ''}`}
-                onClick={() => setPage(Math.ceil(question.number / pageSize))}
-              >
-                {question.number}
-              </button>
+                question={question}
+                selectedId={answers[question.id]}
+                onChoose={(optionId) => chooseAnswer(question.id, optionId)}
+              />
             ))}
-          </div>
-          <div className="hl-activity-tracker-legend">
-            <span>
-              <i className="is-answered" /> Đã trả lời
-            </span>
-            <span>
-              <i /> Chưa trả lời
-            </span>
-          </div>
-          <button type="button" className="hl-activity-submit-button" onClick={submit}>
-            NỘP BÀI
-          </button>
-        </aside>
-      </div>
+            <PageNav
+              page={page}
+              totalPages={totalPages}
+              onPrevious={() => setPage((value) => Math.max(1, value - 1))}
+              onNext={() => setPage((value) => Math.min(totalPages, value + 1))}
+            />
+          </>
+        }
+        aside={
+          <QuestionTracker
+            title="Theo dõi bài làm"
+            stats={[
+              { label: mode === 'exercise' ? 'Thời gian' : 'Còn lại', value: timerText },
+              { label: 'Đã làm', value: `${answeredCount}/${totalQuestions}` },
+            ]}
+            numbers={questions.map((question) => {
+              const active = visibleQuestions.some((item) => item.id === question.id)
+              const answered = Boolean(answers[question.id])
+              return {
+                number: question.number,
+                state:
+                  answered && active
+                    ? 'answeredActive'
+                    : answered
+                      ? 'answered'
+                      : active
+                        ? 'active'
+                        : 'idle',
+                onClick: () => setPage(Math.ceil(question.number / pageSize)),
+              }
+            })}
+            legend={[{ label: 'Đã trả lời', dot: 'answered' }, { label: 'Chưa trả lời' }]}
+            actionLabel="NỘP BÀI"
+            onAction={submit}
+          />
+        }
+      />
 
       {confirmOpen && (
-        <div className="hl-activity-modal-layer">
-          <div className="hl-activity-submit-modal">
-            <h2>Xác nhận nộp bài</h2>
-            <p>Bạn vẫn còn câu chưa trả lời. Bạn có chắc muốn nộp bài không?</p>
-            <div>
-              <button type="button" onClick={() => setConfirmOpen(false)}>
-                Tiếp tục làm
-              </button>
-              <button type="button" onClick={finishAttempt}>
-                Nộp bài
-              </button>
-            </div>
-          </div>
-        </div>
+        <SubmitConfirmModal onContinue={() => setConfirmOpen(false)} onSubmit={finishAttempt} />
       )}
     </>
   )
@@ -746,27 +508,27 @@ function QuestionTakingScreen({ activity, mode, onBack }) {
 
 function LearningActions({ primaryLabel, onAction }) {
   return (
-    <div className="hl-activity-actions">
-      <button type="button" onClick={() => onAction('Điều hướng bài trước đang được phát triển.')}>
+    <LessonActions>
+      <ActivityButton block onClick={() => onAction('Điều hướng bài trước đang được phát triển.')}>
         <ArrowLeft size={15} />
         Bài trước
-      </button>
-      <button
-        type="button"
-        className="is-primary"
+      </ActivityButton>
+      <ActivityButton
+        tone="primary"
+        block
         onClick={() => onAction('Tiến độ đã được cập nhật mô phỏng.')}
       >
         <CheckCircle2 size={15} />
         {primaryLabel}
-      </button>
-      <button
-        type="button"
+      </ActivityButton>
+      <ActivityButton
+        block
         onClick={() => onAction('Điều hướng bài tiếp theo đang được phát triển.')}
       >
         Bài tiếp theo
         <ArrowRight size={15} />
-      </button>
-    </div>
+      </ActivityButton>
+    </LessonActions>
   )
 }
 
@@ -776,7 +538,6 @@ function LearningActivity({ courseId, routeType, activityId, onBack }) {
   const activity = context?.activity
   const expectedRouteType = activity ? getActivityRouteType(activity) : ''
   const invalid = !context || expectedRouteType !== routeType
-
 
   if (invalid) {
     return (
@@ -794,19 +555,18 @@ function LearningActivity({ courseId, routeType, activityId, onBack }) {
   }
 
   return (
-    <LearningShell context={context} onBack={onBack}>
+    <ActivityShell
+      courseTitle={context.course.title}
+      subjectTitle={context.subjectTitle}
+      chapterTitle={context.chapterTitle}
+      onBack={onBack}
+    >
       {routeType === 'lessons' && <VideoScreen activity={activity} onAction={showMessage} />}
-      {routeType === 'exercises' && (
-        <QuestionTakingScreen activity={activity} mode="exercise" onBack={onBack} />
-      )}
-      {routeType === 'mini-tests' && (
-        <QuestionTakingScreen activity={activity} mode="mini-test" onBack={onBack} />
-      )}
-      {routeType === 'mock-tests' && (
-        <QuestionTakingScreen activity={activity} mode="mock-test" onBack={onBack} />
-      )}
+      {routeType === 'exercises' && <QuestionTakingScreen activity={activity} mode="exercise" />}
+      {routeType === 'mini-tests' && <QuestionTakingScreen activity={activity} mode="mini-test" />}
+      {routeType === 'mock-tests' && <QuestionTakingScreen activity={activity} mode="mock-test" />}
       <StudentToast message={message} />
-    </LearningShell>
+    </ActivityShell>
   )
 }
 
