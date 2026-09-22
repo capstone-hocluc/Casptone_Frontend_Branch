@@ -91,7 +91,7 @@ function TeacherInformation({ onBack, onNotify }) {
       <div className="hl-teacher-title">
         <div>
           <h1>Thông tin cá nhân</h1>
-          <p>Quản lý hồ sơ và thông tin chuyên môn của giảng viên.</p>
+          <p>Hồ sơ và thông tin chuyên môn.</p>
         </div>
       </div>
       <div className="hl-teacher-information-grid">

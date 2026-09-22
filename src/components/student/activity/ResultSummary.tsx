@@ -88,7 +88,7 @@ function ResultSummaryCard({
           theo kết quả cao nhất
         </div>
         <img
-          src="/owl-mascot4.png"
+          src="/owl-success-celebrate.png"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute top-[-12px] left-[calc(50%+56px)] z-1 size-28 -translate-x-1/2 object-contain drop-shadow-[0_12px_18px_rgba(27,77,228,0.14)] max-[760px]:top-[-6px] max-[760px]:left-[calc(50%+48px)] max-[760px]:size-[92px]"

@@ -112,9 +112,9 @@ function SectionQuestionEditor({ section, onBack, onSave }) {
       </button>
       <div className="hl-teacher-title">
         <div>
-          <h1>Chỉnh sửa câu hỏi</h1>
+          <h1>Sửa câu hỏi</h1>
           <p>
-            {section.title || 'Phần thi chưa đặt tên'} · Kéo biểu tượng ⋮⋮ để đổi thứ tự câu hỏi.
+            {section.title || 'Phần thi chưa đặt tên'} · Kéo để đổi thứ tự câu hỏi.
           </p>
         </div>
       </div>
@@ -478,8 +478,8 @@ function TeacherMockExams({ onBack, onAction }) {
       </button>
       <div className="hl-teacher-title">
         <div>
-          <h1>Quản lý bài thi thử</h1>
-          <p>Tạo đề thi thử, cấu hình các phần thi và theo dõi lượt làm bài.</p>
+          <h1>Bài thi thử</h1>
+          <p>Tạo đề và theo dõi lượt làm bài.</p>
         </div>
         <button type="button" className="hl-teacher-primary" onClick={() => setEditingExam({})}>
           <Plus size={16} />

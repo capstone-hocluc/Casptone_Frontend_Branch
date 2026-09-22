@@ -10,7 +10,7 @@ function Hero() {
         padding: '150px 0 90px',
         background: '#fff',
         backgroundImage:
-          'linear-gradient(rgba(27,77,228,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,228,.06) 1px, transparent 1px)',
+          'linear-gradient(rgba(29,120,155,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,120,155,.06) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
         animation: 'hl-drift 12s linear infinite',
         overflow: 'hidden',
@@ -23,7 +23,7 @@ function Hero() {
           right: -120,
           width: 460,
           height: 460,
-          background: 'radial-gradient(circle, rgba(27,77,228,.12), transparent 65%)',
+          background: 'radial-gradient(circle, rgba(29,120,155,.12), transparent 65%)',
           pointerEvents: 'none',
         }}
       />
@@ -57,14 +57,14 @@ function Hero() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: 'linear-gradient(90deg,#1B4DE4,#2C63F0)',
+              background: 'linear-gradient(90deg,var(--color-primary),var(--color-brand-bright))',
               color: '#fff',
               fontWeight: 700,
               fontSize: 13,
               letterSpacing: '.4px',
               padding: '9px 18px',
               borderRadius: 40,
-              boxShadow: '0 10px 24px rgba(27,77,228,.3)',
+              boxShadow: '0 10px 24px rgba(29,120,155,.3)',
               marginBottom: 26,
             }}
           >
@@ -73,8 +73,8 @@ function Hero() {
                 width: 7,
                 height: 7,
                 borderRadius: '50%',
-                background: '#FBC34F',
-                boxShadow: '0 0 0 4px rgba(251,195,79,.35)',
+                background: 'var(--color-accent)',
+                boxShadow: '0 0 0 4px rgba(88,204,237,.35)',
               }}
             />
             #1 NỀN TẢNG ÔN THI ĐÁNH GIÁ NĂNG LỰC 2026
@@ -105,7 +105,7 @@ function Hero() {
             style={{
               fontSize: 16,
               lineHeight: 1.7,
-              color: '#5B647F',
+              color: 'var(--color-body)',
               maxWidth: 520,
               margin: '0 0 34px',
             }}
@@ -122,15 +122,15 @@ function Hero() {
                 alignItems: 'center',
                 gap: 12,
                 textDecoration: 'none',
-                background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                color: '#3a2a05',
+                background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                color: 'var(--color-primary-dark)',
                 fontWeight: 800,
                 fontSize: 15,
                 letterSpacing: '.6px',
                 textTransform: 'uppercase',
                 padding: '17px 30px',
                 borderRadius: 46,
-                boxShadow: '0 14px 30px rgba(244,169,60,.45)',
+                boxShadow: '0 14px 30px rgba(59,175,218,.45)',
               }}
             >
               Bắt đầu ngay
@@ -139,8 +139,8 @@ function Hero() {
                   width: 34,
                   height: 34,
                   borderRadius: '50%',
-                  background: '#11183A',
-                  color: '#FBC34F',
+                  background: 'var(--color-heading)',
+                  color: 'var(--color-accent)',
                   display: 'grid',
                   placeItems: 'center',
                   fontSize: 15,
@@ -154,12 +154,12 @@ function Hero() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                color: '#5B647F',
+                color: 'var(--color-body)',
                 fontWeight: 600,
                 fontSize: 14,
               }}
             >
-              <span style={{ color: '#F4A93C', letterSpacing: 2, fontSize: 15 }}>★★★★★</span>
+              <span style={{ color: 'var(--color-accent-dark)', letterSpacing: 2, fontSize: 15 }}>★★★★★</span>
               4.9/5 · 12.000+ đánh giá
             </div>
           </div>
@@ -184,8 +184,8 @@ function Hero() {
                 width: 18,
                 height: 18,
                 borderRadius: '50%',
-                background: '#FBC34F',
-                boxShadow: '0 8px 18px rgba(244,169,60,.5)',
+                background: 'var(--color-accent)',
+                boxShadow: '0 8px 18px rgba(59,175,218,.5)',
                 zIndex: 0,
                 animation: 'hl-float2 5.5s ease-in-out infinite',
               }}
@@ -198,7 +198,7 @@ function Hero() {
                 width: 12,
                 height: 12,
                 borderRadius: '50%',
-                background: '#1B4DE4',
+                background: 'var(--color-primary)',
                 zIndex: 0,
                 animation: 'hl-float1 4.5s ease-in-out infinite',
               }}
@@ -211,7 +211,7 @@ function Hero() {
                 width: 26,
                 height: 26,
                 borderRadius: 8,
-                background: 'rgba(27,77,228,.12)',
+                background: 'rgba(29,120,155,.12)',
                 transform: 'rotate(18deg)',
                 zIndex: 0,
                 animation: 'hl-float1 7s ease-in-out infinite',
@@ -230,7 +230,7 @@ function Hero() {
               viewBox="0 0 24 24"
               fill="none"
             >
-              <path d="M12 2v20M2 12h20" stroke="#F4A93C" strokeWidth="2.4" strokeLinecap="round" />
+              <path d="M12 2v20M2 12h20" stroke="var(--color-accent-dark)" strokeWidth="2.4" strokeLinecap="round" />
             </svg>
 
             {/* The cutout image — no frame */}
@@ -243,7 +243,7 @@ function Hero() {
                 style={{
                   objectFit: 'contain',
                   objectPosition: 'center bottom',
-                  filter: 'drop-shadow(0 26px 34px rgba(27,77,228,.22))',
+                  filter: 'drop-shadow(0 26px 34px rgba(29,120,155,.22))',
                 }}
               />
             </div>
@@ -256,7 +256,7 @@ function Hero() {
                 background: '#fff',
                 borderRadius: 16,
                 padding: '12px 16px',
-                boxShadow: '0 18px 40px -12px rgba(27,77,228,.4)',
+                boxShadow: '0 18px 40px -12px rgba(29,120,155,.4)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
@@ -270,7 +270,7 @@ function Hero() {
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#1B4DE4,#5B8CFF)',
+                    background: 'linear-gradient(135deg,var(--color-primary),var(--color-brand-soft))',
                     border: '2px solid #fff',
                     marginLeft: -8,
                   }}
@@ -280,7 +280,7 @@ function Hero() {
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#F4A93C,#FBC34F)',
+                    background: 'linear-gradient(135deg,var(--color-accent-dark),var(--color-accent))',
                     border: '2px solid #fff',
                     marginLeft: -8,
                   }}
@@ -290,15 +290,15 @@ function Hero() {
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#11183A,#3a4a86)',
+                    background: 'linear-gradient(135deg,var(--color-heading),#3a4a86)',
                     border: '2px solid #fff',
                     marginLeft: -8,
                   }}
                 />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 15, color: '#11183A' }}>600.000+</div>
-                <div style={{ fontSize: 11, color: '#5B647F' }}>học viên</div>
+                <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--color-heading)' }}>600.000+</div>
+                <div style={{ fontSize: 11, color: 'var(--color-body)' }}>học viên</div>
               </div>
             </div>
 
@@ -307,11 +307,11 @@ function Hero() {
                 position: 'absolute',
                 bottom: 140,
                 right: -10,
-                background: '#1B4DE4',
+                background: 'var(--color-primary)',
                 color: '#fff',
                 borderRadius: 16,
                 padding: '12px 16px',
-                boxShadow: '0 18px 40px -12px rgba(27,77,228,.55)',
+                boxShadow: '0 18px 40px -12px rgba(29,120,155,.55)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
@@ -346,11 +346,11 @@ function Hero() {
                 position: 'absolute',
                 bottom: 16,
                 left: 0,
-                background: '#1B4DE4',
+                background: 'var(--color-primary)',
                 color: '#fff',
                 borderRadius: 16,
                 padding: '12px 18px',
-                boxShadow: '0 18px 40px -12px rgba(27,77,228,.55)',
+                boxShadow: '0 18px 40px -12px rgba(29,120,155,.55)',
                 zIndex: 2,
                 animation: 'hl-float1 6.5s ease-in-out infinite',
               }}
@@ -368,13 +368,13 @@ function Hero() {
                 background: '#fff',
                 borderRadius: 16,
                 padding: '12px 18px',
-                boxShadow: '0 18px 40px -12px rgba(27,77,228,.35)',
+                boxShadow: '0 18px 40px -12px rgba(29,120,155,.35)',
                 zIndex: 2,
                 animation: 'hl-float2 6s ease-in-out infinite',
               }}
             >
-              <div style={{ fontWeight: 800, fontSize: 17, color: '#1B4DE4' }}>100%</div>
-              <div style={{ fontSize: 11, color: '#5B647F' }}>Truy cập toàn bộ</div>
+              <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--color-primary)' }}>100%</div>
+              <div style={{ fontSize: 11, color: 'var(--color-body)' }}>Truy cập toàn bộ</div>
             </div>
           </div>
         </Reveal>

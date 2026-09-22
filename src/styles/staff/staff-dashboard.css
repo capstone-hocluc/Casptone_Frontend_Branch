@@ -818,7 +818,7 @@
 .hl-staff-modal input:focus,
 .hl-staff-modal [data-dropdown-trigger]:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(27, 77, 228, 0.1);
+  box-shadow: 0 0 0 3px rgba(29, 120, 155, 0.1);
 }
 .hl-staff-modal-close {
   position: absolute;
@@ -1135,7 +1135,7 @@
   padding: 8px 10px;
   background: var(--color-surface);
   color: var(--color-primary);
-  box-shadow: 0 10px 22px rgba(17, 24, 58, 0.14);
+  box-shadow: 0 10px 22px rgba(24, 48, 68, 0.14);
   font: inherit;
   font-size: 12px;
   font-weight: 600;

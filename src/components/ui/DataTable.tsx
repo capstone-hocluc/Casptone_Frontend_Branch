@@ -49,7 +49,7 @@ function DataTable<T extends RowData>({
                 <th
                   key={header.id}
                   scope="col"
-                  className="border-b border-border-subtle bg-surface-soft px-4.5 py-3.5 text-left text-sm font-semibold whitespace-nowrap text-text-subtle"
+                  className="h-12 border-b border-border-subtle bg-surface-soft px-4.5 py-3 text-left align-middle text-sm leading-5 font-semibold whitespace-nowrap text-text-subtle"
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
@@ -65,7 +65,10 @@ function DataTable<T extends RowData>({
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border-b border-border-subtle px-4.5 py-4 align-middle">
+                <td
+                  key={cell.id}
+                  className="border-b border-border-subtle px-4.5 py-3.5 align-middle"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}

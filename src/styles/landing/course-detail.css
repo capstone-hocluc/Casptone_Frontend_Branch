@@ -410,7 +410,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 20px 44px -30px rgba(17, 24, 58, 0.35);
+  box-shadow: 0 20px 44px -30px rgba(24, 48, 68, 0.35);
 }
 
 .hl-cd-enroll-cover {
@@ -444,7 +444,7 @@
   font-size: 12.5px;
   font-weight: 700;
   color: #fff;
-  background: rgba(17, 24, 58, 0.72);
+  background: rgba(24, 48, 68, 0.72);
   padding: 7px 12px;
   border-radius: 20px;
   text-decoration: none;

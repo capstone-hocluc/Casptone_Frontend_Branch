@@ -16,11 +16,11 @@ function Streak() {
           style={{
             position: 'relative',
             overflow: 'hidden',
-            background: 'linear-gradient(125deg,#1230A6,#1B4DE4 65%,#2C63F0)',
+            background: 'linear-gradient(125deg,var(--color-primary-dark),var(--color-primary) 65%,var(--color-brand-bright))',
             borderRadius: 28,
             padding: 42,
             color: '#fff',
-            boxShadow: '0 40px 80px -34px rgba(27,77,228,.7)',
+            boxShadow: '0 40px 80px -34px rgba(29,120,155,.7)',
           }}
         >
           <div
@@ -90,8 +90,8 @@ function Streak() {
                         fontWeight: 800,
                         fontSize: 15,
                         background: learned ? '#fff' : 'rgba(255,255,255,.08)',
-                        color: learned ? '#1B4DE4' : 'rgba(255,255,255,.55)',
-                        border: `2px solid ${today ? '#FBC34F' : learned ? '#fff' : 'rgba(255,255,255,.25)'}`,
+                        color: learned ? 'var(--color-primary)' : 'rgba(255,255,255,.55)',
+                        border: `2px solid ${today ? 'var(--color-accent)' : learned ? '#fff' : 'rgba(255,255,255,.25)'}`,
                       }}
                     >
                       {learned ? '✓' : label}
@@ -114,7 +114,7 @@ function Streak() {
                   fontWeight: 600,
                 }}
               >
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FBC34F' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-accent)' }} />
                 Còn 2 ngày nữa để đạt mốc 14 ngày
               </div>
             </div>
@@ -158,10 +158,10 @@ function Streak() {
                         background: done
                           ? '#fff'
                           : current
-                            ? 'linear-gradient(180deg,#FBC34F,#F4A93C)'
+                            ? 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))'
                             : 'rgba(255,255,255,.12)',
                         border: r.state === 'todo' ? '1.5px solid rgba(255,255,255,.3)' : 'none',
-                        color: done ? '#1B4DE4' : current ? '#3a2a05' : 'rgba(255,255,255,.5)',
+                        color: done ? 'var(--color-primary)' : current ? 'var(--color-primary-dark)' : 'rgba(255,255,255,.5)',
                         display: 'grid',
                         placeItems: 'center',
                         fontSize: 16,
@@ -186,9 +186,9 @@ function Streak() {
                         background: done
                           ? 'rgba(255,255,255,.22)'
                           : current
-                            ? '#FBC34F'
+                            ? 'var(--color-accent)'
                             : 'rgba(255,255,255,.12)',
-                        color: current ? '#3a2a05' : '#fff',
+                        color: current ? 'var(--color-primary-dark)' : '#fff',
                       }}
                     >
                       {done ? 'Đã đạt' : current ? 'Sắp đạt' : 'Khóa'}

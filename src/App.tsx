@@ -13,9 +13,14 @@ import StudentOnboarding from './components/student/StudentOnboarding'
 import StudentRoutes from './pages/student/StudentRoutes'
 import AdminLoginPage from './pages/AdminLoginPage'
 import StaffDashboard from './components/staff/StaffDashboard'
+import ManagementDashboard from './components/management/ManagementDashboard'
+import ManagementRouteGuard, {
+  type ManagementRole,
+} from './components/management/ManagementRouteGuard'
 import TeacherDashboard from './components/teacher/TeacherDashboard'
 import { useCurrentUser } from './hooks/useCurrentUser'
 import { logout } from './services/authService.ts'
+import type { UserProfile } from './services/userService'
 import { parseStudentRoute, studentRoutes, toStudentPath } from './lib/studentRoutes'
 
 function App() {
@@ -23,8 +28,25 @@ function App() {
   const getAuthMode = () => {
     const path = window.location.pathname.replace(/\/$/, '')
     if (path === '/staff/dashboard') return 'staff-dashboard'
-    if (path === '/admin/login') return 'admin-login'
+    if (path === '/admin/login') {
+      window.history.replaceState({}, '', '/management/login')
+      return 'management-login'
+    }
+    if (path === '/management/login') return 'management-login'
+    if (path === '/admin/users') return 'admin-users'
     if (path === '/admin/dashboard') return 'admin-dashboard'
+    if (path === '/manager/dashboard') return 'manager-dashboard'
+    if (path === '/manager/courses') return 'manager-courses'
+    if (path === '/manager/users') return 'manager-courses'
+    if (path === '/manager/students') return 'manager-students'
+    if (path === '/manager/enrollments') return 'manager-enrollments'
+    if (path === '/manager/schedules') return 'manager-schedules'
+    if (path === '/manager/attendance') return 'manager-attendance'
+    if (path === '/manager/tuition') return 'manager-tuition'
+    if (path === '/manager/invoices') return 'manager-invoices'
+    if (path === '/manager/payments') return 'manager-payments'
+    if (path === '/manager/batches') return 'manager-batches'
+    if (path === '/mentor/dashboard') return 'mentor-dashboard'
     if (path === '/teacher/dashboard') return 'teacher-dashboard'
     if (path === '/teacher/my-courses') return 'teacher-courses'
     if (path === '/teacher/mock-exams') return 'teacher-mock-exams'
@@ -48,6 +70,7 @@ function App() {
     if (path === '/staff/payments') return 'staff-payments'
     if (path === '/staff/batches') return 'staff-batches'
     if (path === '/staff/batches/batch-12a-k24') return 'staff-batch-detail'
+    if (path === '/staff/users') return 'staff-users'
     if (path === '/onboarding') return 'onboarding'
     if (path === '/verify-email') return 'verify-email'
     if (path === '/forgot-password') return 'forgot-password'
@@ -107,23 +130,48 @@ function App() {
     setAuthMode('verify-email')
     setCurrentPath('/verify-email')
   }
-  const navigateStaff = (page) => {
+  const navigateManagement = (scope: 'admin' | 'staff' | 'manager' | 'mentor', page: string) => {
     const paths = {
-      dashboard: '/staff/dashboard',
-      students: '/staff/students',
-      detail: '/staff/students/hs-24091',
-      enrollments: '/staff/enrollments',
-      schedules: '/staff/schedules',
-      attendance: '/staff/attendance',
-      tuition: '/staff/tuition',
-      invoices: '/staff/invoices',
-      payments: '/staff/payments',
-      batches: '/staff/batches',
-      'batch-detail': '/staff/batches/batch-12a-k24',
-    }
-    window.history.pushState({}, '', paths[page])
-    setAuthMode(`staff-${page}`)
+      admin: {
+        dashboard: '/admin/dashboard',
+        users: '/admin/users',
+      },
+      staff: {
+        dashboard: '/staff/dashboard',
+        users: '/staff/users',
+        students: '/staff/students',
+        detail: '/staff/students/hs-24091',
+        enrollments: '/staff/enrollments',
+        schedules: '/staff/schedules',
+        attendance: '/staff/attendance',
+        tuition: '/staff/tuition',
+        invoices: '/staff/invoices',
+        payments: '/staff/payments',
+        batches: '/staff/batches',
+        'batch-detail': '/staff/batches/batch-12a-k24',
+      },
+      manager: {
+        dashboard: '/manager/dashboard',
+        courses: '/manager/courses',
+        students: '/manager/students',
+        enrollments: '/manager/enrollments',
+        schedules: '/manager/schedules',
+        attendance: '/manager/attendance',
+        tuition: '/manager/tuition',
+        invoices: '/manager/invoices',
+        payments: '/manager/payments',
+        batches: '/manager/batches',
+      },
+      mentor: {
+        dashboard: '/mentor/dashboard',
+      },
+    } as const
+    const path = paths[scope][page as keyof (typeof paths)[typeof scope]] ?? paths[scope].dashboard
+    window.history.pushState({}, '', path)
+    setAuthMode(`${scope}-${page}`)
+    setCurrentPath(path)
   }
+
   const navigateTeacher = (page) => {
     const paths = {
       dashboard: '/teacher/dashboard',
@@ -136,9 +184,21 @@ function App() {
     setAuthMode(`teacher-${page}`)
     setCurrentPath(path)
   }
-  const goAfterLogin = () => {
+  const goAfterLogin = (profile: UserProfile) => {
     setPendingVerificationEmail('')
-    backToLanding()
+    navigateTo(profile.role === 'MENTOR' ? '/mentor/dashboard' : '/student/dashboard')
+  }
+
+  const goAfterManagementLogin = (profile: UserProfile) => {
+    const path =
+      profile.role === 'TEACHER'
+        ? '/teacher/dashboard'
+        : profile.role === 'MANAGER'
+          ? '/manager/dashboard'
+          : profile.role === 'STAFF'
+            ? '/staff/dashboard'
+            : '/admin/dashboard'
+    navigateTo(path)
   }
 
   const handleLogout = async () => {
@@ -214,39 +274,75 @@ function App() {
     ? decodeURIComponent(orderRouteSegments[1] || '')
     : null
 
+  const renderManagement = (
+    role: ManagementRole,
+    page: string,
+    scope: 'admin' | 'staff' | 'manager' | 'mentor'
+  ) => (
+    <ManagementRouteGuard
+      allowedRoles={[role]}
+      onLogin={() => navigateTo(scope === 'mentor' ? '/login' : '/management/login')}
+      onExit={handleLogout}
+    >
+      <ManagementDashboard
+        role={role}
+        page={page}
+        onNavigate={(nextPage) => navigateManagement(scope, nextPage)}
+        onLogout={handleLogout}
+        logoutLoading={logoutLoading}
+      />
+    </ManagementRouteGuard>
+  )
+
   if (authMode?.startsWith('staff-'))
+    return renderManagement('STAFF', authMode.replace('staff-', ''), 'staff')
+  if (authMode?.startsWith('manager-'))
+    return renderManagement('MANAGER', authMode.replace('manager-', ''), 'manager')
+  if (authMode?.startsWith('mentor-'))
+    return renderManagement('MENTOR', authMode.replace('mentor-', ''), 'mentor')
+  if (authMode === 'admin-dashboard' || authMode === 'admin-users')
     return (
-      <StaffDashboard
-        page={authMode.replace('staff-', '')}
-        onNavigate={navigateStaff}
-        onBack={backToLanding}
-      />
+      <ManagementRouteGuard
+        allowedRoles={['ADMINISTRATOR']}
+        onLogin={() => navigateTo('/management/login')}
+        onExit={handleLogout}
+      >
+        <StaffDashboard
+          page={authMode.replace('admin-', '')}
+          onNavigate={(nextPage) => navigateManagement('admin', nextPage)}
+          onBack={backToLanding}
+          adminArea
+        />
+      </ManagementRouteGuard>
     )
-  if (authMode === 'admin-dashboard')
-    return (
-      <StaffDashboard
-        page="dashboard"
-        onNavigate={navigateStaff}
-        onBack={backToLanding}
-      />
-    )
-  if (authMode === 'admin-login')
+  if (authMode === 'management-login')
     return (
       <AdminLoginPage
         onBack={backToLanding}
-        onSuccess={() => navigateTo('/admin/dashboard')}
+        onSuccess={goAfterManagementLogin}
+        allowedRoles={['ADMINISTRATOR', 'MANAGER', 'STAFF', 'TEACHER']}
+        eyebrow="KHU VỰC QUẢN LÝ"
+        title="Đăng nhập vận hành"
+        description="Đăng nhập bằng tài khoản quản trị hoặc đội ngũ vận hành để tiếp tục."
+        rejectedRoleMessage="Tài khoản này không có quyền truy cập khu vực quản lý."
       />
     )
   if (authMode?.startsWith('teacher-'))
     return (
-      <TeacherDashboard
-        key={authMode}
-        page={authMode.replace('teacher-', '')}
-        onNavigate={navigateTeacher}
-        onBack={backToLanding}
-        onLogout={handleLogout}
-        logoutLoading={logoutLoading}
-      />
+      <ManagementRouteGuard
+        allowedRoles={['TEACHER']}
+        onLogin={() => navigateTo('/management/login')}
+        onExit={handleLogout}
+      >
+        <TeacherDashboard
+          key={authMode}
+          page={authMode.replace('teacher-', '')}
+          onNavigate={navigateTeacher}
+          onBack={backToLanding}
+          onLogout={handleLogout}
+          logoutLoading={logoutLoading}
+        />
+      </ManagementRouteGuard>
     )
   if (authMode === 'onboarding') return <StudentOnboarding onBack={backToLanding} />
   // Every authenticated learning screen (dashboard, courses, study, lessons,

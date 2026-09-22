@@ -28,9 +28,9 @@ function Journey() {
               bottom: 8,
               width: 4,
               transform: 'translateX(-50%)',
-              background: 'linear-gradient(180deg,#1B4DE4,#7AA0FF)',
+              background: 'linear-gradient(180deg,var(--color-primary),var(--color-brand-soft))',
               borderRadius: 4,
-              boxShadow: '0 0 0 7px rgba(27,77,228,.05)',
+              boxShadow: '0 0 0 7px rgba(29,120,155,.05)',
             }}
           />
           {journeySteps.map((st, i) => {
@@ -64,7 +64,7 @@ function Journey() {
                       border: '1.5px solid #E4E9F5',
                       borderRadius: 16,
                       padding: '18px 22px',
-                      boxShadow: '0 16px 38px -26px rgba(27,77,228,.7)',
+                      boxShadow: '0 16px 38px -26px rgba(29,120,155,.7)',
                     }}
                   >
                     <div
@@ -73,7 +73,7 @@ function Journey() {
                         fontWeight: 800,
                         letterSpacing: 1,
                         textTransform: 'uppercase',
-                        color: '#1B4DE4',
+                        color: 'var(--color-primary)',
                         marginBottom: 5,
                       }}
                     >
@@ -84,14 +84,14 @@ function Journey() {
                         margin: '0 0 5px',
                         fontSize: 18,
                         fontWeight: 900,
-                        color: '#11183A',
+                        color: 'var(--color-heading)',
                         textTransform: 'uppercase',
                         letterSpacing: '-.3px',
                       }}
                     >
                       {st.title}
                     </h4>
-                    <p style={{ margin: 0, fontSize: 13.5, color: '#5B647F', lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: 13.5, color: 'var(--color-body)', lineHeight: 1.5 }}>
                       {st.desc}
                     </p>
                   </div>
@@ -105,14 +105,14 @@ function Journey() {
                       width: 58,
                       height: 58,
                       borderRadius: '50%',
-                      background: 'linear-gradient(180deg,#FBC34F,#F4A93C)',
-                      color: '#3a2a05',
+                      background: 'linear-gradient(180deg,var(--color-accent),var(--color-accent-dark))',
+                      color: 'var(--color-primary-dark)',
                       fontWeight: 900,
                       fontSize: 22,
                       display: 'grid',
                       placeItems: 'center',
                       boxShadow:
-                        '0 12px 26px rgba(244,169,60,.5), 0 0 0 6px #fff, 0 0 0 9px rgba(27,77,228,.12)',
+                        '0 12px 26px rgba(59,175,218,.5), 0 0 0 6px #fff, 0 0 0 9px rgba(29,120,155,.12)',
                       animation: 'hl-pulse 3s ease-in-out infinite',
                     }}
                   >

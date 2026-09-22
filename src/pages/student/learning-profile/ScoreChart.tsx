@@ -61,7 +61,7 @@ function ScoreChart({
         {
           key: 'score',
           label: componentMode ? 'Điểm thành phần' : 'Điểm ĐGNL',
-          color: '#1B4DE4',
+          color: 'var(--color-primary)',
           points,
         },
       ]

@@ -15,7 +15,7 @@ export function TeacherAiButton({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
     >
       <img
-        src="/owl-mascot5.png"
+        src="/owl-support-headset.png"
         alt=""
         aria-hidden="true"
         className="size-[98px] object-contain max-[760px]:size-[60px]"
@@ -47,7 +47,7 @@ export function TeacherAiPanel({
     <aside className="relative z-5 flex h-[min(100%,620px)] w-full flex-col self-center overflow-hidden rounded-[22px] border border-[#cfe0ff] bg-[#f3f6fc] shadow-[0_22px_46px_rgba(27,77,228,0.16)] max-[760px]:absolute max-[760px]:inset-x-2.5 max-[760px]:bottom-2.5 max-[760px]:h-auto max-[760px]:max-h-[calc(100dvh_-_92px)] max-[760px]:w-auto">
       <div className="flex shrink-0 items-center justify-between gap-2.5 bg-primary-bright px-3.5 py-[15px] text-surface">
         <img
-          src="/owl-mascot5.png"
+          src="/owl-support-headset.png"
           alt=""
           aria-hidden="true"
           className="size-[46px] rounded-full bg-surface p-[5px] object-contain"

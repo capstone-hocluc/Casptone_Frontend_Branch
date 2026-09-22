@@ -1,4 +1,5 @@
 import { ArrowRight, Flame, Lock, Target } from 'lucide-react'
+import OwlWelcome from '../../common/OwlWelcome'
 import { cn } from '../../../lib/cn'
 import Button from '../../ui/Button'
 import { ctaButtonClass } from './cta'
@@ -26,12 +27,7 @@ function GoalCard({ title, description, lockedNote, onStart }: GoalCardProps) {
           </div>
 
           <div className="relative z-1 grid h-[54px] w-[74px] place-items-center self-start justify-self-end max-[760px]:hidden">
-            <img
-              src="/owl-mascot2.png"
-              alt=""
-              aria-hidden="true"
-              className="block h-auto w-[150px] max-w-none -translate-x-[42px] -translate-y-[72px] drop-shadow-[0_16px_18px_rgba(17,24,58,0.18)]"
-            />
+            <OwlWelcome className="block h-[150px] w-[150px] max-w-none -translate-x-[42px] -translate-y-[72px] drop-shadow-[0_16px_18px_rgba(17,24,58,0.18)]" />
           </div>
         </div>
       </div>

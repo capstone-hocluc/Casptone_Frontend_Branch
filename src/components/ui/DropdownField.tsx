@@ -192,7 +192,7 @@ export function DropdownField({
           aria-required={isRequired || undefined}
           disabled={isDisabled}
           className={cn(
-            'dropdown-field-trigger inline-flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] border border-border-primary bg-surface px-3 py-2 text-left text-sm font-normal text-text-label shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-55',
+            'dropdown-field-trigger inline-flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-[9px] border border-border-subtle bg-surface px-3 py-2 text-left text-sm font-normal text-text-label outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-55',
             appearance === 'fill' && 'border-transparent bg-primary text-white hover:bg-primary-dark',
             isInvalid && 'border-danger focus-visible:border-danger focus-visible:ring-danger/20',
             className,
@@ -222,13 +222,13 @@ export function DropdownField({
           }}
           onKeyDown={handleKeyDown}
           className={cn(
-            'z-90 w-[var(--radix-popover-trigger-width)] min-w-40 overflow-hidden rounded-[10px] border border-border-primary bg-surface shadow-[0_14px_34px_rgba(17,24,58,0.14)] outline-none',
+            'z-90 w-[var(--radix-popover-trigger-width)] min-w-40 overflow-hidden rounded-[10px] border border-border-subtle bg-surface outline-none',
             contentClassName,
           )}
         >
           {isSearchable && (
             <div className="border-b border-border-subtle p-1.5">
-              <div className="flex h-8 items-center gap-2 rounded-md border border-border-primary px-2 text-text-muted">
+              <div className="flex h-8 items-center gap-2 rounded-md border border-border-subtle px-2 text-text-muted">
                 <Search size={14} aria-hidden="true" />
                 <input
                   ref={searchInputRef}

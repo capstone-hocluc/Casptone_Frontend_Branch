@@ -9,7 +9,7 @@ import PageHeading from '../ui/PageHeading'
 import SearchFilterBar from '../ui/SearchFilterBar'
 import DataTable from '../ui/DataTable'
 import Modal from '../ui/Modal'
-import StatusBadge from '../ui/StatusBadge'
+import Status from '../ui/Status'
 import StatCard from '../ui/StatCard'
 import DropdownField from '../ui/DropdownField'
 
@@ -139,12 +139,16 @@ const columns = [
       </span>
     ),
   },
-  { id: 'due', header: 'Hạn nộp', cell: ({ row }) => row.original.due.split('-').reverse().join('/') },
+  {
+    id: 'due',
+    header: 'Hạn nộp',
+    cell: ({ row }) => row.original.due.split('-').reverse().join('/'),
+  },
   {
     id: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => (
-      <StatusBadge tone={statusTone[row.original.status]}>{row.original.status}</StatusBadge>
+      <Status tone={statusTone[row.original.status]}>{row.original.status}</Status>
     ),
   },
   {
@@ -197,7 +201,8 @@ function TuitionManagement() {
     modal.open(record)
   }
   const save = (values) => {
-    const status = values.paid >= values.total ? 'Đã đóng' : values.paid > 0 ? 'Đóng một phần' : values.status
+    const status =
+      values.paid >= values.total ? 'Đã đóng' : values.paid > 0 ? 'Đóng một phần' : values.status
     setRecords((current) =>
       current.map((item) => (item.id === modal.data.id ? { ...item, ...values, status } : item))
     )
@@ -208,10 +213,7 @@ function TuitionManagement() {
 
   return (
     <>
-      <PageHeading
-        title="Quản lý học phí"
-        subtitle="Theo dõi công nợ, điều chỉnh số tiền và hạn nộp của học viên."
-      />
+      <PageHeading title="Học phí" subtitle="Công nợ và hạn nộp." />
       {notice && (
         <div className="hl-staff-toast">
           <CheckCircle2 size={17} />
