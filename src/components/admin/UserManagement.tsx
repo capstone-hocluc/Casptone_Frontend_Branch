@@ -9,9 +9,11 @@ import {
   LoaderCircle,
   Plus,
   RefreshCw,
+  UserRoundMinus,
 } from 'lucide-react'
 import {
   createUser,
+  deleteUser,
   getUserById,
   getUsers,
   updateUserRole,
@@ -26,6 +28,7 @@ import {
   type UserSummary,
 } from '../../services/userService'
 import DataTable from '../ui/DataTable'
+import ConfirmDialog from '../ui/ConfirmDialog'
 import DropdownField, { type DropdownOption } from '../ui/DropdownField'
 import Modal from '../ui/Modal'
 import SearchFilterBar from '../ui/SearchFilterBar'
@@ -162,6 +165,8 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
   const [createUserForm, setCreateUserForm] = useState<CreateUserForm>(EMPTY_CREATE_USER_FORM)
   const [createUserLoading, setCreateUserLoading] = useState(false)
   const [createUserError, setCreateUserError] = useState('')
+  const [deletingUser, setDeletingUser] = useState<UserSummary | null>(null)
+  const [deleteUserLoading, setDeleteUserLoading] = useState(false)
 
   useEffect(() => {
     let ignore = false
@@ -330,6 +335,28 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
     [createUserForm]
   )
 
+  const handleDeleteUser = useCallback(async () => {
+    if (!deletingUser) return
+
+    setDeleteUserLoading(true)
+    setError('')
+    try {
+      await deleteUser(deletingUser.id)
+      setPageData((current) => ({
+        ...current,
+        content: current.content.filter((user) => user.id !== deletingUser.id),
+        totalElements: Math.max(0, current.totalElements - 1),
+      }))
+      setSelectedUser((current) => (current?.id === deletingUser.id ? null : current))
+      setDeletingUser(null)
+      setFeedback('Đã xóa tài khoản khỏi hệ thống.')
+    } catch (requestError: unknown) {
+      setError(getErrorMessage(requestError))
+    } finally {
+      setDeleteUserLoading(false)
+    }
+  }, [deletingUser])
+
   const columns = useMemo<ColumnDef<UserSummary>[]>(
     () => [
       {
@@ -363,7 +390,7 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
                 options={ROLE_OPTIONS}
                 value={row.original.role}
                 isDisabled={updatingUserId === row.original.id}
-                triggerClassName="h-9 min-w-32 px-2 text-xs"
+                triggerClassName="h-9 min-w-32 px-2 text-sm"
                 onChange={(value) => {
                   if (value && value !== row.original.role) {
                     void handleRoleChange(row.original.id, value as UserRole)
@@ -411,7 +438,7 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
         id: 'actions',
         header: '',
         cell: ({ row }) => (
-          <div onClick={(event) => event.stopPropagation()}>
+          <div className="flex items-center justify-end gap-1" onClick={(event) => event.stopPropagation()}>
             <Button
               variant="primary"
               appearance="ghost"
@@ -422,11 +449,23 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
               <Eye size={15} />
               Chi tiết
             </Button>
+            <Button
+              variant="danger"
+              appearance="ghost"
+              size="sm"
+              className="text-xs"
+              title="Xóa tài khoản"
+              aria-label={`Xóa tài khoản ${row.original.email}`}
+              onClick={() => setDeletingUser(row.original)}
+              disabled={deleteUserLoading}
+            >
+              <UserRoundMinus size={15} />
+            </Button>
           </div>
         ),
       },
     ],
-    [handleRoleChange, handleStatusChange, openUserDetail, readOnly, updatingUserId]
+    [deleteUserLoading, handleRoleChange, handleStatusChange, openUserDetail, readOnly, updatingUserId]
   )
 
   return (
@@ -761,6 +800,26 @@ function UserManagement({ readOnly = false, canCreateUsers = false }: UserManage
           </div>
         ) : null}
       </Modal>
+
+      {deletingUser && (
+        <ConfirmDialog
+          title="Xóa tài khoản?"
+          description={
+            <>
+              Tài khoản <strong>{deletingUser.email}</strong> sẽ được chuyển sang trạng thái ngừng hoạt động và các phiên đăng nhập sẽ bị thu hồi. Dữ liệu học tập vẫn được giữ lại.
+            </>
+          }
+          cancelLabel="Hủy"
+          confirmLabel="Xóa tài khoản"
+          busy={deleteUserLoading}
+          busyLabel="Đang xóa..."
+          variant="danger"
+          onCancel={() => {
+            if (!deleteUserLoading) setDeletingUser(null)
+          }}
+          onConfirm={() => void handleDeleteUser()}
+        />
+      )}
     </section>
   )
 }
