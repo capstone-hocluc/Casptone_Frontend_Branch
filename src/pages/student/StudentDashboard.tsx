@@ -1,30 +1,26 @@
-import {
-  ArrowRight,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  Clock3,
-  Flame,
-  Lock,
-  Star,
-  Target,
-  Trophy,
-} from 'lucide-react'
-import {
-  activityFrequency,
-  dashboardSummary,
-  learningProfile,
-  myCourses,
-  recentLesson,
-  studyPlan,
-  testPractice,
-  todaysGoal,
-} from '../../data/studentDashboard'
-import OwlWelcome from '../../components/common/OwlWelcome'
-import { type CSSProperties, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { studyPlan, testPractice, todaysGoal } from '../../data/studentDashboard'
+import { usePageResource } from '../../hooks/usePageResource'
 import { useTransientMessage } from '../../hooks/useTransientMessage'
+import { buildDashboardViewModel, type DashboardViewModel } from '../../lib/studentViewModel'
+import { loadStudentSnapshot } from '../../services/studentService'
+import ResourceState from '../../components/student/common/ResourceState'
+import SectionHeader from '../../components/student/common/SectionHeader'
 import StudentToast from '../../components/student/common/StudentToast'
+import CarouselControls from '../../components/student/dashboard/CarouselControls'
+import CompetencyPanel from '../../components/student/dashboard/CompetencyPanel'
+import CourseMiniCard from '../../components/student/dashboard/CourseMiniCard'
+import { linkButtonClass } from '../../components/student/dashboard/cta'
+import GoalCard from '../../components/student/dashboard/GoalCard'
+import {
+  RecentLessonCard,
+  StarScore,
+  StudyPlanCard,
+} from '../../components/student/dashboard/LearningCards'
+import PracticeTestCard from '../../components/student/dashboard/PracticeTestCard'
+import StudentPageContainer from '../../components/student/layout/StudentPageContainer'
+import Button from '../../components/ui/Button'
+import Skeleton from '../../components/ui/Skeleton'
 
 const getVisibleCounts = () => {
   if (typeof window === 'undefined') {
@@ -42,68 +38,50 @@ const getVisibleCounts = () => {
   return { courses: 3, practice: 4 }
 }
 
-function LevelLine({ title, data }) {
+interface StudentDashboardProps {
+  onOpenLearningProfile: () => void
+  onOpenMyCourses: () => void
+  onOpenCourse: (courseId: string) => void
+  onContinueLearning: (courseId: string, lessonId: string | null) => void
+}
+
+// The dotted background lives on the page container; children that must sit above
+// it (the grid and the practice section) are `relative z-1`.
+const pageClass =
+  "relative px-[18px] pt-3.5 pb-10 before:pointer-events-none before:fixed before:inset-x-0 before:top-[86px] before:bottom-0 before:z-0 before:bg-[radial-gradient(#dce8f7_1.2px,transparent_1.2px)] before:bg-[length:18px_18px] before:opacity-[0.42] before:content-[''] max-[760px]:px-0 max-[760px]:pt-2 max-[760px]:pb-[30px]"
+
+// Layout and sections are the original dashboard. Data: real API for courses,
+// progress, recent lesson, competency and lessons-completed (view-model);
+// everything the backend has no endpoint for (daily goal, study plan, practice
+// tests, streak, study time...) still comes from data/studentDashboard.ts.
+function StudentDashboard(props: StudentDashboardProps) {
+  const { data, status, errorMessage, reload } = usePageResource(loadStudentSnapshot, [], {
+    forbidden: false,
+    notFound: false,
+  })
+  const vm = useMemo(() => (data ? buildDashboardViewModel(data) : null), [data])
+
   return (
-    <div className="hl-dashboard-level">
-      <strong>{title}</strong>
-      <div className="hl-dashboard-level-line">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="hl-dashboard-level-values">
-        <span>
-          <small>Hiện tại</small>
-          {data.current}
-        </span>
-        <span>
-          <small>Dự đoán</small>
-          {data.predicted}
-        </span>
-        <span>
-          <small>Mục tiêu</small>
-          {data.target}
-        </span>
-      </div>
-    </div>
+    <StudentPageContainer width="wide" className={pageClass}>
+      <ResourceState
+        status={status}
+        errorMessage={errorMessage}
+        onRetry={reload}
+        loading={<Skeleton className="relative z-1 h-[640px] rounded-[28px]" />}
+        error={{ title: 'Không thể tải tổng quan học tập' }}
+      />
+      {status === 'ready' && vm && <DashboardContent vm={vm} {...props} />}
+    </StudentPageContainer>
   )
 }
 
-const tabContent = {
-  overview: 'Hiển thị tổng quan tiến độ ôn thi trong tuần này.',
-  learning: 'Tập trung vào bài học, chuyên đề và khóa học đang theo dõi.',
-  practice: 'Theo dõi nhịp luyện đề, mini test và thời lượng làm bài.',
-}
-
-function CarouselControls({ canPrevious, canNext, onPrevious, onNext, label }) {
-  if (!canPrevious && !canNext) return null
-
-  return (
-    <div className="hl-dashboard-carousel-controls" aria-label={label}>
-      <button
-        type="button"
-        className="hl-dashboard-carousel-button"
-        onClick={onPrevious}
-        disabled={!canPrevious}
-        aria-label="Xem mục trước"
-      >
-        <ChevronLeft size={18} />
-      </button>
-      <button
-        type="button"
-        className="hl-dashboard-carousel-button"
-        onClick={onNext}
-        disabled={!canNext}
-        aria-label="Xem mục tiếp theo"
-      >
-        <ChevronRight size={18} />
-      </button>
-    </div>
-  )
-}
-
-function StudentDashboard({ onOpenLearningProfile }) {
-  const [activeTab, setActiveTab] = useState('overview')
+function DashboardContent({
+  vm,
+  onOpenLearningProfile,
+  onOpenMyCourses,
+  onOpenCourse,
+  onContinueLearning,
+}: StudentDashboardProps & { vm: DashboardViewModel }) {
   const [visibleCounts, setVisibleCounts] = useState(getVisibleCounts)
   const [courseStartIndex, setCourseStartIndex] = useState(0)
   const [practiceStartIndex, setPracticeStartIndex] = useState(0)
@@ -111,9 +89,9 @@ function StudentDashboard({ onOpenLearningProfile }) {
 
   const courseVisibleCount = visibleCounts.courses
   const practiceVisibleCount = visibleCounts.practice
-  const maxCourseStartIndex = Math.max(0, myCourses.length - courseVisibleCount)
+  const maxCourseStartIndex = Math.max(0, vm.courses.length - courseVisibleCount)
   const maxPracticeStartIndex = Math.max(0, testPractice.length - practiceVisibleCount)
-  const visibleCourses = myCourses.slice(courseStartIndex, courseStartIndex + courseVisibleCount)
+  const visibleCourses = vm.courses.slice(courseStartIndex, courseStartIndex + courseVisibleCount)
   const visiblePracticeItems = testPractice.slice(
     practiceStartIndex,
     practiceStartIndex + practiceVisibleCount
@@ -136,233 +114,158 @@ function StudentDashboard({ onOpenLearningProfile }) {
   }, [maxPracticeStartIndex])
 
   const showComingSoon = () => showMessage('Tính năng đang được phát triển.')
-  const openLearningProfile = () => {
-    if (onOpenLearningProfile) {
-      onOpenLearningProfile()
-      return
-    }
-
-    showMessage('Tính năng Hồ sơ năng lực chi tiết đang được phát triển.')
-  }
+  const { recentLesson, summary } = vm
 
   return (
-    <section className="hl-student-page hl-dashboard-page">
+    <>
       <StudentToast message={message} />
 
-      <div className="hl-dashboard-home-grid">
-        <div className="hl-dashboard-left">
-          <section className="hl-dashboard-goal">
-            <div className="hl-dashboard-goal-head">
-              <div className="hl-dashboard-goal-title">
-                <Flame size={22} />
-                <span>Mục tiêu hôm nay</span>
-              </div>
+      <div className="relative z-1 grid grid-cols-[minmax(0,1fr)_360px] items-stretch gap-10 max-[1181px]:grid-cols-1 max-[1181px]:gap-[30px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <GoalCard
+            title={todaysGoal.title}
+            description={todaysGoal.description}
+            lockedNote={todaysGoal.lockedNote}
+            onStart={showComingSoon}
+          />
 
-              <div className="hl-dashboard-goal-coach">
-                <div className="hl-dashboard-goal-bubble">Bắt tay vào mục tiêu đầu tiên thôi!</div>
-
-                <div className="hl-dashboard-mascot">
-                  <OwlWelcome className="hl-dashboard-mascot-animation" />
-                </div>
-              </div>
-            </div>
-
-            <div className="hl-dashboard-goal-box">
-              <div className="hl-dashboard-goal-action">
-                <span className="hl-dashboard-goal-icon">
-                  <Target size={22} />
-                </span>
-
-                <div className="hl-dashboard-goal-content">
-                  <strong>{todaysGoal.title}</strong>
-                  <p>{todaysGoal.description}</p>
-                </div>
-
-                <button type="button" onClick={showComingSoon}>
-                  Bắt đầu
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-
-              <div className="hl-dashboard-locked">
-                <Lock size={18} />
-                <span>{todaysGoal.lockedNote}</span>
-              </div>
-            </div>
+          <section>
+            <SectionHeader title="Bài học gần nhất" />
+            {recentLesson ? (
+              <RecentLessonCard
+                badge={recentLesson.lessonNo}
+                title={recentLesson.title}
+                meta={
+                  <>
+                    {recentLesson.course} · {recentLesson.meta}{' '}
+                    <StarScore>{recentLesson.score}</StarScore>
+                  </>
+                }
+                actionLabel="Tiếp tục học"
+                onAction={() => onContinueLearning(recentLesson.courseId, recentLesson.lessonId)}
+              />
+            ) : (
+              <RecentLessonCard
+                badge="--"
+                title="Bạn chưa có bài học nào"
+                meta="Đăng ký khóa học để bắt đầu học."
+                actionLabel="Khóa học của tôi"
+                onAction={onOpenMyCourses}
+              />
+            )}
           </section>
 
-          <section className="hl-dashboard-section">
-            <h3>Bài học gần nhất</h3>
-            <article className="hl-dashboard-recent">
-              <div className="hl-dashboard-lesson-badge">
-                <strong>{recentLesson.lessonNo}</strong>
-                <span>Bài học</span>
-              </div>
-              <div>
-                <strong>{recentLesson.title}</strong>
-                <p>
-                  {recentLesson.course} · {recentLesson.meta} <Star size={17} />{' '}
-                  {recentLesson.score}
-                </p>
-              </div>
-              <button type="button" onClick={showComingSoon}>
-                Tiếp tục học <ArrowRight size={18} />
-              </button>
-            </article>
+          <section>
+            <SectionHeader title="Kế hoạch ôn thi" />
+            <StudyPlanCard
+              text={`${studyPlan.title}. ${studyPlan.description}`}
+              actionLabel="Khởi tạo"
+              onAction={() => showMessage('Tính năng Kế hoạch ôn thi đang được phát triển.')}
+            />
           </section>
 
-          <section className="hl-dashboard-section">
-            <h3>Kế hoạch ôn thi</h3>
-            <div className="hl-dashboard-study-plan">
-              <p>
-                {studyPlan.title}. {studyPlan.description}
-              </p>
-              <button
-                type="button"
-                onClick={() => showMessage('Tính năng Kế hoạch ôn thi đang được phát triển.')}
+          <section>
+            <SectionHeader
+              title="Khóa học của tôi"
+              actions={
+                <>
+                  <CarouselControls
+                    label="Điều hướng khóa học"
+                    canPrevious={courseStartIndex > 0}
+                    canNext={courseStartIndex < maxCourseStartIndex}
+                    onPrevious={() => setCourseStartIndex((current) => Math.max(0, current - 1))}
+                    onNext={() =>
+                      setCourseStartIndex((current) => Math.min(maxCourseStartIndex, current + 1))
+                    }
+                  />
+                  <Button appearance="ghost" className={linkButtonClass} onClick={onOpenMyCourses}>
+                    Xem tất cả
+                  </Button>
+                </>
+              }
+            />
+            {vm.courses.length === 0 ? (
+              <p className="py-6 text-sm text-text-secondary">Bạn chưa đăng ký khóa học nào.</p>
+            ) : (
+              <div
+                className="mt-4 grid gap-[18px] overflow-hidden"
+                style={{ gridTemplateColumns: `repeat(${courseVisibleCount}, minmax(0, 1fr))` }}
               >
-                Khởi tạo <ArrowRight size={17} />
-              </button>
-            </div>
-          </section>
-
-          <section className="hl-dashboard-section">
-            <div className="hl-dashboard-section-row">
-              <h3>Khóa học của tôi</h3>
-              <div className="hl-dashboard-section-actions">
-                <CarouselControls
-                  label="Điều hướng khóa học"
-                  canPrevious={courseStartIndex > 0}
-                  canNext={courseStartIndex < maxCourseStartIndex}
-                  onPrevious={() => setCourseStartIndex((current) => Math.max(0, current - 1))}
-                  onNext={() =>
-                    setCourseStartIndex((current) => Math.min(maxCourseStartIndex, current + 1))
-                  }
-                />
-                <button type="button" onClick={showComingSoon}>
-                  Xem tất cả
-                </button>
+                {visibleCourses.map((course) => (
+                  <CourseMiniCard
+                    key={course.id}
+                    title={course.title}
+                    category={course.category}
+                    progress={course.progress}
+                    score={course.score}
+                    onOpen={() => onOpenCourse(course.id)}
+                  />
+                ))}
               </div>
-            </div>
-            <div
-              className="hl-dashboard-course-list"
-              style={{ '--hl-dashboard-visible-cards': courseVisibleCount } as CSSProperties}
-            >
-              {visibleCourses.map((course) => (
-                <button
-                  key={course.id}
-                  type="button"
-                  className="hl-dashboard-mini-course"
-                  onClick={showComingSoon}
-                >
-                  <div className="hl-dashboard-course-cover">
-                    <span>{course.category}</span>
-                    <strong>{course.title}</strong>
-                    <BookOpen size={26} />
-                  </div>
-                  <div className="hl-dashboard-mini-course-body">
-                    <h4>{course.title}</h4>
-                    <div>
-                      <span>{course.progress}</span>
-                      <strong>
-                        <Trophy size={17} /> {course.score}
-                      </strong>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+            )}
           </section>
         </div>
 
-        <aside className="hl-dashboard-right">
-          <section className="hl-dashboard-profile-card">
-            <div className="hl-dashboard-section-row">
-              <h3>Hồ sơ năng lực</h3>
-              <button type="button" onClick={openLearningProfile}>
-                Xem tất cả
-              </button>
-            </div>
-            <div className="hl-dashboard-profile-box">
-              <div className="hl-dashboard-competency-section">
-                <h4>Điểm năng lực {learningProfile.program} của bạn</h4>
-                <div className="hl-dashboard-competency-list">
-                  {learningProfile.dimensions.map((dimension) => (
-                    <LevelLine key={dimension.title} title={dimension.title} data={dimension} />
-                  ))}
-                </div>
-              </div>
-              <div className="hl-dashboard-summary-list">
-                <strong>Tổng quan ôn luyện</strong>
-                <p>
-                  <Clock3 size={16} /> Tổng thời lượng <b>{dashboardSummary.studyTime}</b>
-                </p>
-                <p>
-                  <BookOpen size={16} /> Bài học đã hoàn thành{' '}
-                  <b>{dashboardSummary.completedLessons}</b>
-                </p>
-                <p>
-                  <ClipboardCheck size={16} /> Đề đã làm <b>{dashboardSummary.completedTests}</b>
-                </p>
-                <p>
-                  <Trophy size={16} /> Điểm cao nhất <b>{dashboardSummary.bestScore}</b>
-                </p>
-                <p>
-                  <Flame size={16} /> Chuỗi học tập <b>{dashboardSummary.currentStreak} ngày</b>
-                </p>
-              </div>
-            </div>
+        <aside className="flex h-full min-w-0 flex-col gap-6">
+          <section className="flex h-full flex-col gap-3.5">
+            <SectionHeader
+              title="Hồ sơ năng lực"
+              titleClassName="text-base leading-normal"
+              actions={
+                <Button
+                  appearance="ghost"
+                  className={linkButtonClass}
+                  onClick={onOpenLearningProfile}
+                >
+                  Xem tất cả
+                </Button>
+              }
+            />
+            <CompetencyPanel dimensions={vm.dimensions} summary={summary} />
           </section>
         </aside>
       </div>
 
-      <section className="hl-dashboard-section hl-dashboard-practice-section">
-        <div className="hl-dashboard-section-row">
-          <h3>Luyện đề</h3>
-          <div className="hl-dashboard-section-actions">
-            <CarouselControls
-              label="Điều hướng luyện đề"
-              canPrevious={practiceStartIndex > 0}
-              canNext={practiceStartIndex < maxPracticeStartIndex}
-              onPrevious={() => setPracticeStartIndex((current) => Math.max(0, current - 1))}
-              onNext={() =>
-                setPracticeStartIndex((current) => Math.min(maxPracticeStartIndex, current + 1))
-              }
-            />
-            <button type="button" onClick={showComingSoon}>
-              Xem tất cả
-            </button>
-          </div>
-        </div>
+      <section className="relative z-1 mt-7">
+        <SectionHeader
+          title="Luyện đề"
+          actions={
+            <>
+              <CarouselControls
+                label="Điều hướng luyện đề"
+                canPrevious={practiceStartIndex > 0}
+                canNext={practiceStartIndex < maxPracticeStartIndex}
+                onPrevious={() => setPracticeStartIndex((current) => Math.max(0, current - 1))}
+                onNext={() =>
+                  setPracticeStartIndex((current) => Math.min(maxPracticeStartIndex, current + 1))
+                }
+              />
+              <Button appearance="ghost" className={linkButtonClass} onClick={showComingSoon}>
+                Xem tất cả
+              </Button>
+            </>
+          }
+        />
         <div
-          className="hl-dashboard-test-list"
-          style={{ '--hl-dashboard-visible-cards': practiceVisibleCount } as CSSProperties}
+          className="mt-4 grid gap-[18px] overflow-hidden"
+          style={{ gridTemplateColumns: `repeat(${practiceVisibleCount}, minmax(0, 1fr))` }}
         >
           {visiblePracticeItems.map((item) => (
-            <button
+            <PracticeTestCard
               key={item.id}
-              type="button"
-              className="hl-dashboard-test-card"
-              onClick={() => showMessage(`${item.title}: tính năng luyện đề đang được phát triển.`)}
-            >
-              <div className={`hl-dashboard-test-cover is-${item.tone}`}>
-                <small>Đánh giá năng lực</small>
-                <strong>{item.title}</strong>
-              </div>
-              <h4>{item.title}</h4>
-              <p>
-                {item.questions} · {item.duration}
-              </p>
-              <div className="hl-dashboard-test-meta">
-                <span>{item.badge}</span>
-                <small>{item.score}</small>
-              </div>
-              <small className="hl-dashboard-test-status">{item.status}</small>
-            </button>
+              title={item.title}
+              tone={item.tone}
+              questions={item.questions}
+              duration={item.duration}
+              badge={item.badge}
+              score={item.score}
+              status={item.status}
+              onOpen={() => showMessage(`${item.title}: tính năng luyện đề đang được phát triển.`)}
+            />
           ))}
         </div>
       </section>
-    </section>
+    </>
   )
 }
 

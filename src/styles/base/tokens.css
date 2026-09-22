@@ -94,6 +94,7 @@
   --color-line-brand: #bfd4ff;
   --color-line-blue: #dce7f7;
   --color-line-shell: #e2e9f9;
+  --color-primary-bright: #2455ea;
   --color-streak: #ff8a00;
   --color-streak-soft: #fff8ec;
 
@@ -107,6 +108,16 @@
   --color-nav-bg: rgba(255, 255, 255, 0.6);
   --color-nav-bg-scrolled: rgba(255, 255, 255, 0.92);
 
+  --animate-float-y: hl-float-y 2.8s ease-in-out infinite;
+  @keyframes hl-float-y {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-7px) scale(1.04);
+    }
+  }
   --animate-shimmer: hl-shimmer 1.4s ease-in-out infinite;
   @keyframes hl-shimmer {
     0% {

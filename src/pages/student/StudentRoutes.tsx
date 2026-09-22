@@ -43,10 +43,17 @@ function StudentRoutes({
         return (
           <StudentDashboard
             onOpenLearningProfile={() => navigate(studentRoutes.learningProfile())}
+            onOpenMyCourses={() => navigate(studentRoutes.courses())}
+            onOpenCourse={(courseId) => navigate(studentRoutes.courseStudy(courseId))}
+            onContinueLearning={(courseId, lessonId) =>
+              navigate(
+                lessonId ? studentRoutes.lesson(courseId, lessonId) : studentRoutes.courseStudy(courseId)
+              )
+            }
           />
         )
       case 'learning-profile':
-        return <LearningProfile />
+        return <LearningProfile onEditProfile={() => navigate(studentRoutes.profile())} />
       case 'profile':
         return <AccountProfile />
       case 'courses':
